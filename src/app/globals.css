@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  /* 🌿 Colores principales */
+  --color-primary: #3A7D44;        /* Verde principal */
+  --color-primary-light: #5FAE6E;  /* Verde claro */
+  --color-primary-dark: #2C5E34;   /* Verde oscuro */
+
+  /* 🌱 Secundarios */
+  --color-secondary: #A3B18A;      /* Verde suave */
+  --color-accent: #DDB892;         /* Beige cálido natural */
+
+--color-bg-image: #50371e;     
+
+  /* 🤍 Neutrales */
+  --color-background: #F8F7F4;     /* Fondo general */
+  --color-surface: #FFFFFF;        /* Cards */
+  --color-border: #E5E5E5;         /* Bordes suaves */
+
+  /* 🖤 Texto */
+  --color-text-primary: #1F2933;   /* Texto principal */
+  --color-text-secondary: #6B7280; /* Texto secundario */
+  --color-text-muted: #9CA3AF;     /* Placeholder */
+
+  /* 🚦 Estados */
+  --color-success: #4CAF50;
+  --color-error: #E53935;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+
+  /* 🌿 Extras marca */
+  --color-organic: #7FB069;
+  --color-natural-bg: #EEF5EC;
+
+  /* 📱 UI */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Playfair Display', serif;
+}
+
+@theme inline {
+  /* 🎨 Colores */
+  --color-bg: var(--color-background);
+  --color-fg: var(--color-text-primary);
+
+  --color-primary: var(--color-primary);
+  --primary-light: var(--color-primary-light);
+  --primary-dark: var(--color-primary-dark);
+
+  --color-text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+
+  --color-accent: var(--color-accent);
+  --color-card: var(--color-surface);
+  --color-border: var(--color-border);
+
+  /* 🔤 Tipografía */
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+
+  /* 🔘 Radios */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  /* 🌫 Sombras */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+}
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1f2a23;     
+    --foreground: #f4f1ea;
+
+    --primary: #a7c4a0;        
+    --primary-soft: #4e6b57;   
+    --accent: #d9b97a;        
+    --card: #2b3a31;
+    --border: #3f5448;
+  }
+}
+
+*/
+
+body {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
