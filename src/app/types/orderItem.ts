@@ -7,5 +7,6 @@ export type OrderItemType = {
   productId: number;
   quantity: number;
   order: OrderType;
+  price: Number;
   product: ProductType;
 };

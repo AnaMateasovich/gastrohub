@@ -7,6 +7,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useCart } from "@/src/contexts/CartContext";
+import { createOrder } from "@/src/lib/orders";
 
 const guessSchema = z.object({
   email: z.string().min(1, "El email es obligatorio").email("Email invalido"),
@@ -32,7 +33,7 @@ const GuessForm = () => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [onSubmiting, setOnSubmiting] = useState<boolean>(false);
 
-  const { cart, clearCart, wantsDelivery, deliveryFee } = useCart();
+  const { cart, clearCart, wantsDelivery } = useCart();
   const {
     handleSubmit,
     register,
@@ -55,40 +56,30 @@ const GuessForm = () => {
 
       const fullPhone = `${cleanArea}${cleanPhone}`;
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customerName: data.name,
-          email: data.email,
-          phone: fullPhone,
-          address: data.address,
-          items: cart.map((item) => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-          })),
-          deliveryFee: wantsDelivery ? deliveryFee : 0,
-        }),
-      });
+      
+    await createOrder({
+      customerName: data.name,
+      phone: fullPhone,
+      email: data.email,
+      address: data.address,
+      userId: null,
+      wantsDelivery: wantsDelivery,
+      orderItems: cart.map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      })),
+    })
 
-      if (!res.ok) {
-        setOnSubmiting(false);
-        throw new Error("Error al enviar el formulario");
-      }
-
-      reset();
-      setTimeout(() => {
-        () => setSuccessMessage("")
-      }, 4000);
-      clearCart();
-      setOnSubmiting(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+    reset()
+    clearCart()
+    setSuccessMessage("✅ Tu pedido fue recibido. Nos pondremos en contacto contigo en breve.")
+    setTimeout(() => setSuccessMessage(""), 4000)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    setOnSubmiting(false)
+  }
+}
   console.log(errors);
 
   return (

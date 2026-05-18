@@ -1,23 +1,29 @@
 "use client";
 import ProductCard from "@/src/app/(main)/components/ProductCard";
-import { useProducts } from "@/src/contexts/ProductContext";
-import { useEffect } from "react";
+import { ProductType } from "@/src/app/types/product.type";
+import { useEffect, useState } from "react";
 
-const ProductListAdmin = () => {
-  const { products, setProducts, fetchProducts } = useProducts();
+
+type Props = {
+  products: ProductType[]
+}
+const ProductListAdmin = ({products} : Props) => {
+
+  const [productsList, setProductsList] = useState<ProductType[]>([])
 
   const handleDeleteProduct = async (id: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id))
+    setProductsList((prev) => prev.filter((p) => p.id !== id))
   }
 
   useEffect(() => {
-  fetchProducts();
-}, []);
+    setProductsList(products)
+  }, [products])
+  
   return (
     <section>
-      {products.map((product) => (
+      {products.map((product, index) => (
         <div key={product.id}>
-          <ProductCard product={product} mode="admin" onDeleteAdmin={handleDeleteProduct}/>
+          <ProductCard product={product} mode="admin" onDeleteAdmin={handleDeleteProduct} priority={index < 3} routerPush="/admin/productos"/>
         </div>
       ))}
     </section>

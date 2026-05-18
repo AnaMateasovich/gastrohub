@@ -3,5 +3,5 @@ export type OrderStatus =
   | "PREPARING"
   | "READY"
   | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "PICKEDUP"

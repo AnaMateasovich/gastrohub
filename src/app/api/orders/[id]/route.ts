@@ -60,7 +60,7 @@ export async function PATCH(
       "PREPARING",
       "READY",
       "SHIPPED",
-      "DELIVERED",
+      "PICKEDUP",
       "CANCELLED"
     ];
     if (!validStatuses.includes(status)) {

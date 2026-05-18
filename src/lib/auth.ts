@@ -10,3 +10,12 @@ export const requireAdmin = async () => {
   
   return null;
 };
+
+
+export const requireAuth = async () => {
+  const user = await getUser()
+  if (!user) {
+    throw new Error('No autorizado')
+  }
+  return user
+}

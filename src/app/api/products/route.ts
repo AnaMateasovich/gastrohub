@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { z } from "zod";
 import fs from "fs/promises";
+import { updateTag } from "next/cache";
 
 const ProductSchema = z.object({
   name: z.string().min(1),
@@ -54,6 +55,8 @@ export async function POST(req: Request) {
     const product = await prisma.product.create({
       data: { name, price, stock: isNaN(stock) ? 0 : stock, src },
     });
+
+    updateTag("products");
 
     return NextResponse.json(product);
   } catch (error) {

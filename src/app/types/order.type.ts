@@ -10,12 +10,25 @@ export type OrderType = {
   createdAt: Date;
   email: string;
   address: string;
-  userId: string | null;
+  userId: number | null;
   subtotal: number | null;
-  total: number | null;
+  total: number;
   deliveryFee: number | null;
   discount: number | null;
   note: string | null;
   user?: UserType;
   orderItems: OrderItemType[];
 };
+
+export type CreateOrderInput = {
+  customerName: string
+  phone: string
+  email: string
+  address: string
+  userId: number | null
+  wantsDelivery: boolean
+  orderItems: {
+    productId: number
+    quantity: number
+  }[]
+}

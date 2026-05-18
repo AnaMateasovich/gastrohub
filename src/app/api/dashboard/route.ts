@@ -11,12 +11,16 @@ export async function GET(req: NextRequest) {
   lastWeek.setDate(today.getDate() - 7);
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-  const from = searchParams.get("from") ?? formatDate(lastWeek);
-  const to = searchParams.get("to") ?? formatDate(today);
+  const fromDate = searchParams.get("from") ?? formatDate(lastWeek);
+  const toDate = searchParams.get("to") ?? formatDate(today);
 
+  const startDate = new Date(fromDate);
+
+  const endDate = new Date(toDate);
+  endDate.setDate(endDate.getDate() + 1);
   const orders = await prisma.orders.findMany({
     where: {
-      createdAt: { gte: new Date(from), lte: new Date(to) },
+      createdAt: { gte: startDate, lte: endDate },
       status: { not: "CANCELLED" },
     },
     include: { orderItems: { include: { product: true } } },
@@ -24,22 +28,22 @@ export async function GET(req: NextRequest) {
 
   const totalRevenue = orders.reduce(
     (acc: number, order: OrderType) => acc + Number(order.total),
-    0
+    0,
   );
   const totalOrders = orders.length;
   const averageTicket =
     totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
   const totalCustomers = new Set(orders.map((o: OrderType) => o.email)).size;
   const deliveries = orders.filter(
-    (o: OrderType) => Number(o.deliveryFee) > 0
+    (o: OrderType) => Number(o.deliveryFee) > 0,
   ).length;
   const pickups = orders.filter(
-    (o: OrderType) => Number(o.deliveryFee) === 0
+    (o: OrderType) => Number(o.deliveryFee) === 0,
   ).length;
 
   const cancelled = await prisma.orders.count({
     where: {
-      createdAt: { gte: new Date(from), lte: new Date(to) },
+      createdAt: { gte: new Date(fromDate), lte: new Date(toDate) },
       status: "CANCELLED",
     },
   });

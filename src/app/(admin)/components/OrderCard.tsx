@@ -1,4 +1,3 @@
-import React from "react";
 import { OrderType } from "../../types/order.type";
 import StatusOrder from "./StatusOrder";
 import { ChevronRight, Dot } from "lucide-react";
@@ -13,7 +12,6 @@ const OrderCard = ({ order }: OrderCardProps) => {
     (acc, item) => acc + item.product.price * item.quantity,
     0,
   );
-
 
   return (
     <div className="bg-white flex items-center justify-between px-4 py-2 shadow-md rounded-xl">
@@ -31,7 +29,7 @@ const OrderCard = ({ order }: OrderCardProps) => {
       </div>
       <div className="flex items-center gap-2">
         <StatusOrder status={order.status} />
-        <ChevronRight className="text-gray-600"/>
+        <ChevronRight className="text-gray-600" />
       </div>
     </div>
   );

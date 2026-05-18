@@ -43,7 +43,7 @@ const Order = ({ order }: OrderProps) => {
   const statusLabels: Record<string, string> = {
     PREPARING: "En preparación",
     READY: "Listo",
-    DELIVERED: "Entregado",
+    PICKEDUP: "Retirado",
     CANCELLED: "Cancelado",
     SHIPPED: "Enviado",
   };
@@ -57,10 +57,11 @@ const Order = ({ order }: OrderProps) => {
   const getNextStatus = (): OrderStatus | null => {
     if (currentStatus === "PENDING") return "PREPARING";
     if (currentStatus === "PREPARING") return "READY";
-    if (currentStatus === "READY" && !order.deliveryFee) return "DELIVERED";
-    if (currentStatus === "READY" && order.deliveryFee) return "SHIPPED";
+    if (currentStatus === "READY") return deliveryFee > 0 ? "SHIPPED" : "PICKEDUP";
     return null;
   };
+
+  console.log(deliveryFee)
 
   const messageConfirm = confirmOrderMessage(order.user?.name);
   const whatsappConfirmLink = getWhatsappLink(

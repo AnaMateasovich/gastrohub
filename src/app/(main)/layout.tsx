@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import Nav from "./components/Nav";
 import CartProvider from "../../contexts/CartContext";
 import { UserProvider } from "../../contexts/UserContext";
-import ProductProvider from "@/src/contexts/ProductContext";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,15 +29,19 @@ export default function MainLayout({
 }>) {
   return (
     <main className="min-h-full flex flex-col">
-      <ProductProvider>
-        <UserProvider>
-          <CartProvider>
-            <Header />
-            <div className="flex-1 overflow-y-auto pb-16">{children}</div>
+      <UserProvider>
+        <CartProvider>
+          <Suspense fallback={null}>
+            <UserProvider>
+              <Header />
+            </UserProvider>
+          </Suspense>
+          <div className="flex-1 overflow-y-auto pb-16">{children}</div>
+          <Suspense>
             <Nav />
-          </CartProvider>
-        </UserProvider>
-      </ProductProvider>
+          </Suspense>
+        </CartProvider>
+      </UserProvider>
     </main>
   );
 }

@@ -11,10 +11,13 @@ type ProductCardMode = "default" | "cart" | "admin";
 type ProductCardProps = {
   mode?: ProductCardMode;
   product: ProductType;
+  routerPush?: string;
 
-  onAdd?: (product: ProductType) => void;
+  onAdd?: (product: ProductType, quantity: number) => void;
   onRemove?: (id: number) => void;
   onDelete?: (id: number) => void;
+
+  priority?: boolean;
 
   onDeleteAdmin?: (id: number) => void;
 
@@ -27,6 +30,8 @@ const ProductCard = ({
   onAdd,
   onDelete,
   onRemove,
+  priority,
+  routerPush,
 
   onDeleteAdmin,
   quantity = 0,
@@ -37,7 +42,7 @@ const ProductCard = ({
   const router = useRouter();
 
   const handleAdd = () => {
-    onAdd?.(product);
+    onAdd?.(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1000);
   };
@@ -49,23 +54,27 @@ const ProductCard = ({
   };
 
   return (
-    <div className="relative w-full flex justify-between bg-[var(--color-card)] py-3 px-2 rounded-xl items-center shadow-[var(--shadow-md)]">
+    <div
+      className="relative w-full flex justify-between bg-[var(--color-card)] py-3 px-2 rounded-xl items-center shadow-[var(--shadow-md)]"
+      onClick={() => routerPush && router.push(`${routerPush}/${product.slug}`)}
+    >
       <div className=" w-full flex items-center">
         <div className="w-[80px] self-stretch relative rounded-lg overflow-hidden flex-shrink-0">
           <Image
-            src={product.src}
+            src={product.images[0].url}
             alt={product.name}
             fill
             sizes="200px"
             className="object-cover"
+            priority={priority}
           />
         </div>
         <div className="px-2 flex flex-col gap-2 ml-2">
           <div>
             <h3 className="font-bold text-xl">{product.name}</h3>
-            <p className="text-xl">${product.price}</p>
+            <p>{product.description}</p>
+            <p className="text-xl font-bold">${product.price}</p>
           </div>
-          <p className="">Stock: {product.stock}</p>
         </div>
       </div>
       <div className="mr-2">
@@ -74,7 +83,10 @@ const ProductCard = ({
             <div className="absolute top-3 right-3">
               <button
                 className="rounded-lg text-3xl p-2 font-bold text-[var(--color-primary)]"
-                onClick={() => onDelete?.(product.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.(product.id);
+                }}
               >
                 <Trash />
               </button>
@@ -83,14 +95,20 @@ const ProductCard = ({
               <div className="bottom-2 flex items-center gap-1">
                 <button
                   className="rounded-lg text-3xl p-2 font-bold text-[var(--color-primary)]"
-                  onClick={() => onRemove?.(product.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove?.(product.id);
+                  }}
                 >
                   <Minus />
                 </button>
                 <p className="text-xl font-semibold">{quantity}</p>
                 <button
                   className="rounded-lg text-3xl p-2 font-bold text-[var(--color-primary)]"
-                  onClick={() => onAdd?.(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAdd?.(product, 1);
+                  }}
                 >
                   <Plus />
                 </button>
@@ -101,7 +119,10 @@ const ProductCard = ({
         {mode === "default" && (
           <button
             className="text-3xl p-2 font-bold text-[var(--color-primary)] relative w-10 h-10"
-            onClick={handleAdd}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAdd();
+            }}
           >
             <span
               className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out
@@ -122,7 +143,10 @@ const ProductCard = ({
           <div className="relative">
             <button
               className="text-3xl p-2 font-bold text-[var(--color-primary)]"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
             >
               <EllipsisVertical />
             </button>
@@ -131,15 +155,17 @@ const ProductCard = ({
               <div className="absolute right-0 top-8 bg-white rounded-xl shadow-md z-10 flex flex-col min-w-[130px] border border-[var(--color-border)] z-99999">
                 <button
                   className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                  onClick={() =>
-                    router.push(`/admin/productos/${product.id}/editar`)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/admin/productos/${product.slug}/editar`);
+                  }}
                 >
                   Editar
                 </button>
                 <button
                   className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setMenuOpen(false);
                   }}
                 >
@@ -147,7 +173,10 @@ const ProductCard = ({
                 </button>
                 <button
                   className="px-4 py-2 text-left hover:bg-gray-50 text-sm text-red-500"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(product.id);
+                  }}
                 >
                   Eliminar
                 </button>

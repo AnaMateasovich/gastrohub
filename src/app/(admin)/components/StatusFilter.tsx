@@ -13,7 +13,7 @@ const StatusFilter = ({ onFilter }: { onFilter: (status: FilterStatus) => void }
     { id: "PREPARING", label: "En preparación" },
     { id: "READY", label: "Listos" },
     { id: "SHIPPED", label: "Enviados" },
-    { id: "DELIVERED", label: "Entregados" },
+    { id: "PICKEDUP", label: "Retirados" },
     { id: "CANCELLED", label: "Cancelados" },
   ];
 

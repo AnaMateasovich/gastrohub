@@ -39,7 +39,6 @@ const DashboardPage = () => {
 
     fetchData();
   }, [from, to]);
-
   return (
     <div className="px-2">
       <h1 className="text-xl font-bold">Dashboard</h1>

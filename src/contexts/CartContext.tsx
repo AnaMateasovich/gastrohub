@@ -6,7 +6,7 @@ import { ProductType } from "../app/types/product.type";
 
 type CartContextType = {
   cart: CartItem[];
-  addProduct: (product: ProductType) => void;
+  addProduct: (product: ProductType, quantity: number) => void;
   removeProduct: (id: number) => void;
   deleteProduct: (id: number) => void;
   getCartTotal: () => number;
@@ -51,19 +51,19 @@ const [wantsDelivery, setWantsDelivery] = useState(false);
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const addProduct = (product: ProductType) => {
+  const addProduct = (product: ProductType, quantity: number = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
 
       if (existing) {
         return prev.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
       }
 
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity}];
     });
   };
 

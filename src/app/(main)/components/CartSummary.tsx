@@ -4,8 +4,8 @@ import Button from "./Button";
 import { useCart } from "../../../contexts/CartContext";
 import { CartItem } from "../../types/cart.type";
 import { useUser } from "../../../contexts/UserContext";
-import GuessForm from "./GuessForm";
 import { useRouter } from "next/navigation";
+import { createOrder } from "@/src/lib/orders";
 
 const CartSummary = () => {
   const [message, setMessage] = useState<string>("");
@@ -15,7 +15,6 @@ const CartSummary = () => {
     getCartTotal,
     getCartProductsQuantity,
     wantsDelivery,
-    deliveryFee,
   } = useCart();
   const { user } = useUser();
   const router = useRouter();
@@ -27,31 +26,20 @@ const CartSummary = () => {
           productId: item.product.id,
           quantity: item.quantity,
         }));
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          body: JSON.stringify({
-            customerName: user.name,
-            phone: user.phone,
-            email: user.email,
-            address: user.address,
-            userId: user.id,
-            items,
-            deliveryFee: wantsDelivery ? deliveryFee : 0,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
+        await createOrder({
+          customerName: user.name,
+          phone: user.phone,
+          email: user.email,
+          address: user.address,
+          userId: user.id,
+          orderItems: items,
+          wantsDelivery,
         });
-        if (!res.ok) {
-          return new Error("Se produjo un error al hacer la compra");
-        }
-        if (res.ok) {
-          clearCart();
-          setMessage(
-            "✅ Tu pedido fue recibido. Nos pondremos en contacto contigo en breve.",
-          );
-          setTimeout(() => setMessage(""), 4000);
-        }
+        clearCart();
+        setMessage(
+          "✅ Tu pedido fue recibido. Nos pondremos en contacto contigo en breve.",
+        );
+        setTimeout(() => setMessage(""), 4000);
       } catch (error) {
         console.error(error);
       }

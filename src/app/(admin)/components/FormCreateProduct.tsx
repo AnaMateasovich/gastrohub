@@ -9,11 +9,21 @@ import FormCreateRecipe from "./FormCreateRecipe";
 import BackButton from "../../(main)/components/BackButton";
 import { ProductType } from "../../types/product.type";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Trash, X } from "lucide-react";
+import { deleteProductImageById } from "@/src/lib/products";
 
 const productSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
+  slug: z
+    .string()
+    .min(1, "El slug es obligatorio")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "El slug solo puede contener minúsculas, números y guiones",
+    ),
+  description: z.string().trim().optional().or(z.literal("")),
   price: z.number().min(0, "El precio no puede ser negativo"),
-  src: z.string().optional(),
   isActive: z.boolean(),
   stock: z
     .number()
@@ -36,7 +46,10 @@ const FormCreateProduct = ({
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [createdProductId, setCreatedProductId] = useState<number | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagesFile, setImagesFile] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState(
+    productToEdit?.images ?? [],
+  );
 
   const router = useRouter();
 
@@ -45,15 +58,16 @@ const FormCreateProduct = ({
     register,
     reset,
     formState: { errors },
-  } = useForm<ProductFormType>({
+  } = useForm<ProductFormType, unknown, ProductFormType>({
     resolver: zodResolver(productSchema),
     mode: "onChange",
     defaultValues: productToEdit
       ? {
           name: productToEdit.name,
           price: productToEdit.price,
-          stock: productToEdit.stock,
+          // stock: productToEdit.stock,
           isActive: productToEdit.isActive,
+          description: productToEdit.description,
         }
       : {
           isActive: true,
@@ -65,10 +79,11 @@ const FormCreateProduct = ({
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("price", String(data.price));
-      formData.append("stock", String(data.stock));
+      // formData.append("stock", String(data.stock));
       formData.append("isActive", String(data.isActive));
-      if (imageFile) formData.append("image", imageFile);
-
+      imagesFile.forEach((file) => {
+        formData.append("images", file);
+      });
       const res = await fetch(
         productToEdit ? `/api/products/${productToEdit.id}` : "/api/products",
         {
@@ -103,6 +118,12 @@ const FormCreateProduct = ({
     }
   };
 
+  const handleDeleteProductImage = async (imageId: number, slug: string) => {
+    await deleteProductImageById(imageId, slug)
+    setExistingImages((prev) => prev.filter((img) => img.id !== imageId))
+  }
+  console.log(productToEdit);
+
   return (
     <>
       {!createdProductId ? (
@@ -126,6 +147,13 @@ const FormCreateProduct = ({
             />
             <Input
               type="text"
+              name="description"
+              placeholder="Descripción"
+              register={register}
+              error={errors.name?.message}
+            />
+            <Input
+              type="text"
               placeholder="Precio"
               name="price"
               registerOptions={{ valueAsNumber: true }}
@@ -134,10 +162,34 @@ const FormCreateProduct = ({
             />
             <input
               type="file"
+              multiple
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              onChange={(e) => setImagesFile(Array.from(e.target.files || []))}
               className="w-full bg-white border rounded-sm px-2 py-2 outline-none border-[var(--color-primary)]/60"
             />
+
+            {productToEdit && existingImages && (
+              <div className="flex gap-2 flex-wrap">
+                {existingImages.map((image) => (
+                  <div key={image.id} className="relative">
+                    <button
+                      type="button"
+                      className="absolute bg-red-600 text-white rounded top-2 right-2"
+                      onClick={() => handleDeleteProductImage(image.id, productToEdit.slug)}
+                    >
+                      <X size={20} />
+                    </button>
+                    <Image
+                      src={image.url}
+                      alt={productToEdit.name}
+                      width={120}
+                      height={120}
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -149,14 +201,14 @@ const FormCreateProduct = ({
                 Producto activo
               </label>
             </div>
-            <Input
+            {/*          <Input
               type="text"
               name="stock"
               placeholder="Stock"
               registerOptions={{ valueAsNumber: true }}
               register={register}
               error={errors.stock?.message}
-            />
+            /> */}
             <Button type="submit" text={productToEdit ? "Listo" : "Crear"} />
             {errorMessage && (
               <p className="text-red-500 font-medium text-center px-4">

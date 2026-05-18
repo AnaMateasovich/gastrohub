@@ -1,8 +1,5 @@
-import React from "react";
-import { OrderStatus } from "../../types/orderStatus.type";
-
 type StatusOrderProps = {
-  status: "PENDING" | "PREPARING" | "READY" | "DELIVERED" | "SHIPPED" | "CANCELLED" ;
+  status: "PENDING" | "PREPARING" | "READY" | "SHIPPED" | "CANCELLED" | "PICKEDUP" ;
 };
 
 const StatusOrder = ({ status }: StatusOrderProps) => {
@@ -10,7 +7,7 @@ const StatusOrder = ({ status }: StatusOrderProps) => {
     PENDING: "Pendiente",
     PREPARING: "En preparación",
     READY: "Listo",
-    DELIVERED: "Entregado",
+    PICKEDUP: "Retirado",
     SHIPPED: "Enviado",
     CANCELLED: "Cancelado"
   }
@@ -18,7 +15,7 @@ const StatusOrder = ({ status }: StatusOrderProps) => {
   PENDING: "bg-yellow-300/70 text-yellow-800",
   PREPARING: "bg-blue-300/70 text-blue-800",
   READY: "bg-green-300/70 text-green-800",
-  DELIVERED: "bg-gray-300/70 text-gray-800",
+  PICKEDUP: "bg-gray-300/70 text-gray-800",
   SHIPPED: "bg-purple-300/70 text-purple-800",
   CANCELLED: "bg-red-300/70 text-red-800"
 };
