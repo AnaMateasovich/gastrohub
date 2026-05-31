@@ -5,28 +5,25 @@ import Input from "./Input";
 import Button from "./Button";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/src/contexts/UserContext";
+import { login } from "@/src/lib/actions/login.action";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/src/lib/validations/login.schema";
 
 const LoginComponent = () => {
-  const { register, handleSubmit } = useForm<LoginType>();
+  
+const { register, handleSubmit, formState: { errors } } = useForm<LoginType>({
+  resolver: zodResolver(loginSchema),
+  mode: "onChange",
+});
   const router = useRouter();
+
   const { setUser } = useUser();
+  
 
   const onSubmit = async (data: LoginType) => {
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Credenciales inválidas");
-
-      const userRes = await fetch("/api/user", { credentials: "include" });
-      const user = await userRes.json();
-      setUser(user);
-
-      router.push("/home");
-    } catch (error) {
-      console.error("Usuario o contraseña incorrectos");
-    }
+    const user = await login(data);
+    setUser(user);
+    router.push(`/home`);
   };
 
   return (
@@ -36,12 +33,14 @@ const LoginComponent = () => {
         name="email"
         register={register}
         placeholder="Email"
+        error={errors.email?.message}
       />
       <Input
         type="password"
         name="password"
         register={register}
         placeholder="Password"
+        error={errors.password?.message}
       />
       <div className="mt-4">
         <Button

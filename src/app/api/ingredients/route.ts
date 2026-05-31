@@ -1,5 +1,5 @@
 import { prisma } from "@/src/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Ingredient, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import z from "zod";
 
@@ -60,7 +60,12 @@ export async function GET(req: Request) {
       orderBy: { name: "asc" },
     });
 
-    return NextResponse.json(ingredients);
+    const parsed = ingredients.map((ing: Ingredient) => ({
+      ...ing,
+      price: Number(ing.price)
+    }))
+
+    return NextResponse.json(parsed);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

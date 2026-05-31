@@ -25,24 +25,14 @@ export const fetchOrders = async (status: string) => {
   return res.json();
 };
 
-export const fetchOrderById = async (id: string) => {
-  const res = await fetch(`${BASE_URL}/api/orders/${id}`);
-
-  if (!res.ok) {
-    throw new Error("Error fetching order");
-  }
-
-  return res.json();
-};
-
-export const updateStatusOrder = async (orderId: number, newStatus: string) => {
-  const res = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: newStatus }),
-  });
-  if (!res.ok) throw new Error("Error actualizando status");
-  return res.json();
-};
+// export const updateStatusOrder = async (orderId: number, newStatus: string) => {
+//   const res = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
+//     method: "PATCH",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ status: newStatus }),
+//   });
+//   if (!res.ok) throw new Error("Error actualizando status");
+//   return res.json();
+// };
 
 

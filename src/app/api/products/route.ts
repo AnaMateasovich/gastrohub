@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { z } from "zod";
 import fs from "fs/promises";
-import { updateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 const ProductSchema = z.object({
   name: z.string().min(1),
@@ -22,8 +22,7 @@ const ProductSchema = z.object({
 export async function POST(req: Request) {
   try {
     const user = await getUser();
-    console.log("user", user);
-    console.log(user, user.role);
+
     if (!user || user.role !== "ADMIN") {
       return new Response("No autorizado", { status: 403 });
     }
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const price = Number(formData.get("price"));
-    const isActive = formData.get("isActive") === "true";
+    const isActive = formData.get("isActive");
     const stock = Number(formData.get("stock"));
     const image = formData.get("image") as File | null;
 
@@ -46,9 +45,8 @@ export async function POST(req: Request) {
       src = `/${filename}`;
     }
 
-    const result = ProductSchema.safeParse({ name, price, stock, src });
+    const result = ProductSchema.safeParse({ name, price, isActive, stock, src });
     if (!result.success) {
-      console.log("Zod error:", result.error.format()); // 👈
       return new Response("Datos invalidos", { status: 400 });
     }
 
@@ -56,7 +54,7 @@ export async function POST(req: Request) {
       data: { name, price, stock: isNaN(stock) ? 0 : stock, src },
     });
 
-    updateTag("products");
+    revalidateTag("products", "");
 
     return NextResponse.json(product);
   } catch (error) {

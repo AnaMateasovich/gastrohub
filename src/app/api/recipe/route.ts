@@ -1,5 +1,6 @@
 import { prisma } from "@/src/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { toStorageUnit } from "@/src/lib/units";
+import { Ingredient, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import z, { includes } from "zod";
 
@@ -30,14 +31,28 @@ export async function POST(req: Request) {
     }
 
     const { productId, items } = parsed.data;
+
     await prisma.recipeItem.deleteMany({ where: { productId } });
 
+    const ingredientsIds = items.map((i) => i.ingredientId);
+    const ingredients = await prisma.ingredient.findMany({
+      where: { id: { in: ingredientsIds } },
+      select: { id: true, unit: true },
+    });
+
+    const unitMap = Object.fromEntries(ingredients.map((i: Ingredient) => [i.id, i.unit]));
+
     const recipe = await prisma.recipeItem.createMany({
-      data: items.map((item) => ({
-        productId,
-        ingredientId: item.ingredientId,
-        quantity: new Prisma.Decimal(item.quantity),
-      })),
+      data: items.map((item) => {
+        const unit = unitMap[item.ingredientId];
+        const quantityInStorageUnit = toStorageUnit(item.quantity, unit);
+
+        return {
+          productId,
+          ingredientId: item.ingredientId,
+          quantity: new Prisma.Decimal(quantityInStorageUnit)
+        }
+      }),
     });
 
     return NextResponse.json(recipe);

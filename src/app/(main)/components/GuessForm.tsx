@@ -7,7 +7,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useCart } from "@/src/contexts/CartContext";
-import { createOrder } from "@/src/lib/orders";
+import { createOrder } from "@/src/lib/actions/orders.action";
 
 const guessSchema = z.object({
   email: z.string().min(1, "El email es obligatorio").email("Email invalido"),
@@ -50,7 +50,6 @@ const GuessForm = () => {
   const onSubmit = async (data: GuessType) => {
     try {
       setOnSubmiting(true);
-      console.log("Formulario enviado", data);
       const cleanArea = data.areaCod.replace(/\D/g, "");
       const cleanPhone = data.phone.replace(/\D/g, "");
 
@@ -80,7 +79,6 @@ const GuessForm = () => {
     setOnSubmiting(false)
   }
 }
-  console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">

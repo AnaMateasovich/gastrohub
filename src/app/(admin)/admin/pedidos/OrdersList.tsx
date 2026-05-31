@@ -1,7 +1,7 @@
 "use client";
 import { OrderType } from "@/src/app/types/order.type";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OrderCard from "../../components/OrderCard";
 import StatusFilter from "../../components/StatusFilter";
 
@@ -18,6 +18,9 @@ const OrdersList = ({ orders }: OrderListProps) => {
     );
   };
 
+  useEffect(() => {
+  setFiltered(orders);
+}, [orders]);
   return (
     <section className="flex flex-col gap-3 px-2">
       <h4 className="text-2xl font-semibold">Pedidos</h4>

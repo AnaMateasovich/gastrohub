@@ -1,14 +1,15 @@
 import React from 'react'
 import FormCreateProduct from '../../../components/FormCreateProduct'
-import BackButton from '@/src/app/(main)/components/BackButton'
+import { getRecipesSelect } from '@/src/lib/recipes';
 
-const page = () => {
+const page = async () => {
+  const recipes = await getRecipesSelect();
   return (
-    <div className='px-4'>
-      
-      <FormCreateProduct />
+    <div className="px-4">
+      <FormCreateProduct recipes={recipes} />
     </div>
-  )
-}
+  );
+};
+
 
 export default page

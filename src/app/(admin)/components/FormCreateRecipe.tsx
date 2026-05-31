@@ -1,45 +1,29 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Input from "../../(main)/components/Input";
-import z from "zod";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Ingredient } from "@prisma/client";
 import Button from "../../(main)/components/Button";
-import { useRouter } from "next/navigation";
-
-const recipeItemSchema = z.object({
-  ingredientId: z.number().min(1, "Seleccioná un ingrediente"),
-  quantity: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
-});
-
-const recipeSchema = z.object({
-  items: z.array(recipeItemSchema).min(1, "Agregá al menos un ingrediente"),
-});
+import RecipeItemRow from "./RecipeItemRow";
+import { Ingredient } from "../../types/ingredient.type";
+import {
+  createRecipeSchema,
+  CreateRecipeType,
+} from "@/src/lib/validations/recipe.schema";
+import Input from "../../(main)/components/Input";
+import { YIELD_UNITS } from "@/src/lib/units";
 
 type FormCreateRecipeProps = {
-  productId: number;
-  defaultItems?: { ingredientId: number; quantity: number }[];
+  onRecipeReady: (data: CreateRecipeType) => void;
 };
 
-type RecipeFormType = z.infer<typeof recipeSchema>;
-
-const FormCreateRecipe = ({ productId, defaultItems }: FormCreateRecipeProps) => {
-console.log(defaultItems)
+const FormCreateRecipe = ({ onRecipeReady }: FormCreateRecipeProps) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const isEditing = defaultItems && defaultItems.length > 0;
-const router = useRouter()
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const res = await fetch("/api/ingredients", {
-          method: "GET",
-        });
-        if (!res.ok) {
-          throw new Error("No se pudieron obtener los ingredientes");
-        }
+        const res = await fetch("/api/ingredients", { method: "GET" });
+        if (!res.ok) throw new Error("No se pudieron obtener los ingredientes");
         const data = await res.json();
         setIngredients(data);
       } catch (error) {
@@ -48,84 +32,58 @@ const router = useRouter()
     };
     fetchIngredients();
   }, []);
-  
-  const { control, handleSubmit, register, reset } = useForm<RecipeFormType>({
-    resolver: zodResolver(recipeSchema),
-        defaultValues: { 
-      items: defaultItems ?? [{ ingredientId: 0, quantity: 0 }] 
+
+  const { control, handleSubmit, register, watch } = useForm<CreateRecipeType>({
+    resolver: zodResolver(createRecipeSchema),
+    defaultValues: {
+      name: "",
+      yield: undefined,
+      yieldUnit: "kg",
+      items: [{ ingredientId: 0, quantity: 0 }],
     },
   });
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "items",
-  });
-  
-  const onSubmit = async (data: RecipeFormType) => {
-    try {
-      const res = await fetch("/api/recipe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId,
-          items: data.items,
-        }),
-      });
-      
-      if (!res.ok) {
-        throw new Error("Ocurrio un error al crear la receta");
-      }
-      setSuccessMessage(isEditing ? "Receta editada": "Receta creada");
-      setTimeout(() => {
-        setSuccessMessage("");
-        router.push('/admin/recetas')
-      }, 1000);
-      reset();
-    } catch (error) {
-      console.error(error);
-    }
+
+  const { fields, append, remove } = useFieldArray({ control, name: "items" });
+
+  const onSubmit = (data: CreateRecipeType) => {
+    onRecipeReady(data);
   };
 
-useEffect(() => {
-  if (defaultItems && defaultItems.length > 0 && ingredients.length > 0) {
-    reset({ items: defaultItems });  
-  }
-}, [defaultItems, ingredients]);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+      <Input
+        type="text"
+        name="name"
+        placeholder="Nombre de la receta"
+        register={register}
+      />
+      <Input
+        type="number"
+        name="yield"
+        placeholder="¿Cuánto rinde esta receta? ej: 3"
+        register={register}
+        registerOptions={{ valueAsNumber: true }}
+      />
+      <select
+        {...register("yieldUnit")}
+        className="w-full bg-white border rounded-sm px-2 py-2 outline-none border-[var(--color-primary)]/60"
+      >
+        <option value="">Unidad de rendimiento</option>
+        {YIELD_UNITS.map((unit) => (
+          <option key={unit.value} value={unit.value}>
+            {unit.label}
+          </option>
+        ))}
+      </select>
       {fields.map((field, index) => (
-        <div key={field.id} className="flex gap-2">
-          <select
-            {...register(`items.${index}.ingredientId`, {
-              valueAsNumber: true,
-            })}
-            className="bg-white px-2 rounded-md shadow-md py-1"
-          >
-            <option value={0} className="">
-              Selecciona un ingrediente
-            </option>
-            {ingredients.map((ing) => (
-              <option key={ing.id} value={ing.id}>
-                {ing.name} ({ing.unit})
-              </option>
-            ))}
-          </select>
-          <Input
-            type="number"
-            name={`items.${index}.quantity`}
-            placeholder="Cantidad"
-            register={register}
-            registerOptions={{ valueAsNumber: true }}
-          />
-          <button
-            type="button"
-            onClick={() => remove(index)}
-            className="font-bold text-red-600"
-          >
-            X
-          </button>
-        </div>
+        <RecipeItemRow
+          key={field.id}
+          index={index}
+          ingredients={ingredients}
+          register={register}
+          watch={watch}
+          onRemove={() => remove(index)}
+        />
       ))}
       <button
         type="button"
@@ -134,12 +92,7 @@ useEffect(() => {
       >
         + Agregar ingrediente
       </button>
-      <Button type="submit" text={isEditing ? 'Editar' : 'Crear'} className="mt-2" />
-      {successMessage && (
-        <p className="text-green-600 font-medium text-center px-4">
-          {successMessage}
-        </p>
-      )}
+      <Button type="submit" text="Listo" className="mt-2" />
     </form>
   );
 };

@@ -5,7 +5,7 @@ import { useCart } from "../../../contexts/CartContext";
 import { CartItem } from "../../types/cart.type";
 import { useUser } from "../../../contexts/UserContext";
 import { useRouter } from "next/navigation";
-import { createOrder } from "@/src/lib/orders";
+import { createOrder } from "@/src/lib/actions/orders.action";
 
 const CartSummary = () => {
   const [message, setMessage] = useState<string>("");

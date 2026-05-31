@@ -1,6 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "./prisma";
 import { Product } from "@prisma/client";
+import { ProductWithRecipeType, RecipeItemType } from "../app/types/recipe.type";
+import { getProductCost, getProductProfit } from "./costs";
 
 export const getProducts = async () => {
   "use cache";
@@ -11,51 +13,108 @@ export const getProducts = async () => {
     include: {
       images: {
         orderBy: {
-          position: "asc"
-        }
-      }
-    }
+          position: "asc",
+        },
+      },
+    },
   });
   return products.map((product: Product) => ({
     ...product,
-    price: Number(product.price),
+      price: Number(product.price),
+    saleAmount: Number(product.saleAmount),
+    manualCost: product.manualCost ? Number(product.manualCost) : null,
   }));
 };
 
-export const getProductBySlug = async (slug: string) => {
+export const getProductsAdmin = async () => {
   "use cache";
-
-  cacheTag(`product-${slug}`);
-
+  cacheTag("products");
   cacheLife("max");
-  const product = await prisma.product.findUnique({
-    where: {
-      slug
-    },
+  
+  const products = await prisma.product.findMany({
     include: {
       images: {
-        orderBy: {
-          position: 'asc'
-        }
+        orderBy: { position: "asc" },
+        take: 1,
       },
-    }
-  })
+      recipe: {
+        include: {
+          items: {
+            include: { ingredient: true },
+          },
+        },
+      },
+    },
+  });
 
-  if(!product) return null 
-  
-  return{
-    ...product,
-    price: Number(product.price)
-  }
-}
+  return products.map((product: ProductWithRecipeType) => {
+    const mapped = {
+      ...product,
+      price: Number(product.price),
+      saleAmount: Number(product.saleAmount),
+      manualCost: product.manualCost ? Number(product.manualCost) : null,
+      recipe: product.recipe
+        ? {
+            ...product.recipe,
+            yield: Number(product.recipe.yield),
+            items: product.recipe.items.map((item: RecipeItemType) => ({
+              ...item,
+              quantity: Number(item.quantity),
+              ingredient: {
+                ...item.ingredient,
+                price: Number(item.ingredient.price),
+                stock: item.ingredient.stock ? Number(item.ingredient.stock) : null,
+              },
+            })),
+          }
+        : null,
+    };
 
-export const deleteProductImageById = async (imageId: number,slug: string) => {
-  "use cache";
-
+    return {
+      ...mapped,
+      cost: getProductCost(mapped as ProductWithRecipeType),
+      profit: getProductProfit(mapped as ProductWithRecipeType),
+    };
+  });
+};
+export const getProductBySlug = async (slug: string) => {
+    "use cache";
   cacheTag(`product-${slug}`);
-
+  cacheTag("products");
   cacheLife("max");
-  const res = await prisma.productimage.delete({
-    where: {id: imageId}
-  })
-}
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    include: {
+      images: true,
+      recipe: {
+        include: {
+          items: {
+            include: { ingredient: true },
+          },
+        },
+      },
+    },
+  });
+  if (!product) return null;
+  return {
+    ...product,
+    price: Number(product.price),
+    saleAmount: Number(product.saleAmount),
+    manualCost: product.manualCost ? Number(product.manualCost) : null,
+    recipe: product.recipe
+      ? {
+          ...product.recipe,
+          yield: Number(product.recipe.yield),
+          items: product.recipe.items.map((item: RecipeItemType) => ({
+            ...item,
+            quantity: Number(item.quantity),
+            ingredient: {
+              ...item.ingredient,
+              price: Number(item.ingredient.price),
+              stock: item.ingredient.stock ? Number(item.ingredient.stock) : null,
+            },
+          })),
+        }
+      : null,
+  };
+};

@@ -1,49 +1,57 @@
-import { NextRequest, NextResponse } from "next/server";
+"use server"
 import { prisma } from "@/src/lib/prisma";
-import { OrderType } from "../../types/order.type";
-import { getCostByProductId } from "@/src/lib/costs";
+import { getProductProfit } from "@/src/lib/costs";
+import { OrderType } from "../types/order.type";
+import { connection } from "next/server";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-
+export const getDashboardStats = async (from?: string, to?: string) => {
+  await connection();
   const today = new Date();
   const lastWeek = new Date();
   lastWeek.setDate(today.getDate() - 7);
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-  const fromDate = searchParams.get("from") ?? formatDate(lastWeek);
-  const toDate = searchParams.get("to") ?? formatDate(today);
+  const fromDate = from ?? formatDate(lastWeek);
+  const toDate = to ?? formatDate(today);
 
   const startDate = new Date(fromDate);
-
   const endDate = new Date(toDate);
   endDate.setDate(endDate.getDate() + 1);
+
   const orders = await prisma.orders.findMany({
     where: {
       createdAt: { gte: startDate, lte: endDate },
       status: { not: "CANCELLED" },
     },
-    include: { orderItems: { include: { product: true } } },
+    include: {
+      orderItems: {
+        include: {
+          product: {
+            include: {
+              recipe: {
+                include: {
+                  items: { include: { ingredient: true } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
   });
 
-  const totalRevenue = orders.reduce(
-    (acc: number, order: OrderType) => acc + Number(order.total),
-    0,
-  );
+  if (orders.length === 0) return null;
+
+  const totalRevenue = orders.reduce((acc: number, order:OrderType) => acc + Number(order.total), 0);
   const totalOrders = orders.length;
-  const averageTicket =
-    totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+  const averageTicket = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
   const totalCustomers = new Set(orders.map((o: OrderType) => o.email)).size;
-  const deliveries = orders.filter(
-    (o: OrderType) => Number(o.deliveryFee) > 0,
-  ).length;
-  const pickups = orders.filter(
-    (o: OrderType) => Number(o.deliveryFee) === 0,
-  ).length;
+  const deliveries = orders.filter((o: OrderType) => Number(o.deliveryFee) > 0).length;
+  const pickups = orders.filter((o: OrderType) => Number(o.deliveryFee) === 0).length;
 
   const cancelled = await prisma.orders.count({
     where: {
-      createdAt: { gte: new Date(fromDate), lte: new Date(toDate) },
+      createdAt: { gte: startDate, lte: endDate },
       status: "CANCELLED",
     },
   });
@@ -61,21 +69,17 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 5);
 
-  const costByProduct = await getCostByProductId();
-
   const totalCost = orders.reduce((acc: number, order: OrderType) => {
-    return (
-      acc +
-      order.orderItems.reduce((itemAcc, item) => {
-        const unitCost = costByProduct.get(item.productId) ?? 0;
-        return itemAcc + unitCost * item.quantity;
-      }, 0)
-    );
+    return acc + order.orderItems.reduce((itemAcc, item) => {
+      const profitData = getProductProfit(item.product as any);
+      const unitCost = profitData?.cost ?? 0;
+      return itemAcc + unitCost * item.quantity;
+    }, 0);
   }, 0);
 
   const estimatedProfit = Math.round(totalRevenue - totalCost);
 
-  return NextResponse.json({
+  return {
     totalRevenue,
     totalOrders,
     averageTicket,
@@ -85,5 +89,5 @@ export async function GET(req: NextRequest) {
     cancelled,
     topProducts,
     estimatedProfit,
-  });
-}
+  };
+};

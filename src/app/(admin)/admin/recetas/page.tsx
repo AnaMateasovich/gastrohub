@@ -1,7 +1,9 @@
-import BackButton from '@/src/app/(main)/components/BackButton'
-import Link from 'next/link'
-import React from 'react'
-import ListRecipes from './ListRecipes'
+import BackButton from "@/src/app/(main)/components/BackButton";
+import Link from "next/link";
+import React, { Suspense } from "react";
+import ListRecipes from "./ListRecipes";
+import { RecipeType, RecipeWithCostType } from "@/src/app/types/recipe.type";
+import { getRecipesWithCost } from "@/src/lib/costs";
 
 const page = () => {
   return (
@@ -11,11 +13,20 @@ const page = () => {
           <BackButton />
           <h1 className="text-2xl font-bold">Recetas</h1>
         </div>
-        <Link href="/admin/productos/crear" className="bg-[var(--color-primary)] text-white px-6 py-1 font-bold rounded-sm">Crear nueva +</Link>
+        <Link href="/admin/recetas/crear" className="bg-[var(--color-primary)] text-white px-6 py-1 font-bold rounded-sm">
+          Crear nueva +
+        </Link>
       </div>
-      <ListRecipes />
+      <Suspense fallback={<p>Cargando...</p>}>
+        <RecipesSection />
+      </Suspense>
     </section>
-  )
-}
+  );
+};
 
-export default page
+const RecipesSection = async () => {
+  const recipes: RecipeWithCostType[] = await getRecipesWithCost();
+  return <ListRecipes recipes={recipes} />;
+};
+
+export default page;

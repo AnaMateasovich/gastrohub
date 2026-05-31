@@ -5,6 +5,8 @@ import path from "path";
 import z from "zod";
 import fs from "fs/promises";
 import { requireAdmin } from "@/src/lib/auth";
+import { revalidateTag } from "next/cache";
+import { ProductImageType } from "@/src/app/types/product.type";
 
 const UpdateProductSchema = z.object({
   name: z.string().min(1).optional(),
@@ -85,12 +87,17 @@ export async function DELETE(
       where: { id },
     });
 
-    if (product?.src) {
-      const filepath = path.join(process.cwd(), "public", product.src);
-      await fs.unlink(filepath).catch(() => {});
+    if (product?.images?.length) {
+      await Promise.all(
+        product.images.map((image: ProductImageType) => {
+          const filepath = path.join(process.cwd(), "public/products", image.url)
+          return fs.unlink(filepath).catch(() => {})
+        })
+      )
     }
 
     await prisma.product.delete({ where: { id } });
+    revalidateTag("products", "");
     return NextResponse.json({ message: "Producto y receta eliminados" });
   } catch (error) {
     return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });

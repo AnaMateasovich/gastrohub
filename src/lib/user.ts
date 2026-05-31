@@ -1,3 +1,4 @@
+"use server"
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { RegisterType } from "../app/types/register.type";
@@ -46,10 +47,11 @@ export async function getUser() {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
+      omit: { password: true },
     });
 
     return user;
-  } catch (error) {
-    return new Error("Usuario no encontrado");
+  } catch {
+    return null;
   }
 }

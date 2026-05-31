@@ -6,15 +6,17 @@ import { usePathname } from "next/navigation";
 import { useUser } from "../../../contexts/UserContext";
 import { CircleUser } from "lucide-react";
 import Link from "next/link";
+import { getUser } from "@/src/lib/user";
 
 const Header = () => {
   const path = usePathname();
-  const { user, loading } = useUser();
+  const { user, setUser, loading } = useUser();
 
   const username = user?.name?.split(" ")[0];
 
   if (loading) return null;
-
+  console.log(user)
+  
   return (
     <header className="p-2 flex justify-between items-center">
       <h2 className="text-2xl font-[Open_Sans] italic">Sabores Naturales </h2>

@@ -8,18 +8,24 @@ datasource db {
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
-  slug        String    @unique
-  description String?   @db.Text
-  price       Decimal   @db.Decimal(10,2)
-  images      ProductImage[]
-  stock       Int       @default(0)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  price       Float
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  description String?        @db.Text
+  manualCost  Decimal?       @db.Decimal(10, 2)
+  recipeId    Int?
+  saleAmount  Decimal?       @db.Decimal(10, 2)
+  saleUnit    String?
+  slug        String         @unique
+  stock       Int            @default(0)
+  updatedAt   DateTime       @default(now()) @updatedAt
   orderItems  OrderItem[]
-  recipeItems RecipeItem[]
+  recipe      Recipe?        @relation(fields: [recipeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Product_recipeId_fk")
+  images      ProductImage[]
+
+  @@index([recipeId], map: "Product_recipeId_fk")
 }
 
 model ProductImage {
@@ -27,15 +33,18 @@ model ProductImage {
   url       String
   position  Int      @default(0)
   productId Int
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([productId], map: "ProductImage_productId_fkey")
 }
+
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int
   productId Int
   quantity  Int
-  price Decimal @default(0) @db.Decimal(10, 2)
+  price     Decimal @default(0.00) @db.Decimal(10, 2)
   order     Orders  @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 
@@ -59,7 +68,7 @@ model Orders {
   id           Int           @id @default(autoincrement())
   customerName String
   phone        String
-  status       Orders_status @default(PENDING)
+  status       Orders_status
   createdAt    DateTime      @default(now())
   email        String        @default("")
   address      String        @default("")
@@ -86,16 +95,28 @@ model Ingredient {
   recipeItems  RecipeItem[]
 }
 
+model Recipe {
+  id        Int          @id @default(autoincrement())
+  name      String
+  yield     Decimal      @db.Decimal(10, 2)
+  yieldUnit String
+  createdAt DateTime?    @default(now()) @db.DateTime(0)
+  updatedAt DateTime?    @default(now()) @updatedAt @db.DateTime(0)
+  products  Product[]
+  items     RecipeItem[]
+}
+
 model RecipeItem {
   id           Int        @id @default(autoincrement())
-  productId    Int
   ingredientId Int
   quantity     Decimal    @db.Decimal(10, 2)
-  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "RecipeItem_ibfk_1")
+  unit          String
+  recipeId     Int
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "RecipeItem_ibfk_2")
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "RecipeItem_recipeId_fk")
 
   @@index([ingredientId], map: "ingredientId")
-  @@index([productId], map: "RecipeItem_ibfk_1")
+  @@index([recipeId], map: "RecipeItem_recipeId_fk")
 }
 
 model IngredientPriceHistory {
@@ -109,43 +130,30 @@ model IngredientPriceHistory {
 }
 
 model StoreSettings {
-  id Int @id @default(1)
-
-  // Delivery
-  deliveryFee        Decimal  @db.Decimal(10, 2)
-  freeDeliveryFrom   Decimal? @db.Decimal(10, 2)
-  minimumOrderAmount Decimal? @db.Decimal(10, 2)
-
-  // Negocio
-  storeOpen   Boolean @default(true)
-  openingTime String?
-  closingTime String?
-
-  // Contacto
-  whatsappPhone String?
-  storeEmail    String?
-  instagramUrl  String?
-
-  // Checkout
-  allowGuestCheckout Boolean @default(true)
-
-  // Promos
-  enableCoupons         Boolean @default(true)
+  id                    Int      @id @default(1)
+  deliveryFee           Decimal  @db.Decimal(10, 2)
+  freeDeliveryFrom      Decimal? @db.Decimal(10, 2)
+  minimumOrderAmount    Decimal? @db.Decimal(10, 2)
+  storeOpen             Boolean  @default(true)
+  openingTime           String?  @db.VarChar(10)
+  closingTime           String?  @db.VarChar(10)
+  whatsappPhone         String?  @db.VarChar(30)
+  storeEmail            String?  @db.VarChar(255)
+  instagramUrl          String?  @db.VarChar(255)
+  allowGuestCheckout    Boolean  @default(true)
+  enableCoupons         Boolean  @default(true)
   maxDiscountPercentage Int?
-
-  // UI
-  announcementBar String?
-  maintenanceMode Boolean @default(false)
-
-  updatedAt DateTime @updatedAt
+  announcementBar       String?  @db.Text
+  maintenanceMode       Boolean  @default(false)
+  updatedAt             DateTime @default(now()) @updatedAt @db.DateTime(0)
 }
 
 model Coupon {
   id         Int       @id @default(autoincrement())
-  code       String    @unique
+  code       String    @unique(map: "code") @db.VarChar(100)
   percentage Int
   active     Boolean   @default(true)
-  expiresAt  DateTime?
+  expiresAt  DateTime? @db.DateTime(0)
   maxUses    Int?
   usedCount  Int       @default(0)
 }

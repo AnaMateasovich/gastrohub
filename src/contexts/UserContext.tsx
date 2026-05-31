@@ -6,54 +6,53 @@ import { useRouter } from "next/navigation";
 
 type UserContextType = {
   user: UserType | null;
-  setUser: React.Dispatch<React.SetStateAction<UserType | null>>
-  handleLogout: () => void
-  loading: boolean
+  setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
+  handleLogout: () => void;
+  loading: boolean;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState<boolean>(true)
-const router = useRouter()
+  const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
+
+  
   useEffect(() => {
-    const getUser = async () => {
-        try {
-          setLoading(true)
-            const res = await fetch("/api/user", {
-              credentials: "include"
-            })
-
-            if(!res.ok) throw new Error("Error al obtener usuario")
-
-            const data = await res.json()
-            setUser(data)
-        } catch (error) {
-            setUser(null)
-        } finally {
-          setLoading(false)
-        }
-    }
-
-    getUser()
-  }, []);
-
-    const handleLogout = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await fetch("/api/logout", {
-          method: "POST",
-          credentials: "include"
-        });
-        if(!res.ok) {
-          throw new Error("Error al cerrar sesión")
+        const res = await fetch("/api/me");
+        if (!res.ok) {
+          setUser(null);
+          return;
         }
-        setUser(null)
-        router.push("/login")
-      } catch (error) {
-        console.error(error);
+        const data = await res.json();
+        setUser(data);
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
     };
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Error al cerrar sesión");
+      }
+      setUser(null);
+      router.push("/login");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser, handleLogout, loading }}>

@@ -52,8 +52,6 @@ const CreateIngredientForm = ({
         },
   });
 
-  console.log(ingredientToEdit);
-
   const onSubmit = async (data: IngredientFormType) => {
     try {
       const res = await fetch(
@@ -117,9 +115,9 @@ const CreateIngredientForm = ({
         <select {...register("unit")}>
           <option value="kg">kg</option>
           <option value="g">g</option>
-          <option value="litro">litro</option>
+          <option value="l">litro</option>
           <option value="ml">ml</option>
-          <option value="unidad">unidad</option>
+          <option value="u">unidad</option>
         </select>
       </div>
       <Input

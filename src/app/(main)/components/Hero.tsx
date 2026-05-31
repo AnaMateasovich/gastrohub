@@ -11,7 +11,7 @@ const Hero = () => {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="/bread.jpg"
+          src="/hero.jpg"
           alt="Panadería integral"
           fill
           sizes="100vw"

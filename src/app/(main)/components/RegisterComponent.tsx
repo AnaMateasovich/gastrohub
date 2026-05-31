@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { registerUser } from "@/src/lib/actions/register.action";
 
 const registerSchema = z.object({
   email: z.string().min(1, "El email es obligatorio").email("Email invalido"),
@@ -50,37 +51,17 @@ const RegisterComponent = () => {
   const onSubmit = async (data: RegisterType) => {
     try {
       setOnSubmiting(true);
-
       const cleanArea = data.areaCod.replace(/\D/g, "");
       const cleanPhone = data.phone.replace(/\D/g, "");
-
-      const fullPhone = `${cleanArea}${cleanPhone}`;
-
-      const body = {
-        ...data,
-        phone: fullPhone,
-      };
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error en el registro");
-      }
-
+      await registerUser({ ...data, phone: `${cleanArea}${cleanPhone}` });
       reset();
       router.push("/login");
     } catch (error) {
-      console.error("Ocurrio un error al registrar");
+      console.error(error);
     } finally {
       setOnSubmiting(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
       <Input

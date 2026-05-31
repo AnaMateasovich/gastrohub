@@ -6,7 +6,7 @@ const page = () => {
   return (
     <section className="relative h-screen w-full">
       <Image
-        src="/bread.jpg"
+        src="/hero.jpg"
         alt="Bread"
         fill
         sizes="500px"

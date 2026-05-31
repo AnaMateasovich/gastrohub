@@ -13,14 +13,14 @@ async function ProductDetail({ params }: { params: Params }) {
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
-
+console.log(product)
   return (
     <div>
       <div className="flex gap-4 items-center mb-2 ml-2">
         <BackButton />
         <h3 className="text-xl font-bold">Productos</h3>
       </div>
-     <ProductDetails product={product}/>
+     <ProductDetails product={product} mode="admin"/>
     </div>
   );
 }

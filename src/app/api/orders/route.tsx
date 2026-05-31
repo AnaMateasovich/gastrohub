@@ -100,7 +100,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(order);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { error: "Error creating order" },
       { status: 500 },
@@ -132,7 +131,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(orders);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { error: "Error fetching orders" },
       { status: 500 },

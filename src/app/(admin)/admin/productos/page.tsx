@@ -1,11 +1,11 @@
 import Link from "next/link";
 import ProductListAdmin from "./ProductListAdmin";
-import { ProductType } from "@/src/app/types/product.type";
-import { getProducts } from "@/src/lib/products";
+import { ProductType, ProductWithRecipeAndCostsType } from "@/src/app/types/product.type";
+import { getProductsAdmin } from "@/src/lib/products";
 
 const page = async () => {
 
-    const products: ProductType[] = await getProducts();
+    const products: ProductWithRecipeAndCostsType[] = await getProductsAdmin();
   
   return (
     <section className="px-2 flex flex-col gap-2">

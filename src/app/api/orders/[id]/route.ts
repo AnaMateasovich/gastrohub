@@ -1,4 +1,5 @@
 import { prisma } from "@/src/lib/prisma";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -38,7 +39,6 @@ export async function GET(
 
     return NextResponse.json(order);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       { error: "Error fetching order" },
       { status: 500 },
@@ -71,6 +71,7 @@ export async function PATCH(
       where: { id: Number(id) },
       data: { status },
     });
+    revalidateTag("orders", "");
     return NextResponse.json(updatedOrder);
   } catch (error) {
     console.error(error);

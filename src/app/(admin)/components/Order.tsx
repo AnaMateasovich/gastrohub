@@ -17,10 +17,11 @@ import {
   readyMessage,
 } from "@/src/utils/whatssapp";
 import { useState } from "react";
-import { updateStatusOrder } from "../../services/orders.service";
 import BackButton from "../../(main)/components/BackButton";
 import StatusOrder from "./StatusOrder";
 import { OrderStatus } from "../../types/orderStatus.type";
+import { updateStatusOrder } from "@/src/lib/actions/orders.action";
+import { useRouter } from "next/navigation";
 
 type OrderProps = {
   order: OrderType;
@@ -28,6 +29,8 @@ type OrderProps = {
 
 const Order = ({ order }: OrderProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>(order.status);
+
+  const router = useRouter()
 
   const date = new Date(order.createdAt).toLocaleDateString();
 
@@ -61,7 +64,6 @@ const Order = ({ order }: OrderProps) => {
     return null;
   };
 
-  console.log(deliveryFee)
 
   const messageConfirm = confirmOrderMessage(order.user?.name);
   const whatsappConfirmLink = getWhatsappLink(
@@ -82,6 +84,7 @@ const Order = ({ order }: OrderProps) => {
     if (confirm) {
       try {
         await updateStatusOrder(orderId, newStatus);
+        router.refresh()
         setCurrentStatus(newStatus);
       } catch (error) {
         console.error(error);
@@ -170,7 +173,7 @@ const Order = ({ order }: OrderProps) => {
               <div className="flex items-center gap-2 ">
                 <div className="relative w-15 h-15">
                   <Image
-                    src={item.product.src}
+                    src={item.product.images[0].url}
                     fill
                     sizes="100px"
                     alt={item.product.name}

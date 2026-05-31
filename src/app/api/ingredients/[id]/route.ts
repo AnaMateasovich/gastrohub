@@ -20,7 +20,6 @@ export async function PATCH(
     const parsed = updateIngredientsSchema.safeParse(body);
 
     if (!parsed.success) {
-      console.log(parsed.error.format()); // 👈 ESTO
       return NextResponse.json(
         { error: parsed.error.format() },
         { status: 400 },

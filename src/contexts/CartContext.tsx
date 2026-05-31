@@ -12,8 +12,8 @@ type CartContextType = {
   getCartTotal: () => number;
   getCartProductsQuantity: () => number;
   clearCart: () => void;
-  deliveryFee: number
-  wantsDelivery: boolean
+  deliveryFee?: number | null;
+  wantsDelivery: boolean;
   setWantsDelivery: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -21,9 +21,8 @@ const CartContext = createContext<CartContextType | null>(null);
 
 const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [deliveryFee, setDeliveryFee] = useState<number>(0);
-const [wantsDelivery, setWantsDelivery] = useState(false);
-
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
+  const [wantsDelivery, setWantsDelivery] = useState(false);
 
   useEffect(() => {
     const fetchDeliveryFee = async () => {
@@ -33,7 +32,7 @@ const [wantsDelivery, setWantsDelivery] = useState(false);
           throw new Error("Error al obtener el precio del envío");
         }
         const data = await res.json();
-        setDeliveryFee(Number(data.deliveryFee));
+        setDeliveryFee(Number(data?.deliveryFee) ?? 0);
       } catch (error) {
         console.error(error);
       }
@@ -63,7 +62,7 @@ const [wantsDelivery, setWantsDelivery] = useState(false);
         );
       }
 
-      return [...prev, { product, quantity}];
+      return [...prev, { product, quantity }];
     });
   };
 
@@ -91,13 +90,13 @@ const [wantsDelivery, setWantsDelivery] = useState(false);
     });
   };
 
- const getCartTotal = () => {
-  const subtotal = cart.reduce((total, item) => {
-    return total + item.product.price * item.quantity;
-  }, 0);
+  const getCartTotal = () => {
+    const subtotal = cart.reduce((total, item) => {
+      return total + item.product.price * item.quantity;
+    }, 0);
 
-  return wantsDelivery ? subtotal + deliveryFee : subtotal;
-};
+    return wantsDelivery ? subtotal + (deliveryFee ?? 0) : subtotal;
+  };
 
   const getCartProductsQuantity = () => {
     return cart.reduce((total, item) => {
@@ -121,7 +120,7 @@ const [wantsDelivery, setWantsDelivery] = useState(false);
         clearCart,
         deliveryFee,
         wantsDelivery,
-        setWantsDelivery
+        setWantsDelivery,
       }}
     >
       {children}

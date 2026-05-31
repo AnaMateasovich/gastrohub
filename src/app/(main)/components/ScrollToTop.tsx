@@ -8,10 +8,8 @@ export default function ScrollToTop({ children }: { children: React.ReactNode })
   const ref = useRef<HTMLDivElement>(null);
 
 useEffect(() => {
-  console.log("pathname:", pathname); // ← agregá esto
   if (SCROLL_TO_TOP_ROUTES.includes(pathname)) {
     ref.current?.scrollTo(0, 0);
-    console.log("si paso");
   }
 }, [pathname]);
 

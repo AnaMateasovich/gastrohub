@@ -1,20 +1,33 @@
+import { getOrderById } from "@/src/lib/orders";
 import Order from "../../../components/Order";
-import { fetchOrderById } from "@/src/app/services/orders.service";
+import { Suspense } from "react";
 
 type PageProps = {
-  params: Promise<{id:string}>
+  params: Promise<{ id: string }>;
 };
 
-const OrderDetails = async ({ params }: PageProps) => {
-  const {id} = await params;
-  const order = await fetchOrderById(id)
-  
+const OrderDetails = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
+  const order = await getOrderById(Number(id));
+
   return (
     <section className="px-2">
-      
       <Order order={order} />
     </section>
   );
 };
 
-export default OrderDetails;
+export const page = ({ params }: PageProps) => {
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderDetails params={params} />
+    </Suspense>
+  );
+};
+
+export default page;
