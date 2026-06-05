@@ -8,7 +8,7 @@ const AdminMenu = () => {
     <section className="">
       <div className="flex text-center justify-center bg-white py-4 rounded-xl shadow-md ">
         <div className="flex flex-col items-center">
-          <Image src="/flour.png" alt="Insumos" width={100} height={100} />
+          <Image src="/flour.webp" alt="Insumos" width={100} height={100} />
           <h3 className="text-xl font-bold">Insumos</h3>
           <p className="text-sm w-[80%]">Lista de ingredientes y costos</p>
           <Link
@@ -19,7 +19,7 @@ const AdminMenu = () => {
           </Link>
         </div>
         <div className="flex flex-col items-center">
-          <Image src="/recipes.png" alt="Insumos" width={100} height={100} />
+          <Image src="/recipes.webp" alt="Insumos" width={100} height={100} />
           <h3 className="text-xl font-bold">Recetas</h3>
           <p className="text-sm w-[80%]">Amdinistración de recetas</p>
           <Link

@@ -8,6 +8,7 @@ import { getUser } from "../user";
 import { prisma } from "../prisma";
 import { createRecipeSchema } from "../validations/recipe.schema";
 import { toStorageUnit } from "../units";
+import { mapProduct } from "@/src/utils/products.utils";
 
 const createProductSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -23,6 +24,7 @@ const createProductSchema = z.object({
   isActive: z.boolean(),
   saleUnit: z.string().min(1),
   saleAmount: z.number().min(0.01),
+  extraCost: z.number().min(0).optional().default(0),
   //   stock: z
   //     .number()
   //     .min(0)
@@ -42,6 +44,7 @@ export const createProduct = async (formData: FormData) => {
     isActive: formData.get("isActive") === "true",
     saleAmount: Number(formData.get("saleAmount")),
     saleUnit: formData.get("saleUnit") as string,
+    extraCost: Number(formData.get("extraCost")) || 0,
   };
 
   const result = createProductSchema.safeParse(raw);
@@ -92,6 +95,7 @@ export const createProduct = async (formData: FormData) => {
           create: parsed.data.items.map((item) => ({
             ingredientId: item.ingredientId,
             quantity: toStorageUnit(item.quantity, unitMap[item.ingredientId]),
+            unit: unitMap[item.ingredientId],
           })),
         },
       },
@@ -109,7 +113,12 @@ export const createProduct = async (formData: FormData) => {
   });
 
   revalidateTag("products", "");
-  return { ...product, price: Number(product.price) };
+
+  return {
+    ...product,
+    price: Number(product.price),
+    extraCost: Number(product.extraCost),
+  };
 };
 export const deleteProductImageById = async (
   imageIds: number[],
@@ -169,6 +178,7 @@ export const updateProduct = async (formData: FormData) => {
     isActive: formData.get("isActive") === "true",
     saleAmount: Number(formData.get("saleAmount")),
     saleUnit: formData.get("saleUnit") as string,
+    extraCost: Number(formData.get("extraCost")) || 0,
   };
 
   const result = createProductSchema.safeParse(raw);
@@ -206,12 +216,8 @@ export const updateProduct = async (formData: FormData) => {
   // Revalidamos los tags de Next.js para que impacte el cambio
   revalidateTag("products", "");
   revalidateTag(`product-${product.slug}`, "");
-  return {
-    ...product,
-    price: Number(product.price),
-    saleAmount: Number(product.saleAmount),
-    manualCost: product.manualCost ? Number(product.manualCost) : null,
-  };
+  return mapProduct(product)
+
 };
 
 export const updateProductCost = async (

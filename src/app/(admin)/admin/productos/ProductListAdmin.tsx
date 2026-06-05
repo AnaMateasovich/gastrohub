@@ -1,5 +1,8 @@
 "use client";
-import { ProductType, ProductWithRecipeAndCostsType } from "@/src/app/types/product.type";
+import {
+  ProductType,
+  ProductWithRecipeAndCostsType,
+} from "@/src/app/types/product.type";
 import { useEffect, useState } from "react";
 import ProductCard from "../../components/ProductCard";
 
@@ -7,7 +10,9 @@ type Props = {
   products: ProductWithRecipeAndCostsType[];
 };
 const ProductListAdmin = ({ products }: Props) => {
-  const [productsList, setProductsList] = useState<ProductWithRecipeAndCostsType[]>([]);
+  const [productsList, setProductsList] = useState<
+    ProductWithRecipeAndCostsType[]
+  >([]);
 
   const handleDeleteProduct = async (id: number) => {
     setProductsList((prev) => prev.filter((p) => p.id !== id));
@@ -16,12 +21,15 @@ const ProductListAdmin = ({ products }: Props) => {
   useEffect(() => {
     setProductsList(products);
   }, [products]);
-console.log(products)
   return (
     <section className=" flex flex-col gap-4">
       {products.map((product, index) => (
         <div key={product.id}>
-          <ProductCard product={product} onDelete={handleDeleteProduct} routerPush="/admin/productos"/>
+          <ProductCard
+            product={product}
+            onDelete={handleDeleteProduct}
+            routerPush="/admin/productos"
+          />
         </div>
       ))}
     </section>

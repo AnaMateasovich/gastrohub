@@ -37,6 +37,11 @@ const productSchema = z.object({
   isActive: z.boolean(),
   saleUnit: z.string().min(1, "La unidad de venta es obligatoria"),
   saleAmount: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
+  extraCost: z
+    .number()
+    .min(0)
+    .optional()
+    .or(z.nan().transform(() => undefined)),
 });
 
 type ProductFormType = z.infer<typeof productSchema>;
@@ -134,6 +139,7 @@ const FormCreateProduct = ({
       formData.append("price", String(data.price));
       formData.append("saleAmount", String(data.saleAmount));
       formData.append("saleUnit", data.saleUnit);
+      formData.append("extraCost", String(data.extraCost ?? 0));
       formData.append("isActive", String(data.isActive));
       images.forEach((file) => formData.append("images", file));
 
@@ -174,6 +180,7 @@ const FormCreateProduct = ({
       formData.append("price", String(data.price));
       formData.append("saleAmount", String(data.saleAmount));
       formData.append("saleUnit", data.saleUnit);
+      formData.append("extraCost", String(data.extraCost ?? 0));
       formData.append("isActive", String(data.isActive));
       imagesFile.forEach((file) => formData.append("images", file));
 
@@ -205,7 +212,9 @@ const FormCreateProduct = ({
       }
 
       setSuccessMessage("Producto editado con éxito");
-       setTimeout(() => {
+      router.refresh()
+
+      setTimeout(() => {
         router.push("/admin/productos");
         setSuccessMessage("");
       }, 1000);
@@ -284,6 +293,14 @@ const FormCreateProduct = ({
         register={register}
         error={errors.saleAmount?.message}
       />
+      <Input
+  type="number"
+  placeholder="Costo extra (packaging, etiqueta, etc)"
+  name="extraCost"
+  registerOptions={{ valueAsNumber: true }}
+  register={register}
+  error={errors.extraCost?.message}
+/>
       <input
         type="file"
         multiple

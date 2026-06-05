@@ -1,7 +1,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "./prisma";
 import { Product } from "@prisma/client";
-import { ProductWithRecipeType, RecipeItemType } from "../app/types/recipe.type";
+import {
+  ProductWithRecipeType,
+  RecipeItemType,
+} from "../app/types/recipe.type";
 import { getProductCost, getProductProfit } from "./costs";
 
 export const getProducts = async () => {
@@ -20,7 +23,9 @@ export const getProducts = async () => {
   });
   return products.map((product: Product) => ({
     ...product,
-      price: Number(product.price),
+    price: Number(product.price),
+    stock: Number(product.stock),
+    extraCost: Number(product.extraCost),
     saleAmount: Number(product.saleAmount),
     manualCost: product.manualCost ? Number(product.manualCost) : null,
   }));
@@ -30,7 +35,7 @@ export const getProductsAdmin = async () => {
   "use cache";
   cacheTag("products");
   cacheLife("max");
-  
+
   const products = await prisma.product.findMany({
     include: {
       images: {
@@ -53,6 +58,7 @@ export const getProductsAdmin = async () => {
       price: Number(product.price),
       saleAmount: Number(product.saleAmount),
       manualCost: product.manualCost ? Number(product.manualCost) : null,
+      extraCost: product.extraCost ? Number(product.extraCost) : null,
       recipe: product.recipe
         ? {
             ...product.recipe,
@@ -63,7 +69,9 @@ export const getProductsAdmin = async () => {
               ingredient: {
                 ...item.ingredient,
                 price: Number(item.ingredient.price),
-                stock: item.ingredient.stock ? Number(item.ingredient.stock) : null,
+                stock: item.ingredient.stock
+                  ? Number(item.ingredient.stock)
+                  : null,
               },
             })),
           }
@@ -78,7 +86,7 @@ export const getProductsAdmin = async () => {
   });
 };
 export const getProductBySlug = async (slug: string) => {
-    "use cache";
+  "use cache";
   cacheTag(`product-${slug}`);
   cacheTag("products");
   cacheLife("max");
@@ -99,6 +107,7 @@ export const getProductBySlug = async (slug: string) => {
   return {
     ...product,
     price: Number(product.price),
+    extraCost: Number(product.extraCost),
     saleAmount: Number(product.saleAmount),
     manualCost: product.manualCost ? Number(product.manualCost) : null,
     recipe: product.recipe
@@ -111,7 +120,9 @@ export const getProductBySlug = async (slug: string) => {
             ingredient: {
               ...item.ingredient,
               price: Number(item.ingredient.price),
-              stock: item.ingredient.stock ? Number(item.ingredient.stock) : null,
+              stock: item.ingredient.stock
+                ? Number(item.ingredient.stock)
+                : null,
             },
           })),
         }

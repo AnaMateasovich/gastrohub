@@ -18,18 +18,19 @@ export const UNIT_CONVERSIONS: Record<
   u: { displayUnit: "u", factor: 1 },
 };
 
+// El usuario ingresa en unidad base (g, ml), guardamos en unidad del ingrediente (kg, l)
 export function toStorageUnit(value: number, unit: string): number {
-    const conversion = UNIT_CONVERSIONS[unit]
-    if(!conversion) return value
-    return value / conversion.factor
+  const conversion = UNIT_CONVERSIONS[unit];
+  if (!conversion) return value;
+  return value / conversion.factor;
 }
 
+// Al mostrar, convertimos de vuelta de unidad del ingrediente a unidad base
 export function toDisplayUnit(value: number, unit: string): number {
-    const conversion = UNIT_CONVERSIONS[unit]
-    if(!conversion) return value
-    return value * conversion.factor
+  const conversion = UNIT_CONVERSIONS[unit];
+  if (!conversion) return value;
+  return value * conversion.factor;
 }
-
 export function getDisplayUnit(unit: string): string {
-    return UNIT_CONVERSIONS[unit]?.displayUnit ?? unit
+  return UNIT_CONVERSIONS[unit]?.displayUnit ?? unit;
 }

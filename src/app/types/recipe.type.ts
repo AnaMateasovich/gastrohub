@@ -1,4 +1,4 @@
-import { IngredientType } from "../api/ingredients/route";
+import { Ingredient } from "./ingredient.type";
 import { ProductType } from "./product.type";
 
 export type RecipeItemType = {
@@ -6,7 +6,8 @@ export type RecipeItemType = {
   recipeId: number;
   ingredientId: number;
   quantity: number;
-  ingredient: IngredientType;
+  ingredient: Ingredient;
+  unit: string
 };
 
 export type RecipeType = {

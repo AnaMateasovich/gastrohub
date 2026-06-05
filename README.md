@@ -79,6 +79,7 @@ Panel de administración: [http://localhost:3000/admin](http://localhost:3000/ad
 ---
 
 ## 📂 Estructura
+
 \`\`\`
 src/
 ├── app/

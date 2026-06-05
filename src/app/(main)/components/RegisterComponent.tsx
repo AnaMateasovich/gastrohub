@@ -15,6 +15,8 @@ const registerSchema = z.object({
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 
   name: z.string().min(1, "El nombre es obligatorio"),
+  lastname: z.string().min(1, "El apellido es obligatorio"),
+
 
   areaCod: z.string().min(1, "Código obligatorio"),
 
@@ -37,11 +39,12 @@ const RegisterComponent = () => {
   const {
     handleSubmit,
     register,
+    trigger,
     reset,
     formState: { errors, isValid },
   } = useForm<RegisterType>({
     resolver: zodResolver(registerSchema),
-    mode: "onChange",
+    mode: "all",
     defaultValues: {
       areaCod: "+54",
     },
@@ -63,7 +66,11 @@ const RegisterComponent = () => {
     }
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3"   onAnimationStart={(e) => {
+    if (e.animationName === "onAutoFillStart") {
+      trigger(); 
+    }
+  }}>
       <Input
         type="email"
         name="email"
@@ -86,6 +93,14 @@ const RegisterComponent = () => {
         register={register}
         placeholder="Nombre"
         error={errors.name?.message}
+        errorWhitBg={true}
+      />
+           <Input
+        type="text"
+        name="lastname"
+        register={register}
+        placeholder="Nombre"
+        error={errors.lastname?.message}
         errorWhitBg={true}
       />
       <div className="flex gap-2 w-full">
@@ -124,7 +139,7 @@ const RegisterComponent = () => {
           type="submit"
           text="Resitrarse"
           onClick={() => null}
-          disabled={!isValid || onSubmiting}
+          disabled={onSubmiting}
         />
       </div>
     </form>

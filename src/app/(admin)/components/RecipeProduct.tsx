@@ -1,11 +1,14 @@
 import { ChefHat } from "lucide-react";
 import { RecipeType } from "../../types/recipe.type";
+import { getDisplayUnit, toDisplayUnit } from "@/src/lib/units";
 
 type Props = {
   recipe: RecipeType;
 };
 
 const RecipeProduct = ({ recipe }: Props) => {
+
+  console.log(recipe)
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <div className="flex items-center gap-2 mb-3">
@@ -33,7 +36,7 @@ const RecipeProduct = ({ recipe }: Props) => {
               >
                 <td className="px-3 py-2">{item.ingredient.name}</td>
                 <td className="px-3 py-2 text-right text-[var(--color-text-secondary)]">
-                  {item.quantity} {item.ingredient.unit}
+                  {toDisplayUnit(Number(item.quantity), item.unit)} {getDisplayUnit(item.unit)}
                 </td>
                 <td className="px-3 py-2 text-right">
                   ${Math.round(item.quantity * item.ingredient.price)}

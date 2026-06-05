@@ -13,6 +13,7 @@ export function mapOrder(order: OrderType): OrderType {
       product: {
         ...item.product,
         price: Number(item.product.price),
+        extraCost: Number(item.product.extraCost),
         saleAmount: Number(item.product.saleAmount),
         manualCost: item.product.manualCost
           ? Number(item.product.manualCost)

@@ -7,8 +7,8 @@ import BackButton from "@/src/app/(main)/components/BackButton";
 import ProductDetails from "@/src/app/(main)/components/ProductDetails";
 
 type Params = Promise<{ slug: string }>;
-
-async function ProductDetail({ params }: { params: Params }) {
+ 
+async function ProductDetail({ params }: { params: Params }){
   const { slug } = await params;
   const product = await getProductBySlug(slug);
 

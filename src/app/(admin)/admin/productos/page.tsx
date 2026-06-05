@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ProductListAdmin from "./ProductListAdmin";
-import { ProductType, ProductWithRecipeAndCostsType } from "@/src/app/types/product.type";
+import { ProductWithRecipeAndCostsType } from "@/src/app/types/product.type";
 import { getProductsAdmin } from "@/src/lib/products";
 
 const page = async () => {

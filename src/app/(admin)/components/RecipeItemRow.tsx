@@ -25,9 +25,16 @@ const RecipeItemRow = ({
     ? getDisplayUnit(selectedIngredient.unit)
     : "";
 
+  console.log({
+    index,
+    selectedId,
+    selectedIngredient,
+  });
+
   return (
     <div className="flex gap-2">
       <select
+        value={watch(`items.${index}.ingredientId`) || 0}
         {...register(`items.${index}.ingredientId`, {
           valueAsNumber: true,
         })}
@@ -43,24 +50,26 @@ const RecipeItemRow = ({
         ))}
       </select>
       <div className="flex items-center gap-1">
-          <Input
-            type="number"
-            name={`items.${index}.quantity`}
-            placeholder="Cantidad"
-            register={register}
-            registerOptions={{ valueAsNumber: true }}
-          />
-          {displayUnit && (
-            <span className="text-sm text-gray-500 font-medium">{displayUnit}</span>
-          )}
-          <button
-            type="button"
-            onClick={onRemove}
-            className="font-bold text-red-600"
-          >
-            X
-          </button>
-        </div>
+        <Input
+          type="number"
+          name={`items.${index}.quantity`}
+          placeholder="Cantidad"
+          register={register}
+          registerOptions={{ valueAsNumber: true }}
+        />
+        {displayUnit && (
+          <span className="text-sm text-gray-500 font-medium">
+            {displayUnit}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="font-bold text-red-600"
+        >
+          X
+        </button>
+      </div>
     </div>
   );
 };

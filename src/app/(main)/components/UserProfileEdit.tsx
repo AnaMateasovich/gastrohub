@@ -11,6 +11,7 @@ import BackButton from "./BackButton";
 
 const profileSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
+  lastname: z.string().min(1, "El apellido es obligatorio"),
 
   phone: z
     .string()
@@ -30,7 +31,6 @@ type ProfileForm = z.infer<typeof profileSchema>;
 const UserProfileEdit = () => {
   const { user } = useUser();
   const router = useRouter();
-
 
   const {
     register,
@@ -53,10 +53,17 @@ const UserProfileEdit = () => {
       <div className="flex flex-col gap-3 mt-6">
         <Input
           type="text"
-          placeholder="Nombre y apellido"
+          placeholder="Nombre"
           name="name"
           register={register}
           error={errors.name?.message}
+        />
+            <Input
+          type="text"
+          placeholder="Apellido"
+          name="lastname"
+          register={register}
+          error={errors.lastname?.message}
         />
         <Input
           type="text"

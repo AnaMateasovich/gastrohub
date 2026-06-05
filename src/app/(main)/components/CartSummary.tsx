@@ -9,6 +9,7 @@ import { createOrder } from "@/src/lib/actions/orders.action";
 
 const CartSummary = () => {
   const [message, setMessage] = useState<string>("");
+  const [showGuestModal, setShowGuestModal] = useState<boolean>(false);
   const {
     cart,
     clearCart,
@@ -45,11 +46,43 @@ const CartSummary = () => {
       }
       return;
     }
-    router.push("/checkout");
+    setShowGuestModal(true);
   };
 
   return (
     <>
+      {showGuestModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+          <div className="bg-[var(--color-card)] rounded-2xl p-8 max-w-sm w-full shadow-2xl flex flex-col gap-4">
+            <h2 className="text-xl font-bold text-center">
+              ¿Cómo querés continuar?
+            </h2>
+            <p className="text-sm text-center text-gray-500">
+              Podés registrarte para guardar tu historial de pedidos o continuar
+              como invitado.
+            </p>
+            <Button
+              text="Crear una cuenta"
+              onClick={() => router.push("/register")}
+            />
+            <button
+              onClick={() => {
+                setShowGuestModal(false);
+                router.push("/checkout");
+              }}
+              className="text-sm text-gray-700 hover:text-gray-600 underline text-center transition-colors"
+            >
+              Continuar como invitado
+            </button>
+            <button
+              onClick={() => setShowGuestModal(false)}
+              className="text-xs text-gray-600 hover:text-gray-500 text-center transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
       {message && (
         <p className="text-green-600 font-medium text-center px-4">{message}</p>
       )}

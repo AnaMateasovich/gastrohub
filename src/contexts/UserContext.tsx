@@ -22,7 +22,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("/api/user", {
+          credentials: "include"
+        });
         if (!res.ok) {
           setUser(null);
           return;

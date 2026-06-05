@@ -100,3 +100,13 @@ button {
   cursor: pointer;
   border: none;
 }
+
+@keyframes onAutoFillStart {
+  from {}
+  to {}
+}
+
+input:-webkit-autofill {
+  animation-name: onAutoFillStart;
+  animation-duration: 0.001s;
+}

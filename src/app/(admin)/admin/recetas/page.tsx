@@ -1,8 +1,8 @@
 import BackButton from "@/src/app/(main)/components/BackButton";
 import Link from "next/link";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import ListRecipes from "./ListRecipes";
-import { RecipeType, RecipeWithCostType } from "@/src/app/types/recipe.type";
+import { RecipeWithCostType } from "@/src/app/types/recipe.type";
 import { getRecipesWithCost } from "@/src/lib/costs";
 
 const page = () => {

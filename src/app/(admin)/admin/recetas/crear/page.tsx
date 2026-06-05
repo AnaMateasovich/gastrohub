@@ -3,6 +3,7 @@ import FormCreateRecipe from "../../../components/FormCreateRecipe";
 import BackButton from "@/src/app/(main)/components/BackButton";
 
 const page = () => {
+
   return (
     <section className="mx-4">
       <div className="flex items-center gap-2 mb-4">

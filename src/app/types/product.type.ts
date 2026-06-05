@@ -16,11 +16,12 @@ export type ProductType = {
   slug: string;
   description?: string;
   createdAt?: Date;
-  updatedAt?: Date;
+  updatedAt?: Date | null;
   saleUnit?: string;
   saleAmount?: number;
   recipeId?: number;
-  manualCost?: number | null
+  manualCost?: number | null;
+  extraCost?: number;
   images: ProductImageType[];
 };
 

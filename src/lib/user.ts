@@ -9,6 +9,7 @@ export async function createUser({
   email,
   password,
   name,
+  lastname,
   phone,
   address,
 }: RegisterType) {
@@ -25,6 +26,7 @@ export async function createUser({
       email,
       password: hashedPassword,
       name,
+      lastname,
       phone,
       address,
     },

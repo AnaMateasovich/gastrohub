@@ -32,7 +32,7 @@ const UserProfile = () => {
           <div className="flex flex-col items-center gap-3">
             <UserProfileLetter />
             <div>
-              <p className="text-xl font-bold">{user.name}</p>
+              <p className="text-xl font-bold">{user.name} {user.lastname?? ""}</p>
               <p className="text-xl">+{user.phone}</p>
             </div>
           </div>

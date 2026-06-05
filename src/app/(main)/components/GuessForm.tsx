@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useCart } from "@/src/contexts/CartContext";
 import { createOrder } from "@/src/lib/actions/orders.action";
+import { useRouter } from "next/navigation";
 
 const guessSchema = z.object({
   email: z.string().min(1, "El email es obligatorio").email("Email invalido"),
@@ -32,6 +33,8 @@ const guessSchema = z.object({
 const GuessForm = () => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [onSubmiting, setOnSubmiting] = useState<boolean>(false);
+
+const router = useRouter()
 
   const { cart, clearCart, wantsDelivery } = useCart();
   const {
@@ -72,7 +75,9 @@ const GuessForm = () => {
     reset()
     clearCart()
     setSuccessMessage("✅ Tu pedido fue recibido. Nos pondremos en contacto contigo en breve.")
-    setTimeout(() => setSuccessMessage(""), 4000)
+    setTimeout(() => {setSuccessMessage("")
+    router.push('/home')}, 4000)
+    
   } catch (error) {
     console.error(error)
   } finally {

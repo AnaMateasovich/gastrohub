@@ -25,20 +25,20 @@ import { toDisplayUnit } from "./units";
 //   return costMap;
 // };
 
-export const getProductCost = (
-  product: ProductWithRecipeType,
-): number | null => {
-  if (!product.recipe) {
-    return product.manualCost ?? null;
+export const getProductCost = (product: ProductWithRecipeType): number | null => {
+  if (!product.recipe && !product.manualCost) return null;
+
+  let cost = 0;
+
+  if (product.recipe) {
+    cost = product.recipe.items.reduce((acc, item) => {
+      return acc + Number(item.ingredient.price) * Number(item.quantity);
+    }, 0) * (Number(product.saleAmount) / Number(product.recipe.yield));
+  } else {
+    cost = product.manualCost!;
   }
 
-  const recipeCost = product.recipe.items.reduce((acc, item) => {
-    return acc + Number(item.ingredient.price) * Number(item.quantity);
-  }, 0);
-
-  return (
-    recipeCost * (Number(product.saleAmount) / Number(product.recipe.yield))
-  );
+  return cost + (product.extraCost ?? 0);
 };
 
 export const getProductProfit = (product: ProductWithRecipeType) => {

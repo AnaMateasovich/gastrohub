@@ -12,4 +12,9 @@ export const createRecipeSchema = z.object({
   items: z.array(recipeItemSchema).min(1, "Agregá al menos un ingrediente"),
 });
 
+export const updateRecipeSchema = createRecipeSchema.extend({
+  id: z.number().int().positive()
+})
+
 export type CreateRecipeType = z.infer<typeof createRecipeSchema>;
+export type UpdateRecipeType = z.infer<typeof updateRecipeSchema>

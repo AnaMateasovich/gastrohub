@@ -10,14 +10,23 @@ import {
   CreateRecipeType,
 } from "@/src/lib/validations/recipe.schema";
 import Input from "../../(main)/components/Input";
-import { YIELD_UNITS } from "@/src/lib/units";
+import { toDisplayUnit, YIELD_UNITS } from "@/src/lib/units";
+import { createRecipe, updateRecipe } from "@/src/lib/actions/recipe.action";
+import { useRouter } from "next/navigation";
+import { RecipeType } from "../../types/recipe.type";
 
 type FormCreateRecipeProps = {
-  onRecipeReady: (data: CreateRecipeType) => void;
+  onRecipeReady?: (data: CreateRecipeType) => void;
+  recipeToEdit?: RecipeType;
 };
 
-const FormCreateRecipe = ({ onRecipeReady }: FormCreateRecipeProps) => {
+const FormCreateRecipe = ({
+  onRecipeReady,
+  recipeToEdit,
+}: FormCreateRecipeProps) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -33,21 +42,70 @@ const FormCreateRecipe = ({ onRecipeReady }: FormCreateRecipeProps) => {
     fetchIngredients();
   }, []);
 
-  const { control, handleSubmit, register, watch } = useForm<CreateRecipeType>({
-    resolver: zodResolver(createRecipeSchema),
-    defaultValues: {
-      name: "",
-      yield: undefined,
-      yieldUnit: "kg",
-      items: [{ ingredientId: 0, quantity: 0 }],
-    },
+  const { control, handleSubmit, register, watch, reset } =
+    useForm<CreateRecipeType>({
+      resolver: zodResolver(createRecipeSchema),
+      defaultValues: !recipeToEdit
+        ? {
+            name: "",
+            yield: undefined,
+            yieldUnit: "kg",
+            items: [{ ingredientId: 0, quantity: 0 }],
+          }
+        : {
+            name: recipeToEdit.name,
+            yield: recipeToEdit.yield,
+            yieldUnit: recipeToEdit.yieldUnit,
+            items: recipeToEdit.items.map((i) => ({
+              ingredientId: i.ingredientId,
+              quantity: toDisplayUnit(i.quantity, i.unit),
+            })),
+          },
+    });
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: "items",
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "items" });
-
-  const onSubmit = (data: CreateRecipeType) => {
-    onRecipeReady(data);
+  const onSubmit = async (data: CreateRecipeType) => {
+    if (recipeToEdit) {
+      await updateRecipe({
+        id: recipeToEdit.id,
+        ...data,
+      });
+    }
+    if (onRecipeReady) {
+      onRecipeReady(data);
+    } else {
+      await createRecipe(data);
+      router.push("/admin/recetas");
+    }
   };
+
+  useEffect(() => {
+    if (!recipeToEdit) return;
+
+    replace(
+      recipeToEdit.items.map((i) => ({
+        ingredientId: i.ingredientId,
+        quantity: toDisplayUnit(i.quantity, i.unit),
+      })),
+    );
+
+    reset({
+      name: recipeToEdit.name,
+      yield: recipeToEdit.yield,
+      yieldUnit: recipeToEdit.yieldUnit,
+      items: recipeToEdit.items.map((i) => ({
+        ingredientId: i.ingredientId,
+        quantity: toDisplayUnit(i.quantity, i.unit),
+      })),
+    });
+  }, [recipeToEdit, reset, replace]);
+
+  console.log(fields);
+  console.log(watch("items"));
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
@@ -92,7 +150,11 @@ const FormCreateRecipe = ({ onRecipeReady }: FormCreateRecipeProps) => {
       >
         + Agregar ingrediente
       </button>
-      <Button type="submit" text="Listo" className="mt-2" />
+      <Button
+        type="submit"
+        text={recipeToEdit ? "Actualizar" : "Crear"}
+        className="mt-2"
+      />
     </form>
   );
 };

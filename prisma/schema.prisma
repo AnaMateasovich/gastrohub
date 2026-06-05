@@ -15,6 +15,7 @@ model Product {
   createdAt   DateTime       @default(now())
   description String?        @db.Text
   manualCost  Decimal?       @db.Decimal(10, 2)
+  extraCost Decimal? @db.Decimal(10, 2)
   recipeId    Int?
   saleAmount  Decimal?       @db.Decimal(10, 2)
   saleUnit    String?
@@ -55,6 +56,7 @@ model OrderItem {
 model User {
   id        String   @id @default(cuid())
   name      String?
+  lastname  String?
   email     String   @unique(map: "email")
   createdAt DateTime @default(now())
   password  String   @default("")
