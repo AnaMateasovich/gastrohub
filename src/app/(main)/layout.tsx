@@ -3,8 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Header from "./components/Header";
 import Nav from "./components/Nav";
-import CartProvider from "../../contexts/CartContext";
-import { UserProvider } from "../../contexts/UserContext";
+
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -25,8 +24,7 @@ export const metadata: Metadata = {
 export default function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <main className="min-h-full flex flex-col">
-      <UserProvider>
-        <CartProvider>
+  
           <Suspense fallback={null}>
             <Header />
           </Suspense>
@@ -34,8 +32,7 @@ export default function MainLayout({ children }: Readonly<{ children: React.Reac
           <Suspense>
             <Nav />
           </Suspense>
-        </CartProvider>
-      </UserProvider>
+     
     </main>
   );
 }

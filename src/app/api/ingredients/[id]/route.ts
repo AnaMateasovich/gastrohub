@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: rawId } = await params;
@@ -70,8 +70,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } },
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: rawId } = await params;

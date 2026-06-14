@@ -17,8 +17,8 @@ export type ProductType = {
   description?: string;
   createdAt?: Date;
   updatedAt?: Date | null;
-  saleUnit?: string;
-  saleAmount?: number;
+  saleUnit: string;
+  saleAmount: number;
   recipeId?: number;
   manualCost?: number | null;
   extraCost?: number;

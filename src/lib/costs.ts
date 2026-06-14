@@ -31,11 +31,25 @@ export const getProductCost = (product: ProductWithRecipeType): number | null =>
   let cost = 0;
 
   if (product.recipe) {
-    cost = product.recipe.items.reduce((acc, item) => {
-      return acc + Number(item.ingredient.price) * Number(item.quantity);
-    }, 0) * (Number(product.saleAmount) / Number(product.recipe.yield));
+    const totalRecipeCost = product.recipe.items.reduce((acc, item) => {
+      const unit = item.ingredient.unit;
+
+      const quantityInBase = toDisplayUnit(Number(item.quantity), unit);
+      const pricePerBase = Number(item.ingredient.price) / toDisplayUnit(1, unit);
+
+      return acc + pricePerBase * quantityInBase;
+    }, 0);
+
+    // Costo por unidad base del yield (g, ml, u)
+    const yieldInBase = toDisplayUnit(Number(product.recipe.yield), product.recipe.yieldUnit);
+    const costPerBase = yieldInBase > 0 ? totalRecipeCost / yieldInBase : 0;
+
+    // Cantidad vendida del producto también hay que convertirla a base
+    const saleAmountInBase = toDisplayUnit(Number(product.saleAmount), product.saleUnit);
+    cost = costPerBase * saleAmountInBase;
+  
   } else {
-    cost = product.manualCost!;
+    cost = Number(product.manualCost!);
   }
 
   return cost + (product.extraCost ?? 0);
@@ -72,7 +86,6 @@ export const getRecipesWithCost = async () => {
 
     const totalCost = items.reduce((acc, item) => {
       const unit = item.ingredient.unit; // "kg", "g", "l", "ml"
-      
       // cantidad guardada en DB está en la unidad del ingrediente
       // la convertimos a la unidad base (g, ml, u)
       const quantityInBase = toDisplayUnit(item.quantity, unit);
@@ -87,7 +100,7 @@ export const getRecipesWithCost = async () => {
     const yieldAmount = Number(r.yield);
     // el yield también hay que convertirlo a la unidad base
     const yieldInBase = toDisplayUnit(yieldAmount, r.yieldUnit);
-    const costPerUnit = yieldInBase > 0 ? totalCost / yieldAmount : 0;
+    const costPerUnit = yieldInBase > 0 ? totalCost / yieldInBase : 0;
 
     return {
       ...r,

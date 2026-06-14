@@ -1,14 +1,13 @@
 "use server";
-import Button from "./Button";
 import {
   ProductImageType,
-  ProductType,
   ProductWithRecipeAndCostsType,
 } from "../../types/product.type";
 import Image from "next/image";
 import AddToCartButton from "./AddToCartButton";
 import { getProductCost, getProductProfit } from "@/src/lib/costs";
 import RecipeProduct from "../../(admin)/components/RecipeProduct";
+import { toDisplayUnit } from "@/src/lib/units";
 
 type Props = {
   product: ProductWithRecipeAndCostsType;
@@ -55,7 +54,7 @@ const ProductDetails = async ({ product, mode = "client" }: Props) => {
               </div>
               <div className="bg-[var(--color-natural-bg)] py-2 px-4 rounded-md">
                 <p className="text-sm text-gray-700">Se vende por</p>
-                <p>{product.saleUnit ?? "No especificado"}</p>
+                <p>{product.saleAmount}{product.saleUnit ?? "No especificado"}</p>
               </div>
               <div className="bg-[var(--color-natural-bg)] py-2 px-4 rounded-md">
                 <p className="text-sm text-gray-700">Costo</p>

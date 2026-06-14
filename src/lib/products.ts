@@ -1,3 +1,4 @@
+"use server"
 import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "./prisma";
 import { Product } from "@prisma/client";
@@ -129,3 +130,12 @@ export const getProductBySlug = async (slug: string) => {
       : null,
   };
 };
+
+
+export async function checkSlugAvailable(slug: string) {
+  const product = await prisma.product.findUnique({
+    where: { slug },
+  });
+
+  return !product;
+}

@@ -17,7 +17,7 @@ model Product {
   manualCost  Decimal?       @db.Decimal(10, 2)
   extraCost Decimal? @db.Decimal(10, 2)
   recipeId    Int?
-  saleAmount  Decimal?       @db.Decimal(10, 2)
+  saleAmount  Decimal       @db.Decimal(10, 2)
   saleUnit    String?
   slug        String         @unique
   stock       Int            @default(0)
@@ -169,7 +169,6 @@ enum Orders_status {
   PENDING
   PREPARING
   READY
-  DELIVERED
   CANCELLED
   SHIPPED
   PICKEDUP

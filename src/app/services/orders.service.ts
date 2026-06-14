@@ -19,20 +19,6 @@ const createOrderSchema = z.object({
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>
 
-export const fetchOrders = async (status: string) => {
-  const params = status !== "ALL" ? `?status=${status}` : "";
-  const res = await fetch(`${BASE_URL}/api/orders${params}`);
-  return res.json();
-};
 
-// export const updateStatusOrder = async (orderId: number, newStatus: string) => {
-//   const res = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
-//     method: "PATCH",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ status: newStatus }),
-//   });
-//   if (!res.ok) throw new Error("Error actualizando status");
-//   return res.json();
-// };
 
 

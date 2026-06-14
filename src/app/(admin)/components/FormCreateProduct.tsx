@@ -19,6 +19,7 @@ import {
 import FormCreateRecipe from "./FormCreateRecipe";
 import { CreateRecipeType } from "@/src/lib/validations/recipe.schema";
 import { assignRecipeToProduct } from "@/src/lib/actions/recipe.action";
+import { checkSlugAvailable } from "@/src/lib/products";
 
 type RecipeSelectType = { id: number; name: string };
 type CostType = "manual" | "recipe-existing" | "recipe-new";
@@ -93,6 +94,7 @@ const FormCreateProduct = ({
   const {
     handleSubmit,
     register,
+    setError,
     formState: { errors },
   } = useForm<ProductFormType>({
     resolver: zodResolver(productSchema),
@@ -104,14 +106,33 @@ const FormCreateProduct = ({
           slug: productToEdit.slug,
           isActive: productToEdit.isActive,
           description: productToEdit.description,
-          saleAmount: productToEdit.saleAmount,
           saleUnit: productToEdit.saleUnit,
+          saleAmount: productToEdit.saleAmount,
+          extraCost: productToEdit.extraCost,
         }
-      : { isActive: true },
+      : {
+          name: "Pan integral",
+          price: 5500,
+          slug: "pan-integral",
+          isActive: true,
+          description: "Contiene semillas",
+          saleAmount: 1,
+          saleUnit: "u",
+          extraCost: 100,
+        },
   });
 
   // Paso 1 → Paso 2 (solo crear)
-  const handleNextStep = (data: ProductFormType) => {
+  const handleNextStep = async (data: ProductFormType) => {
+    const available = await checkSlugAvailable(data.slug);
+
+    if (!available) {
+      setError("slug", {
+        type: "manual",
+        message: "Este slug ya está en uso",
+      });
+      return;
+    }
     if (existingImages.length === 0 && imagesFile.length === 0) {
       setImageError("La imagen es obligatoria");
       return;
@@ -212,7 +233,7 @@ const FormCreateProduct = ({
       }
 
       setSuccessMessage("Producto editado con éxito");
-      router.refresh()
+      router.refresh();
 
       setTimeout(() => {
         router.push("/admin/productos");
@@ -294,13 +315,13 @@ const FormCreateProduct = ({
         error={errors.saleAmount?.message}
       />
       <Input
-  type="number"
-  placeholder="Costo extra (packaging, etiqueta, etc)"
-  name="extraCost"
-  registerOptions={{ valueAsNumber: true }}
-  register={register}
-  error={errors.extraCost?.message}
-/>
+        type="number"
+        placeholder="Costo extra (packaging, etiqueta, etc)"
+        name="extraCost"
+        registerOptions={{ valueAsNumber: true }}
+        register={register}
+        error={errors.extraCost?.message}
+      />
       <input
         type="file"
         multiple

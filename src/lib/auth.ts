@@ -1,5 +1,8 @@
+"use server"
 import { NextResponse } from "next/server"
 import { getUser } from "./user"
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken"
 
 export const requireAdmin = async () => {
   const user = await getUser();
@@ -19,3 +22,4 @@ export const requireAuth = async () => {
   }
   return user
 }
+

@@ -74,9 +74,9 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } },
-) {
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+)  {
   try {
     const { id: rawId } = await params;
     const id = Number(rawId);

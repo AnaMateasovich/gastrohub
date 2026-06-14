@@ -13,32 +13,18 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType | null>(null);
 
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<UserType | null>(null);
+export const UserProvider = ({
+  children,
+  initialUser,
+}: {
+  children: React.ReactNode;
+  initialUser: UserType | null;
+}) => {
+  const [user, setUser] = useState<UserType | null>(initialUser);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/user", {
-          credentials: "include"
-        });
-        if (!res.ok) {
-          setUser(null);
-          return;
-        }
-        const data = await res.json();
-        setUser(data);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
+  console.log("user", user);
 
   const handleLogout = async () => {
     try {

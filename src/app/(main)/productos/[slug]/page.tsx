@@ -21,7 +21,7 @@ async function ProductDetail({ params }: { params: Params }) {
         <BackButton />
         <h3 className="text-xl font-bold">Productos</h3>
       </div>
-     <ProductDetails product={product}/>
+     <ProductDetails product={product} mode="client"/>
     </div>
   );
 }

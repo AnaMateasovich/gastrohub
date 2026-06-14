@@ -3,7 +3,7 @@ export type Ingredient = {
     name: string
     unit: string
     price: number
-    stock: number
+    stock: number | null
     updatedAt: Date
 }
 

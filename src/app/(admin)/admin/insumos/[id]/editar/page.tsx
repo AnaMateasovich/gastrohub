@@ -1,29 +1,32 @@
 import CreateIngredientForm from "@/src/app/(admin)/components/CreateIngredientForm";
 import { prisma } from "@/src/lib/prisma";
-import React from "react";
+import { Suspense } from "react";
 
-const EditIngredientPage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
-  const { id } = await params;
+async function EditIngredientContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id: rawId } = await params;
+  const id = Number(rawId);
 
   const ingredient = await prisma.ingredient.findUnique({
-    where: { id: Number(id) },
+    where: { id },
   });
 
   const serializedIngredient = ingredient
     ? {
         ...ingredient,
         price: ingredient.price.toNumber(),
-        stock: ingredient.stock ? Number(ingredient.stock) : undefined
+        stock: ingredient.stock ? Number(ingredient.stock) : undefined,
       }
     : null;
 
+  return <CreateIngredientForm ingredientToEdit={serializedIngredient} />;
+}
+
+const EditIngredientPage = ({ params }: { params: Promise<{ id: string }> }) => {
   return (
     <div>
-      <CreateIngredientForm ingredientToEdit={serializedIngredient} />
+      <Suspense fallback={<div>Cargando...</div>}>
+        <EditIngredientContent params={params} />
+      </Suspense>
     </div>
   );
 };

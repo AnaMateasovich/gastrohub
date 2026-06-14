@@ -1,8 +1,9 @@
-"use server"
+"use server";
 import { prisma } from "@/src/lib/prisma";
 import { getProductProfit } from "@/src/lib/costs";
 import { OrderType } from "../types/order.type";
 import { connection } from "next/server";
+import { mapProduct } from "@/src/utils/products.utils";
 
 export const getDashboardStats = async (from?: string, to?: string) => {
   await connection();
@@ -30,24 +31,31 @@ export const getDashboardStats = async (from?: string, to?: string) => {
             include: {
               recipe: {
                 include: {
-                  items: { include: { ingredient: true } }
-                }
-              }
-            }
-          }
-        }
-      }
+                  items: { include: { ingredient: true } },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
   if (orders.length === 0) return null;
-
-  const totalRevenue = orders.reduce((acc: number, order:OrderType) => acc + Number(order.total), 0);
+  const totalRevenue = orders.reduce(
+    (acc: number, order: OrderType) => acc + Number(order.total),
+    0,
+  );
   const totalOrders = orders.length;
-  const averageTicket = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+  const averageTicket =
+    totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
   const totalCustomers = new Set(orders.map((o: OrderType) => o.email)).size;
-  const deliveries = orders.filter((o: OrderType) => Number(o.deliveryFee) > 0).length;
-  const pickups = orders.filter((o: OrderType) => Number(o.deliveryFee) === 0).length;
+  const deliveries = orders.filter(
+    (o: OrderType) => Number(o.deliveryFee) > 0,
+  ).length;
+  const pickups = orders.filter(
+    (o: OrderType) => Number(o.deliveryFee) === 0,
+  ).length;
 
   const cancelled = await prisma.orders.count({
     where: {
@@ -70,12 +78,19 @@ export const getDashboardStats = async (from?: string, to?: string) => {
     .slice(0, 5);
 
   const totalCost = orders.reduce((acc: number, order: OrderType) => {
-    return acc + order.orderItems.reduce((itemAcc, item) => {
-      const profitData = getProductProfit(item.product as any);
-      const unitCost = profitData?.cost ?? 0;
-      return itemAcc + unitCost * item.quantity;
-    }, 0);
+    return (
+      acc +
+      order.orderItems.reduce((itemAcc, item) => {
+        const profitData = getProductProfit(mapProduct(item.product));
+        const unitCost = Number(profitData?.cost ?? 0);
+        order.orderItems.forEach((item) => {
+
+});
+        return itemAcc + unitCost * item.quantity;
+      }, 0)
+    );
   }, 0);
+  
 
   const estimatedProfit = Math.round(totalRevenue - totalCost);
 

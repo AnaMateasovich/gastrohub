@@ -51,6 +51,7 @@ const Order = ({ order }: OrderProps) => {
     SHIPPED: "Enviado",
   };
 
+
   const getButtonText = (): string => {
     const next = getNextStatus();
     if (!next) return "No hay acciones disponibles";

@@ -1,9 +1,9 @@
-"use server"
+"use server";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { RegisterType } from "../app/types/register.type";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 export async function createUser({
   email,
@@ -40,20 +40,23 @@ export async function createUser({
 export async function getUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  console.log("token", token)
   if (!token) return null;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-    };
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET!)
+    );
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: payload.userId as string },
       omit: { password: true },
     });
 
     return user;
-  } catch {
+  } catch (error) {
+    console.error("getUser error:", error);
     return null;
   }
 }

@@ -1,26 +1,10 @@
 "use server";
 import { revalidateTag } from "next/cache";
 import { prisma } from "../prisma";
-import { CreateOrderInput, OrderType } from "../../app/types/order.type";
-import z from "zod";
+import { CreateOrderInput } from "../../app/types/order.type";
 import { Product } from "@prisma/client";
 import { getUser } from "../user";
-import { mapOrder } from "@/src/utils/orders.utils";
-
-const orderItemsSchema = z.object({
-  productId: z.number(),
-  quantity: z.number().min(1),
-});
-
-const createOrderSchema = z.object({
-  customerName: z.string().min(1),
-  email: z.string(),
-  phone: z.string().min(6),
-  address: z.string().min(3),
-  orderItems: z.array(orderItemsSchema).min(1),
-  wantsDelivery: z.boolean(),
-  discount: z.number().min(0).max(100).optional(),
-});
+import { createOrderSchema } from "../validations/order.schema";
 
 export async function createOrder(data: CreateOrderInput) {
   const session = await getUser();
@@ -34,7 +18,7 @@ export async function createOrder(data: CreateOrderInput) {
   const { customerName, email, phone, address, orderItems, wantsDelivery } =
     parsed.data;
 
-  const userId = session?.user?.id ?? null;
+  const userId = parsed.data.userId ?? session?.user?.id ?? null;
 
   const settings = await prisma.storeSettings.findFirst();
 

@@ -1,7 +1,8 @@
+import { getOrders } from "@/src/lib/orders";
 import { prisma } from "@/src/lib/prisma";
 import { Orders_status as OrderStatus, Prisma, Product } from "@prisma/client";
 import { create } from "domain";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
 export const orderItemsSechema = z.object({
@@ -107,33 +108,8 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status");
-
-    const where =
-      status && status !== "ALL" ? { status: status as OrderStatus } : {};
-
-    const orders = await prisma.orders.findMany({
-      where,
-      include: {
-        orderItems: {
-          include: {
-            product: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return NextResponse.json(orders);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Error fetching orders" },
-      { status: 500 },
-    );
-  }
+export async function GET(req: NextRequest) {
+  const cursor = req.nextUrl.searchParams.get("cursor");
+  const data = await getOrders(cursor ? Number(cursor) : undefined);
+  return NextResponse.json(data);
 }

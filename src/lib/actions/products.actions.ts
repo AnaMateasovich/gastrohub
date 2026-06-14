@@ -9,6 +9,7 @@ import { prisma } from "../prisma";
 import { createRecipeSchema } from "../validations/recipe.schema";
 import { toStorageUnit } from "../units";
 import { mapProduct } from "@/src/utils/products.utils";
+import { requireAdmin } from "../auth";
 
 const createProductSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -33,8 +34,8 @@ const createProductSchema = z.object({
 });
 
 export const createProduct = async (formData: FormData) => {
-  const user = await getUser();
-  if (!user || user.role !== "ADMIN") throw new Error("No autorizado");
+  const admin = await requireAdmin();
+  if (!admin) throw new Error("No autorizado");
 
   const raw = {
     name: formData.get("name") as string,
@@ -118,6 +119,7 @@ export const createProduct = async (formData: FormData) => {
     ...product,
     price: Number(product.price),
     extraCost: Number(product.extraCost),
+    manualCost: Number(product.manualCost)
   };
 };
 export const deleteProductImageById = async (

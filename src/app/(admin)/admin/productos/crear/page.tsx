@@ -1,15 +1,20 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import FormCreateProduct from '../../../components/FormCreateProduct'
 import { getRecipesSelect } from '@/src/lib/recipes';
 
-const page = async () => {
+async function CreateProductContent() {
   const recipes = await getRecipesSelect();
+  return <FormCreateProduct recipes={recipes} />;
+}
+
+const page = async () => {
   return (
     <div className="px-4">
-      <FormCreateProduct recipes={recipes} />
+      <Suspense fallback={<div>Cargando...</div>}>
+        <CreateProductContent />
+      </Suspense>
     </div>
   );
 };
-
 
 export default page
