@@ -25,7 +25,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
     onDelete?.(id);
     setMenuOpen(false);
   };
-  console.log(product);
+  (product);
   return (
     <div
       className="flex justify-between gap-2"

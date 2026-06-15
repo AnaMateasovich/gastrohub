@@ -5,6 +5,7 @@ import { OrderStatus } from "./orderStatus.type";
 export type OrderType = {
   id: number;
   customerName: string;
+  customerLastname: string;
   phone: string;
   status: OrderStatus;
   createdAt: Date;
@@ -22,10 +23,11 @@ export type OrderType = {
 
 export type CreateOrderInput = {
   customerName: string
+  customerLastname: string
   phone: string
   email: string
   address: string
-  userId: number | null
+  userId: string | null
   wantsDelivery: boolean
   orderItems: {
     productId: number

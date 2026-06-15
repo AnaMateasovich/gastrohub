@@ -119,7 +119,8 @@ export const createProduct = async (formData: FormData) => {
     ...product,
     price: Number(product.price),
     extraCost: Number(product.extraCost),
-    manualCost: Number(product.manualCost)
+    manualCost: Number(product.manualCost),
+    saleAmount: Number(product.saleAmount)
   };
 };
 export const deleteProductImageById = async (
@@ -163,8 +164,8 @@ export const deleteProductById = async (id: number) => {
 };
 
 export const updateProduct = async (formData: FormData) => {
-  const user = await getUser();
-  if (!user || user.role !== "ADMIN") {
+  const admin = await requireAdmin();
+  if (!admin) {
     throw new Error("No autorizado");
   }
 

@@ -47,6 +47,8 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/admin/recetas/${recipe.id}/editar`);
+                  setMenuOpen(!menuOpen)
+
                 }}
               >
                 Editar
@@ -56,6 +58,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteRecipe(recipe.id, recipe.name);
+                  setMenuOpen(!menuOpen)
                 }}
               >
                 Eliminar

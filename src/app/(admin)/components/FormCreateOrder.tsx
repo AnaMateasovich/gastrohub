@@ -9,6 +9,9 @@ import { getProducts } from "@/src/lib/products";
 import { ProductType } from "../../types/product.type";
 import { UserType } from "../../types/user.type";
 import useDebounce from "../../hooks/useDebounce";
+import { createOrder } from "@/src/lib/actions/orders.action";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type OrderFormType = z.infer<typeof adminCreateOrderSchema>;
 
@@ -17,6 +20,9 @@ const FormCreateOrder = () => {
   const [productsList, setProducts] = useState<ProductType[]>([]);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<UserType[]>([]);
+  const [onSubmiting, setOnSubmiting] = useState<boolean>(false);
+
+const router = useRouter()
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -46,20 +52,45 @@ const FormCreateOrder = () => {
   const customerType = watch("customerType");
   const wantsDelivery = watch("wantsDelivery");
 
-  const onSubmit = async (data: OrderFormType) => {
-    console.log(data);
-  };
+const onSubmit = async (data: OrderFormType) => {
+  try {
+    setOnSubmiting(true);
+
+    
+    await createOrder({
+      customerName: data.customerName,
+      customerLastname: data.customerLastname,
+      phone: data.phone,
+      email: data.email,
+      address: data.address,
+      userId: customerType === "existing" ? (data.userId ?? null) : null,
+      wantsDelivery: wantsDelivery,
+      orderItems: orderItems.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
+    });
+    toast.success("Pedido creado correctamente");
+    router.push("/admin/pedidos");
+  } catch (error) {
+    console.error(error);
+    toast.error("Hubo un error al crear el pedido");
+  } finally {
+    setOnSubmiting(false);
+  }
+};
+  
 
   useEffect(() => {
     if (!debouncedSearch) return;
 
     const fetchClients = async () => {
       const res = await fetch(`/api/clients?email=${debouncedSearch}`);
-       if (!res.ok) {
-    console.error("Error:", res.status, await res.text()); // ver el error real
-    return;
-  }
-  
+      if (!res.ok) {
+        console.error("Error:", res.status, await res.text()); // ver el error real
+        return;
+      }
+
       const customers = await res.json();
       setResults(customers);
     };
@@ -74,7 +105,6 @@ const FormCreateOrder = () => {
 
     fetchProducts();
   }, []);
-  console.log(results);
   return (
     <>
       {step === 1 && (
@@ -224,26 +254,91 @@ const FormCreateOrder = () => {
         </div>
       )}
       {step === 2 && customerType === "existing" && (
-        <div>
-          <input
-            type="text"
-            placeholder="Buscar cliente..."
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {results.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => {
-                setValue("userId", c.id);
-                setValue("customerName", c.name);
-                setResults([]);
-              }}
-            >
-              {" "}
-              {c.name} — {c.email}
+        <div className="flex flex-col gap-3">
+          <h2 className="mb-1">Buscar cliente existente</h2>
+
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Buscar por nombre o email..."
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--color-primary)] focus:outline-none transition-all text-sm"
+            />
+          </div>
+
+          {results.length > 0 && (
+            <div className="flex flex-col gap-1 border border-gray-200 rounded-xl overflow-hidden">
+              {results.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    setValue("userId", c.id);
+                    setValue("customerName", c.name);
+                    setValue("customerLastname", c.lastname);
+                    setValue("email", c.email);
+                    setValue("phone", c.phone);
+                    setValue("address", c.address);
+                    setResults([]);
+                  }}
+                  className="flex flex-col items-start px-4 py-3 hover:bg-[var(--color-natural-bg)] transition-all text-left border-b border-gray-100 last:border-0"
+                >
+                  <span className="font-medium text-sm">
+                    {c.name} {c.lastname}
+                  </span>
+                  <span className="text-xs text-gray-500">{c.email}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {watch("userId") && (
+            <div className="p-4 rounded-xl border-2 border-[var(--color-primary)] bg-[var(--color-natural-bg)]">
+              <p className="font-medium text-[var(--color-primary-dark)]">
+                {watch("customerName")} {watch("customerLastname")}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">{watch("email")}</p>
+              <p className="text-sm text-gray-500">{watch("phone")}</p>
+              <p className="text-sm text-gray-500">{watch("address")}</p>
+            </div>
+          )}
+ <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setValue("wantsDelivery", false)}
+                className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                  ${
+                    !wantsDelivery
+                      ? "border-[var(--color-primary)] bg-[var(--color-natural-bg)]"
+                      : "border-gray-200 bg-white"
+                  }`}
+              >
+                <ShoppingBag size={20} />
+                Retira
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setValue("wantsDelivery", true)}
+                className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                  ${
+                    wantsDelivery
+                      ? "border-[var(--color-primary)] bg-[var(--color-natural-bg)]"
+                      : "border-gray-200 bg-white"
+                  }`}
+              >
+                <Bike size={20} />
+                Envío
+              </button>
+            </div>
+          <div className="flex justify-between items-center mt-2">
+            <button type="button" onClick={() => setStep(1)}>
+              ← Anterior
             </button>
-          ))}
+            <button type="button" onClick={() => setStep(3)}>
+              Siguiente →
+            </button>
+          </div>
         </div>
       )}
       {step === 3 && (

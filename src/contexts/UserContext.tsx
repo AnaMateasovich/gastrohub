@@ -24,7 +24,6 @@ export const UserProvider = ({
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  console.log("user", user);
 
   const handleLogout = async () => {
     try {

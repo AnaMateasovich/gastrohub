@@ -8,7 +8,6 @@ type Props = {
 
 const RecipeProduct = ({ recipe }: Props) => {
 
-  console.log(recipe)
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <div className="flex items-center gap-2 mb-3">

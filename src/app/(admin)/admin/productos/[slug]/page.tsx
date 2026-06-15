@@ -13,7 +13,6 @@ async function ProductDetail({ params }: { params: Params }){
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
-console.log(product)
   return (
     <div>
       <div className="flex gap-4 items-center mb-2 ml-2">

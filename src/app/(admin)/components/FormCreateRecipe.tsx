@@ -74,13 +74,12 @@ const FormCreateRecipe = ({
         id: recipeToEdit.id,
         ...data,
       });
-    }
-    if (onRecipeReady) {
+    } else if (onRecipeReady) {
       onRecipeReady(data);
     } else {
       await createRecipe(data);
-      router.push("/admin/recetas");
     }
+    router.push("/admin/recetas");
   };
 
   useEffect(() => {
@@ -104,8 +103,8 @@ const FormCreateRecipe = ({
     });
   }, [recipeToEdit, reset, replace]);
 
-  console.log(fields);
-  console.log(watch("items"));
+  (fields);
+  (watch("items"));
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">

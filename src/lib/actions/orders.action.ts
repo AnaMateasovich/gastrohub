@@ -12,10 +12,11 @@ export async function createOrder(data: CreateOrderInput) {
   const parsed = createOrderSchema.safeParse(data);
 
   if (!parsed.success) {
+     console.error(parsed.error.flatten());
     throw new Error("Datos invalidos");
   }
 
-  const { customerName, email, phone, address, orderItems, wantsDelivery } =
+  const { customerName, customerLastname, email, phone, address, orderItems, wantsDelivery } =
     parsed.data;
 
   const userId = parsed.data.userId ?? session?.user?.id ?? null;
@@ -62,6 +63,7 @@ export async function createOrder(data: CreateOrderInput) {
   await prisma.orders.create({
     data: {
       customerName,
+      customerLastname,
       email,
       phone,
       address,

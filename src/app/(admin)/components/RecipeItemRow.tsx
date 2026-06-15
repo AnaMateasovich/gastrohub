@@ -25,7 +25,7 @@ const RecipeItemRow = ({
     ? getDisplayUnit(selectedIngredient.unit)
     : "";
 
-  console.log({
+  ({
     index,
     selectedId,
     selectedIngredient,

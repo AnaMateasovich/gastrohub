@@ -14,6 +14,7 @@ const guessSchema = z.object({
   email: z.string().min(1, "El email es obligatorio").email("Email invalido"),
 
   name: z.string().min(1, "El nombre es obligatorio"),
+  lastname: z.string().min(1, "El apellido es obligatorio"),
 
   areaCod: z.string().min(1, "Código obligatorio"),
 
@@ -61,6 +62,7 @@ const router = useRouter()
       
     await createOrder({
       customerName: data.name,
+      customerLastname: data.lastname,
       phone: fullPhone,
       email: data.email,
       address: data.address,
@@ -98,8 +100,15 @@ const router = useRouter()
         type="text"
         name="name"
         register={register}
-        placeholder="Nombre y apellido"
+        placeholder="Nombre"
         error={errors.name?.message}
+      />
+       <Input
+        type="text"
+        name="lastname"
+        register={register}
+        placeholder="Aoellido"
+        error={errors.lastname?.message}
       />
       <div className="flex gap-2 w-full">
         <div className="w-[30%]">

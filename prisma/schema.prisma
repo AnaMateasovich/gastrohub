@@ -15,9 +15,9 @@ model Product {
   createdAt   DateTime       @default(now())
   description String?        @db.Text
   manualCost  Decimal?       @db.Decimal(10, 2)
-  extraCost Decimal? @db.Decimal(10, 2)
+  extraCost   Decimal?       @db.Decimal(10, 2)
   recipeId    Int?
-  saleAmount  Decimal       @db.Decimal(10, 2)
+  saleAmount  Decimal        @db.Decimal(10, 2)
   saleUnit    String?
   slug        String         @unique
   stock       Int            @default(0)
@@ -67,21 +67,22 @@ model User {
 }
 
 model Orders {
-  id           Int           @id @default(autoincrement())
-  customerName String
-  phone        String
-  status       Orders_status
-  createdAt    DateTime      @default(now())
-  email        String        @default("")
-  address      String        @default("")
-  userId       String?
-  subtotal     Decimal?      @db.Decimal(10, 2)
-  total        Decimal?      @db.Decimal(10, 2)
-  deliveryFee  Decimal?      @db.Decimal(10, 2)
-  discount     Decimal?      @db.Decimal(10, 2)
-  note         String?       @db.Text
-  orderItems   OrderItem[]
-  User         User?         @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  id               Int           @id @default(autoincrement())
+  customerName     String
+  customerLastname String
+  phone            String
+  status           Orders_status
+  createdAt        DateTime      @default(now())
+  email            String        @default("")
+  address          String        @default("")
+  userId           String?
+  subtotal         Decimal?      @db.Decimal(10, 2)
+  total            Decimal?      @db.Decimal(10, 2)
+  deliveryFee      Decimal?      @db.Decimal(10, 2)
+  discount         Decimal?      @db.Decimal(10, 2)
+  note             String?       @db.Text
+  orderItems       OrderItem[]
+  User             User?         @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
 
   @@index([userId], map: "Order_userId_fkey")
 }
@@ -112,7 +113,7 @@ model RecipeItem {
   id           Int        @id @default(autoincrement())
   ingredientId Int
   quantity     Decimal    @db.Decimal(10, 2)
-  unit          String
+  unit         String
   recipeId     Int
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "RecipeItem_ibfk_2")
   recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "RecipeItem_recipeId_fk")

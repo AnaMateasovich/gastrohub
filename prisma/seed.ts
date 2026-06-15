@@ -18,18 +18,55 @@ async function main() {
   });
 
   //Client
-  await prisma.user.upsert({
-  where: { email: "cliente@cliente.com" },
-  update: {},
-  create: {
-    name: "Ana García",
-    email: "cliente@cliente.com",
-    password: await bcrypt.hash("cliente123", 10),
-    role: "USER",
-    phone: "3413000001",
-    address: "Av. Siempreviva 742, Rosario",
-  },
-});
+  const cliente1 = await prisma.user.upsert({
+    where: { email: "cliente@cliente.com" },
+    update: {},
+    create: {
+      name: "Ana",
+      lastname: "García",
+      email: "cliente@cliente.com",
+      password: await bcrypt.hash("cliente123", 10),
+      role: "USER",
+      phone: "3413000001",
+      address: "Av. Siempreviva 742, Rosario",
+    },
+  });
+
+  const cliente2 = await prisma.user.create({
+    data: {
+      name: "Carlos",
+      lastname: "Pérez",
+      email: "carlos@cliente.com",
+      password: await bcrypt.hash("cliente123", 10),
+      role: "USER",
+      phone: "3413000002",
+      address: "San Martín 123, Rosario",
+    },
+  });
+
+  const cliente3 = await prisma.user.create({
+    data: {
+      name: "María",
+      lastname: "López",
+      email: "maria@cliente.com",
+      password: await bcrypt.hash("cliente123", 10),
+      role: "USER",
+      phone: "3413000003",
+      address: "Mitre 456, Casilda",
+    },
+  });
+
+  const cliente4 = await prisma.user.create({
+    data: {
+      name: "Juan",
+      lastname: "Rodríguez",
+      email: "juan@cliente.com",
+      password: await bcrypt.hash("cliente123", 10),
+      role: "USER",
+      phone: "3413000004",
+      address: "Belgrano 789, Casilda",
+    },
+  });
 
   // Settings
   await prisma.storeSettings.upsert({
@@ -130,7 +167,8 @@ async function main() {
     data: {
       name: "Waffle de almendras",
       slug: "waffle-almendras",
-      description: "Waffle sin gluten hecho con harina de almendras, ideal para un desayuno saludable.",
+      description:
+        "Waffle sin gluten hecho con harina de almendras, ideal para un desayuno saludable.",
       price: 1800,
       isActive: true,
       saleUnit: "u",
@@ -146,7 +184,8 @@ async function main() {
     data: {
       name: "Prepizza sin gluten",
       slug: "prepizza-sin-gluten",
-      description: "Base de pizza sin TACC, lista para usar. Crocante por fuera y tierna por dentro.",
+      description:
+        "Base de pizza sin TACC, lista para usar. Crocante por fuera y tierna por dentro.",
       price: 2200,
       isActive: true,
       saleUnit: "u",
@@ -162,7 +201,8 @@ async function main() {
     data: {
       name: "Pan de sandwich",
       slug: "pan-sandwich",
-      description: "Pan saludable de avena y banana, perfecto para armar sándwiches nutritivos.",
+      description:
+        "Pan saludable de avena y banana, perfecto para armar sándwiches nutritivos.",
       price: 2800,
       isActive: true,
       saleUnit: "u",
@@ -178,7 +218,8 @@ async function main() {
     data: {
       name: "Waffle clásico",
       slug: "waffle-clasico",
-      description: "Nuestro waffle clásico, esponjoso y dorado. Ideal para el desayuno o la merienda.",
+      description:
+        "Nuestro waffle clásico, esponjoso y dorado. Ideal para el desayuno o la merienda.",
       price: 1500,
       isActive: true,
       saleUnit: "u",
@@ -189,7 +230,122 @@ async function main() {
       },
     },
   });
+const waffle = await prisma.product.findUnique({
+  where: { slug: "waffle-almendras" },
+});
 
+const prepizza = await prisma.product.findUnique({
+  where: { slug: "prepizza-sin-gluten" },
+});
+
+const sandwich = await prisma.product.findUnique({
+  where: { slug: "pan-sandwich" },
+});
+
+await prisma.orders.create({
+  data: {
+    customerName: "Ana",
+    customerLastname: "García",
+    email: "cliente@cliente.com",
+    phone: "3413000001",
+    address: "Av. Siempreviva 742, Rosario",
+    status: "PENDING",
+    userId: cliente1.id,
+    subtotal: 5800,
+    total: 6300,
+    deliveryFee: 500,
+    discount: 0,
+    orderItems: {
+      create: [
+        {
+          productId: waffle!.id,
+          quantity: 2,
+          price: 1800,
+        },
+        {
+          productId: prepizza!.id,
+          quantity: 1,
+          price: 2200,
+        },
+      ],
+    },
+  },
+});
+
+await prisma.orders.create({
+  data: {
+    customerName: "Carlos",
+    customerLastname: "Pérez",
+    email: "carlos@cliente.com",
+    phone: "3413000002",
+    address: "San Martín 123, Rosario",
+    status: "PREPARING",
+    userId: cliente2.id,
+    subtotal: 5600,
+    total: 5600,
+    deliveryFee: 0,
+    discount: 0,
+    orderItems: {
+      create: [
+        {
+          productId: sandwich!.id,
+          quantity: 2,
+          price: 2800,
+        },
+      ],
+    },
+  },
+});
+
+await prisma.orders.create({
+  data: {
+    customerName: "María",
+    customerLastname: "López",
+    email: "maria@cliente.com",
+    phone: "3413000003",
+    address: "Mitre 456, Casilda",
+    status: "READY",
+    userId: cliente3.id,
+    subtotal: 6600,
+    total: 6600,
+    deliveryFee: 0,
+    discount: 0,
+    orderItems: {
+      create: [
+        {
+          productId: prepizza!.id,
+          quantity: 3,
+          price: 2200,
+        },
+      ],
+    },
+  },
+});
+
+await prisma.orders.create({
+  data: {
+    customerName: "Juan",
+    customerLastname: "Rodríguez",
+    email: "juan@cliente.com",
+    phone: "3413000004",
+    address: "Belgrano 789, Casilda",
+    status: "SHIPPED",
+    userId: cliente4.id,
+    subtotal: 7200,
+    total: 7700,
+    deliveryFee: 500,
+    discount: 0,
+    orderItems: {
+      create: [
+        {
+          productId: waffle!.id,
+          quantity: 4,
+          price: 1800,
+        },
+      ],
+    },
+  },
+});
   console.log("Seed completado");
 }
 

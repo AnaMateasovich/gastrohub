@@ -20,7 +20,7 @@ const OrderCard = ({ order }: OrderCardProps) => {
           <p className="text-lg">#{order.id}</p>
           <p className="text-gray-600">{localDate}</p>
         </div>
-        <p className="text-xl font-semibold">{order.customerName}</p>
+        <p className="text-xl font-semibold">{order.customerName} {order.customerLastname}</p>
         <div className="flex items-center text-gray-600">
           <p>{order.orderItems.length} productos</p>
           <Dot size={25} />

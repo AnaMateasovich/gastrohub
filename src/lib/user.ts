@@ -40,7 +40,6 @@ export async function createUser({
 export async function getUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  console.log("token", token)
   if (!token) return null;
 
   try {

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { OrderType } from "../types/order.type";
 
 export function useInfiniteOrders(
@@ -38,6 +38,11 @@ export function useInfiniteOrders(
     },
     [loadMore],
   );
+
+  useEffect(() => {
+  setOrders(initialOrders);
+  setCursor(initialCursor);
+}, [initialOrders]); 
 
   return {orders, loading, hasMore, sentinelRef}
 }
