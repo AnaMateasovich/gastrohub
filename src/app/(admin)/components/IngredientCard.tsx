@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type IngredientCardProps = {
   ingredientId: number;
@@ -19,7 +20,6 @@ const IngredientCard = ({
   stock,
   onDelete,
 }: IngredientCardProps) => {
-  const [error, setError] = useState<string>("");
   const router = useRouter();
 
   const handleDelete = async (id: number) => {
@@ -34,15 +34,13 @@ const IngredientCard = ({
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error);
-        setTimeout(() => {
-          setError("");
-        }, 4000);
+        toast.error("Error al eliminar el ingrediente");
         return;
       }
+      toast.success("Ingrediente eliminado")
       onDelete(id);
-      setError("");
     } catch (error) {
+      toast.error("Ocurrio un error al eliminar el ingrediente");
       console.error(error);
     }
   };
@@ -59,7 +57,7 @@ const IngredientCard = ({
             </span>
             <button
               onClick={() =>
-                router.push(`/admin/insumos/${ingredientId}/editar`)
+                router.push(`/admin/menu/insumos/${ingredientId}/editar`)
               }
               className="p-1 text-[var(--color-primary)]"
             >
@@ -94,7 +92,6 @@ const IngredientCard = ({
           )}
         </div>
       </div>
-      <p className="text-red-600 text-sm px-2">{error}</p>
     </>
   );
 };

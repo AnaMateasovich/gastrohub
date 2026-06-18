@@ -4,6 +4,7 @@ import { EllipsisVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RecipeWithCostType } from "../../types/recipe.type";
 import { deleteRecipeById } from "@/src/lib/actions/recipe.action";
+import { toast } from "sonner";
 
 type Props = {
   recipe: RecipeWithCostType;
@@ -16,17 +17,25 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
   const router = useRouter();
 
   const handleDeleteRecipe = async (recipeId: number, recipeName: string) => {
-    const confirmed = confirm(
-      `Seguro que quieres eliminar la receta ${recipeName}`,
-    );
-    if (!confirmed) return;
-    await deleteRecipeById(recipeId);
-    onDelete?.(recipeId);
-    setMenuOpen(false);
+    try {
+      const confirmed = confirm(
+        `Seguro que quieres eliminar la receta ${recipeName}`,
+      );
+      if (!confirmed) return;
+      await deleteRecipeById(recipeId);
+      onDelete?.(recipeId);
+      toast.success("Receta eliminada")
+      setMenuOpen(false);
+    } catch (error) {
+      toast.error("Ocurrio un error al eliminar la receta")
+    }
   };
 
   return (
-    <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 flex flex-col gap-3 shadow-[var(--shadow-sm)]" onClick={() => router.push(`/admin/recetas/${recipe.id}`)}>
+    <div
+      className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 flex flex-col gap-3 shadow-[var(--shadow-sm)]"
+      onClick={() => router.push(`/admin/menu/recetas/${recipe.id}`)}
+    >
       <div className="flex justify-between items-start">
         <h5 className="font-bold text-lg text-base text-[var(--color-text-primary)]">
           {recipe.name}
@@ -46,9 +55,8 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/admin/recetas/${recipe.id}/editar`);
-                  setMenuOpen(!menuOpen)
-
+                  router.push(`/admin/menu/recetas/${recipe.id}/editar`);
+                  setMenuOpen(!menuOpen);
                 }}
               >
                 Editar
@@ -58,7 +66,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteRecipe(recipe.id, recipe.name);
-                  setMenuOpen(!menuOpen)
+                  setMenuOpen(!menuOpen);
                 }}
               >
                 Eliminar

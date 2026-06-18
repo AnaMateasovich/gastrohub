@@ -11,7 +11,7 @@ const page = () => {
           <BackButton />
           <h1 className="text-2xl font-bold">Insumos</h1>
         </div>
-        <Link href="/admin/insumos/crear" className="bg-[var(--color-primary)] text-white px-6 py-1 font-bold rounded-sm">Crear nuevo +</Link>
+        <Link href="/admin/menu/insumos/crear" className="bg-[var(--color-primary)] text-white px-6 py-1 font-bold rounded-sm">Crear nuevo +</Link>
       </div>
       <IngredientsList />
     </section>

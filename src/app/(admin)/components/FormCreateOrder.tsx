@@ -30,7 +30,7 @@ const router = useRouter()
     register,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
     setValue,
   } = useForm<OrderFormType>({
@@ -412,9 +412,10 @@ const onSubmit = async (data: OrderFormType) => {
             <button
               className="bg-[var(--color-primary)] py-2 px-4 text-white rounded"
               type="submit"
+              disabled={isSubmitting}
               onClick={handleSubmit(onSubmit)}
             >
-              Crear pedido
+             {isSubmitting ? "Creando pedido..." :  "Crear pedido"}
             </button>
           </div>
         </div>

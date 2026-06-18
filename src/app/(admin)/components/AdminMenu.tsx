@@ -12,7 +12,7 @@ const AdminMenu = () => {
           <h3 className="text-xl font-bold">Insumos</h3>
           <p className="text-sm w-[80%]">Lista de ingredientes y costos</p>
           <Link
-            href="/admin/insumos"
+            href="/admin/menu/insumos"
             className="bg-gray-300 py-1 px-4 rounded-md mt-2"
           >
             Ver lista
@@ -23,7 +23,7 @@ const AdminMenu = () => {
           <h3 className="text-xl font-bold">Recetas</h3>
           <p className="text-sm w-[80%]">Amdinistración de recetas</p>
           <Link
-            href="/admin/recetas"
+            href="/admin/menu/recetas"
             className="bg-gray-300 py-1 px-4 rounded-md mt-2"
           >
             Gestionar

@@ -29,6 +29,7 @@ const CartSummary = () => {
         }));
         await createOrder({
           customerName: user.name,
+          customerLastname: user.lastname,
           phone: user.phone,
           email: user.email,
           address: user.address,

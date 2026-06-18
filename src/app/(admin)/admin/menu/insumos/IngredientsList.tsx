@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import IngredientCard from "../../components/IngredientCard";
+import IngredientCard from "../../../components/IngredientCard";
 import { Ingredient } from "@prisma/client";
 
 const IngredientsList = () => {

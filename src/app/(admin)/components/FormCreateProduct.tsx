@@ -20,6 +20,7 @@ import FormCreateRecipe from "./FormCreateRecipe";
 import { CreateRecipeType } from "@/src/lib/validations/recipe.schema";
 import { assignRecipeToProduct } from "@/src/lib/actions/recipe.action";
 import { checkSlugAvailable } from "@/src/lib/products";
+import { toast } from "sonner";
 
 type RecipeSelectType = { id: number; name: string };
 type CostType = "manual" | "recipe-existing" | "recipe-new";
@@ -86,8 +87,6 @@ const FormCreateProduct = ({
     productToEdit?.images ?? [],
   );
   const [imageError, setImageError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [onSubmitting, setOnSubmitting] = useState(false);
 
   const router = useRouter();
 
@@ -95,7 +94,7 @@ const FormCreateProduct = ({
     handleSubmit,
     register,
     setError,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ProductFormType>({
     resolver: zodResolver(productSchema),
     mode: "onChange",
@@ -111,14 +110,7 @@ const FormCreateProduct = ({
           extraCost: productToEdit.extraCost,
         }
       : {
-          name: "Pan integral",
-          price: 5500,
-          slug: "pan-integral",
           isActive: true,
-          description: "Contiene semillas",
-          saleAmount: 1,
-          saleUnit: "u",
-          extraCost: 100,
         },
   });
 
@@ -150,7 +142,6 @@ const FormCreateProduct = ({
     if (costType === "recipe-new" && !recipeFormData) return;
 
     try {
-      setOnSubmitting(true);
       const formData = new FormData();
       const { formData: data, images } = productData;
 
@@ -173,15 +164,10 @@ const FormCreateProduct = ({
       }
 
       await createProduct(formData);
-      setSuccessMessage("Producto creado con éxito");
-      setTimeout(() => {
-        router.push("/admin/productos");
-        setSuccessMessage("");
-      }, 1000);
+      toast.success("Producto creado");
+      router.push(`/admin/productos`);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setOnSubmitting(false);
+      toast.error("Error al crear el producto");
     }
   };
 
@@ -192,7 +178,6 @@ const FormCreateProduct = ({
       return;
     }
     try {
-      setOnSubmitting(true);
       const formData = new FormData();
       formData.append("id", productToEdit!.id.toString());
       formData.append("name", data.name);
@@ -232,17 +217,12 @@ const FormCreateProduct = ({
         }
       }
 
-      setSuccessMessage("Producto editado con éxito");
+      toast.success("Producto editado con éxito");
       router.refresh();
-
-      setTimeout(() => {
-        router.push("/admin/productos");
-        setSuccessMessage("");
-      }, 1000);
+      router.push("/admin/productos");
     } catch (error) {
+      toast.error("Ocurrio un error al actualizar el producto");
       console.error(error);
-    } finally {
-      setOnSubmitting(false);
     }
   };
 
@@ -469,9 +449,9 @@ const FormCreateProduct = ({
               {costType !== "recipe-new" && (
                 <Button
                   type="button"
-                  text="Crear producto"
+                  text={isSubmitting ? "Creando..." : "Crear"}
                   disabled={
-                    onSubmitting ||
+                    isSubmitting ||
                     !costType ||
                     (costType === "manual" && !manualCostValue) ||
                     (costType === "recipe-existing" && !selectedRecipeId)
@@ -484,16 +464,10 @@ const FormCreateProduct = ({
               {costType === "recipe-new" && recipeFormData && (
                 <Button
                   type="button"
-                  text="Crear producto"
-                  disabled={onSubmitting}
+                  text={isSubmitting ? "Creando..." : "Crear"}
+                  disabled={isSubmitting}
                   onClick={handleCreate}
                 />
-              )}
-
-              {successMessage && (
-                <p className="text-green-600 font-medium text-center">
-                  {successMessage}
-                </p>
               )}
             </div>
           )}
@@ -603,14 +577,9 @@ const FormCreateProduct = ({
 
           <Button
             type="submit"
-            text="Guardar cambios"
-            disabled={onSubmitting}
+            text={isSubmitting ? "Guardando..." : "Guardar cambios"}
+            disabled={isSubmitting}
           />
-          {successMessage && (
-            <p className="text-green-600 font-medium text-center">
-              {successMessage}
-            </p>
-          )}
         </form>
       )}
     </>

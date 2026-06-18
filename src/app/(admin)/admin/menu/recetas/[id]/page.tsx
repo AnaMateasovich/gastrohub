@@ -1,9 +1,9 @@
 import { getRecipeByIdWithItems } from "@/src/lib/recipes";
 import React, { Suspense } from "react";
-import RecipeProduct from "../../../components/RecipeProduct";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import RecipeProduct from "@/src/app/(admin)/components/RecipeProduct";
 
 type Props = Promise<{ id: string }>;
 
@@ -20,7 +20,7 @@ const RecipePage = async ({ params }: { params: Props }) => {
           <h1 className="text-2xl font-bold">Receta</h1>
         </div>
         <div className="bg-[var(--color-primary)] text-white p-2 rounded-sm">
-          <Link href={`/admin/recetas/${recipe.id}/editar`}>
+          <Link href={`/admin/menu/recetas/${recipe.id}/editar`}>
             <Pencil size={20} />
           </Link>
         </div>

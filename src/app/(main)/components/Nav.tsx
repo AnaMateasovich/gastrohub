@@ -15,7 +15,7 @@ const Nav = () => {
   }, []);
   const totalProducts = getCartProductsQuantity();
   return (
-    <nav className="bg-[var(--color-background)] border border-gray-400 fixed bottom-0 left-1/2 -translate-x-1/2 w-full h-[60]  flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-9999">
+    <nav className="bg-[var(--color-background)] border border-gray-400 fixed bottom-0 left-1/2 -translate-x-1/2 w-full h-[60]  flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-9999 ">
       <Link href="home">
         <House
           size={30}

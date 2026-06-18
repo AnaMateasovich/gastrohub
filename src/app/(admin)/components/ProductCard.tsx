@@ -53,15 +53,15 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
             : product.description}
         </p>
         <div className="flex gap-2 mb-1">
-          <p className="font-bold">${product.price}</p>
+          <p className="font-bold">${product.price.toFixed(2)}</p>
           <p className="text-gray-600">por {product.saleAmount}{product.saleUnit}</p>
         </div>
         <div className="flex w-full gap-1">
-          <div className="w-full bg-[var(--color-natural-bg)] rounded-sm py-1 px-3 leading-tight">
+          <div className="bg-[var(--color-natural-bg)] rounded-sm py-1 px-3 leading-tight">
             <p className="text-sm">Costo</p>
-            <p>${product.profit?.cost} </p>
+            <p>${product.profit?.cost.toFixed(2)} </p>
           </div>
-          <div className="w-full bg-[var(--color-natural-bg)] rounded-sm py-1 px-3 leading-tight">
+          <div className="bg-[var(--color-natural-bg)] rounded-sm py-1 px-3 leading-tight">
             <p className="text-sm">Ganancia</p>
             <p
               className={

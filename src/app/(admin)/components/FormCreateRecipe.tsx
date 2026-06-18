@@ -14,6 +14,7 @@ import { toDisplayUnit, YIELD_UNITS } from "@/src/lib/units";
 import { createRecipe, updateRecipe } from "@/src/lib/actions/recipe.action";
 import { useRouter } from "next/navigation";
 import { RecipeType } from "../../types/recipe.type";
+import { toast } from "sonner";
 
 type FormCreateRecipeProps = {
   onRecipeReady?: (data: CreateRecipeType) => void;
@@ -25,6 +26,7 @@ const FormCreateRecipe = ({
   recipeToEdit,
 }: FormCreateRecipeProps) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [createAndContinue, setCreateAndContinue] = useState(false);
 
   const router = useRouter();
 
@@ -42,26 +44,32 @@ const FormCreateRecipe = ({
     fetchIngredients();
   }, []);
 
-  const { control, handleSubmit, register, watch, reset } =
-    useForm<CreateRecipeType>({
-      resolver: zodResolver(createRecipeSchema),
-      defaultValues: !recipeToEdit
-        ? {
-            name: "",
-            yield: undefined,
-            yieldUnit: "kg",
-            items: [{ ingredientId: 0, quantity: 0 }],
-          }
-        : {
-            name: recipeToEdit.name,
-            yield: recipeToEdit.yield,
-            yieldUnit: recipeToEdit.yieldUnit,
-            items: recipeToEdit.items.map((i) => ({
-              ingredientId: i.ingredientId,
-              quantity: toDisplayUnit(i.quantity, i.unit),
-            })),
-          },
-    });
+  const {
+    control,
+    handleSubmit,
+    register,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateRecipeType>({
+    resolver: zodResolver(createRecipeSchema),
+    defaultValues: !recipeToEdit
+      ? {
+          name: "",
+          yield: undefined,
+          yieldUnit: "kg",
+          items: [{ ingredientId: 0, quantity: 0 }],
+        }
+      : {
+          name: recipeToEdit.name,
+          yield: recipeToEdit.yield,
+          yieldUnit: recipeToEdit.yieldUnit,
+          items: recipeToEdit.items.map((i) => ({
+            ingredientId: i.ingredientId,
+            quantity: toDisplayUnit(i.quantity, i.unit),
+          })),
+        },
+  });
 
   const { fields, append, remove, replace } = useFieldArray({
     control,
@@ -69,17 +77,26 @@ const FormCreateRecipe = ({
   });
 
   const onSubmit = async (data: CreateRecipeType) => {
-    if (recipeToEdit) {
-      await updateRecipe({
-        id: recipeToEdit.id,
-        ...data,
-      });
-    } else if (onRecipeReady) {
-      onRecipeReady(data);
-    } else {
-      await createRecipe(data);
+    try {
+      if (recipeToEdit) {
+        await updateRecipe({
+          id: recipeToEdit.id,
+          ...data,
+        });
+        toast.success("Receta actualizada");
+        router.push("/admin/menu/recetas");
+      } else if (onRecipeReady) {
+        onRecipeReady(data);
+      } else {
+        await createRecipe(data);
+        toast.success("Receta creada");
+        if (!createAndContinue) {
+          router.push("/admin/menu/recetas");
+        }
+      }
+    } catch (error) {
+      toast.error("Ocurrio un error al crear la receta");
     }
-    router.push("/admin/recetas");
   };
 
   useEffect(() => {
@@ -103,14 +120,15 @@ const FormCreateRecipe = ({
     });
   }, [recipeToEdit, reset, replace]);
 
-  (fields);
-  (watch("items"));
+  fields;
+  watch("items");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
       <Input
         type="text"
         name="name"
+        error={errors.name?.message}
         placeholder="Nombre de la receta"
         register={register}
       />
@@ -118,6 +136,7 @@ const FormCreateRecipe = ({
         type="number"
         name="yield"
         placeholder="¿Cuánto rinde esta receta? ej: 3"
+        error={errors.yield?.message}
         register={register}
         registerOptions={{ valueAsNumber: true }}
       />
@@ -149,11 +168,22 @@ const FormCreateRecipe = ({
       >
         + Agregar ingrediente
       </button>
+
       <Button
         type="submit"
+        disabled={isSubmitting}
         text={recipeToEdit ? "Actualizar" : "Crear"}
         className="mt-2"
+        onClick={() => setCreateAndContinue(false)}
       />
+      {!recipeToEdit && (
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          text={isSubmitting ? "Creando..." : "Guardar y crear otra"}
+          onClick={() => setCreateAndContinue(true)}
+        />
+      )}
     </form>
   );
 };

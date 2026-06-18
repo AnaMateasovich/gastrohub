@@ -1,6 +1,5 @@
 import FormCreateRecipe from "@/src/app/(admin)/components/FormCreateRecipe";
 import BackButton from "@/src/app/(main)/components/BackButton";
-import { prisma } from "@/src/lib/prisma";
 import { getRecipeByIdWithItems } from "@/src/lib/recipes";
 import { Suspense } from "react";
 

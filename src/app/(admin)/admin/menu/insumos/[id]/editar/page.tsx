@@ -1,8 +1,13 @@
 import CreateIngredientForm from "@/src/app/(admin)/components/CreateIngredientForm";
+import BackButton from "@/src/app/(main)/components/BackButton";
 import { prisma } from "@/src/lib/prisma";
 import { Suspense } from "react";
 
-async function EditIngredientContent({ params }: { params: Promise<{ id: string }> }) {
+async function EditIngredientContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id: rawId } = await params;
   const id = Number(rawId);
 
@@ -18,10 +23,22 @@ async function EditIngredientContent({ params }: { params: Promise<{ id: string 
       }
     : null;
 
-  return <CreateIngredientForm ingredientToEdit={serializedIngredient} />;
+  return (
+    <div className="px-4">
+      <div className="flex items-center gap-2 mb-6">
+        <BackButton />
+        <h3 className="text-xl font-bold">Editar ingrediente</h3>
+      </div>
+      <CreateIngredientForm ingredientToEdit={serializedIngredient} />
+    </div>
+  );
 }
 
-const EditIngredientPage = ({ params }: { params: Promise<{ id: string }> }) => {
+const EditIngredientPage = ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
   return (
     <div>
       <Suspense fallback={<div>Cargando...</div>}>
