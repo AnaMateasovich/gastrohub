@@ -99,7 +99,7 @@ const RegisterComponent = () => {
         type="text"
         name="lastname"
         register={register}
-        placeholder="Nombre"
+        placeholder="Apellido"
         error={errors.lastname?.message}
         errorWhitBg={true}
       />

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 import { adminCreateOrderSchema } from "@/src/lib/validations/order.schema";
-import { Bike, Minus, Plus, ShoppingBag, UserPlus, Users } from "lucide-react";
+import { Bike, Minus, Plus, ShoppingBag, UserPlus, Users, UserX } from "lucide-react";
 import Input from "../../(main)/components/Input";
 import { getProducts } from "@/src/lib/products";
 import { ProductType } from "../../types/product.type";
@@ -30,6 +30,7 @@ const router = useRouter()
     register,
     watch,
     control,
+    reset,
     formState: { errors, isSubmitting },
     handleSubmit,
     setValue,
@@ -72,6 +73,8 @@ const onSubmit = async (data: OrderFormType) => {
     });
     toast.success("Pedido creado correctamente");
     router.push("/admin/pedidos");
+    reset()
+    setStep(1)
   } catch (error) {
     console.error(error);
     toast.error("Hubo un error al crear el pedido");
@@ -114,6 +117,26 @@ const onSubmit = async (data: OrderFormType) => {
               ¿Cómo querés ingresar el cliente?
             </p>
             <div className="grid grid-cols-2 gap-3">
+              <button
+  type="button"
+  onClick={() => {
+    setValue("customerType", "anonymous");
+    setValue("customerName", "Anónimo");
+    setValue("customerLastname", "Anónimo");
+    setValue("phone", "0000000000");
+    setValue("email", "anonimo@anonimo.com");
+    setValue("address", "Sin dirección");
+    setValue("userId", undefined);
+    setValue("wantsDelivery", false); // venta anónima siempre es "retira"
+  }}
+  className={`flex flex-col items-center gap-2 p-6 rounded-2xl border-2 transition-all
+    ${customerType === "anonymous" ? "border-[var(--color-primary)] bg-[var(--color-natural-bg)]" : "border-gray-200 bg-white"}`}
+>
+  <UserX size={28} className={customerType === "anonymous" ? "text-[var(--color-primary-dark)]" : "text-gray-400"} />
+  <span className={`font-medium ${customerType === "anonymous" ? "text-[var(--color-primary-dark)]" : "text-gray-700"}`}>
+    Anónimo
+  </span>
+</button>
               <button
                 type="button"
                 onClick={() => setValue("customerType", "new")}
@@ -166,7 +189,7 @@ const onSubmit = async (data: OrderFormType) => {
             </div>
 
             <div className="flex justify-end mt-2">
-              <button type="button" onClick={() => setStep(2)}>
+              <button type="button" onClick={() => setStep(customerType === "anonymous" ? 3 : 2)}>
                 Siguiente →
               </button>
             </div>
@@ -184,6 +207,13 @@ const onSubmit = async (data: OrderFormType) => {
               type="text"
               placeholder="Nombre del cliente"
               name="customerName"
+              register={register}
+              error={errors.customerName?.message}
+            />
+             <Input
+              type="text"
+              placeholder="Apellido del cliente"
+              name="customerLastname"
               register={register}
               error={errors.customerName?.message}
             />
@@ -406,7 +436,7 @@ const onSubmit = async (data: OrderFormType) => {
             <span>${total.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mt-2">
-            <button type="button" onClick={() => setStep(2)}>
+            <button type="button" onClick={() => setStep(customerType === "anonymous" ? 1 : 2)}>
               ← Anterior
             </button>
             <button

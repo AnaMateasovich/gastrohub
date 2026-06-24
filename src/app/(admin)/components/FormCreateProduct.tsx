@@ -94,6 +94,7 @@ const FormCreateProduct = ({
     handleSubmit,
     register,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormType>({
     resolver: zodResolver(productSchema),
@@ -165,6 +166,7 @@ const FormCreateProduct = ({
 
       await createProduct(formData);
       toast.success("Producto creado");
+      reset()
       router.push(`/admin/productos`);
     } catch (error) {
       toast.error("Error al crear el producto");

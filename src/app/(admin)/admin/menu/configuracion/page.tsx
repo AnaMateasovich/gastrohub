@@ -1,0 +1,113 @@
+import BackButton from "@/src/app/(main)/components/BackButton";
+import { StoreSettingsType } from "@/src/app/types/storeSettings";
+import { getSettings } from "@/src/lib/settings";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
+import React, { Suspense } from "react";
+import SettingsGroup from "../../../components/SettingsGroup";
+import SettingsRow from "../../../components/SettingsRow";
+
+const page = () => {
+  return (
+    <section className="mx-4">
+      <div className="flex items-center gap-2">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Configuración</h1>
+      </div>
+      <Suspense>
+        <SettingsSection />
+      </Suspense>
+    </section>
+  );
+};
+
+const SettingsSection = async () => {
+  const config: StoreSettingsType | null = await getSettings();
+ if (!config) {
+    return (
+      <div className="mt-6 flex flex-col items-center text-center gap-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-6 shadow-[var(--shadow-sm)]">
+        <p className="text-[var(--color-text-primary)] font-medium">
+          Todavía no configuraste tu tienda
+        </p>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          Definí el costo de envío, horarios y métodos de contacto.
+        </p>
+        <Link
+          href="/admin/menu/configuracion/editar"
+          className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md mt-1"
+        >
+          Crear configuración
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 flex flex-col gap-4">
+      <div className="flex justify-end">
+        <Link
+          href="/admin/menu/configuracion/editar"
+          className="flex items-center gap-1 text-sm text-[var(--color-primary)] font-medium"
+        >
+          <Pencil size={16} />
+          Editar
+        </Link>
+      </div>
+
+      <SettingsGroup title="Envíos">
+        <SettingsRow label="Costo de envío" value={`$${config.deliveryFee}`} />
+        <SettingsRow
+          label="Envío gratis desde"
+          value={config.freeDeliveryFrom ? `$${config.freeDeliveryFrom}` : "Sin configurar"}
+        />
+        <SettingsRow
+          label="Monto mínimo de compra"
+          value={config.minimumOrderAmount ? `$${config.minimumOrderAmount}` : "Sin configurar"}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup title="Horarios y estado">
+        <SettingsRow
+          label="Tienda"
+          value={config.storeOpen ? "Abierta" : "Cerrada"}
+          highlight={config.storeOpen ? "success" : "danger"}
+        />
+        <SettingsRow label="Apertura" value={config.openingTime || "Sin configurar"} />
+        <SettingsRow label="Cierre" value={config.closingTime || "Sin configurar"} />
+        <SettingsRow
+          label="Modo mantenimiento"
+          value={config.maintenanceMode ? "Activado" : "Desactivado"}
+          highlight={config.maintenanceMode ? "danger" : undefined}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup title="Contacto">
+        <SettingsRow label="WhatsApp" value={config.whatsappPhone || "Sin configurar"} />
+        <SettingsRow label="Email" value={config.storeEmail || "Sin configurar"} />
+        <SettingsRow label="Instagram" value={config.instagramUrl || "Sin configurar"} />
+      </SettingsGroup>
+
+      <SettingsGroup title="Pedidos y cupones">
+        <SettingsRow
+          label="Compra sin registro"
+          value={config.allowGuestCheckout ? "Permitida" : "No permitida"}
+        />
+        <SettingsRow
+          label="Cupones"
+          value={config.enableCoupons ? "Habilitados" : "Deshabilitados"}
+        />
+        <SettingsRow
+          label="Descuento máximo"
+          value={config.maxDiscountPercentage ? `${config.maxDiscountPercentage}%` : "Sin configurar"}
+        />
+      </SettingsGroup>
+
+      {config.announcementBar && (
+        <SettingsGroup title="Anuncios">
+          <SettingsRow label="Barra de anuncio" value={config.announcementBar} />
+        </SettingsGroup>
+      )}
+    </div>
+  );
+};
+export default page;

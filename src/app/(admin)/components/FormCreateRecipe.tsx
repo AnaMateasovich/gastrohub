@@ -87,9 +87,11 @@ const FormCreateRecipe = ({
         router.push("/admin/menu/recetas");
       } else if (onRecipeReady) {
         onRecipeReady(data);
+        reset();
       } else {
         await createRecipe(data);
         toast.success("Receta creada");
+        reset();
         if (!createAndContinue) {
           router.push("/admin/menu/recetas");
         }

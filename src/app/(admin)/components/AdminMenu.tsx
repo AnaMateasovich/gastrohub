@@ -36,16 +36,16 @@ const AdminMenu = () => {
           <div className="flex justify-between bg-white border border-gray-200 py-4 px-3 text-lg rounded-sm shadow-sm">
             <div className="flex gap-2">
               <Truck />
-              <Link href="/admin/costs">Proveedores</Link>
+              <Link href="/admin/menu/proveedores">Proveedores</Link>
             </div>
-            <ChevronRight className="text-gray-500"/>
+            <ChevronRight className="text-gray-500" />
           </div>
-           <div className="flex justify-between bg-white border border-gray-300 py-4 px-3 text-lg rounded-sm shadow-sm">
+          <div className="flex justify-between bg-white border border-gray-300 py-4 px-3 text-lg rounded-sm shadow-sm">
             <div className="flex gap-2">
               <Cog />
-              <Link href="/admin/costs">Configuración</Link>
+              <Link href="/admin/menu/configuracion">Configuración</Link>
             </div>
-            <ChevronRight className="text-gray-500"/>
+            <ChevronRight className="text-gray-500" />
           </div>
         </div>
       </div>

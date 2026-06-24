@@ -20,5 +20,5 @@ export const baseOrderSchema = z.object({
 export const createOrderSchema = baseOrderSchema;
 
 export const adminCreateOrderSchema = baseOrderSchema.extend({
-  customerType: z.enum(["new", "existing"]),
+  customerType: z.enum(["new", "existing", "anonymous"]),
 });
