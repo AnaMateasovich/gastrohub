@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import Providers from "./providers";
 import Header from "./(main)/components/Header";
+import Footer from "./(main)/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,10 +33,9 @@ export default function RootLayout({
     >
       <body className="h-screen flex flex-col">
         <Suspense fallback={null}>
-          <Providers>
+          <main className="flex-1 w-full max-w-[1400px] mx-auto ">
             {children}
-            <Header />
-          </Providers>
+          </main>
         </Suspense>
       </body>
     </html>
