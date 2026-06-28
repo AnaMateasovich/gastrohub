@@ -7,12 +7,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <h4 className="font-bold text-xl p-2 ">Admin</h4>
+    <div className="h-full overflow-hidden">
       <Suspense>
         <NavAdmin />
       </Suspense>
-      <main className="flex-1 overflow-y-auto pb-20">{children}</main>
+      <main className="h-full overflow-y-auto pb-20 md:pb-0 md:pl-[70px] mt-4 mx-4">
+        {children}
+      </main>
     </div>
   );
 }
