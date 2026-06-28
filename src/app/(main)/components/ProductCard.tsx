@@ -63,7 +63,7 @@ const ProductCard = ({
         <div className="px-2 flex flex-col gap-2 ml-2">
           <div>
             <h3 className="font-bold text-xl">{product.name}</h3>
-            <p>{product.description}</p>
+            <p className="line-clamp-2 md:line-clamp-3">{product.description}</p>
             <p className="text-xl font-bold">${product.price}</p>
           </div>
         </div>

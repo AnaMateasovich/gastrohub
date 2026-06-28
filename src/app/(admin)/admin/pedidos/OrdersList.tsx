@@ -28,7 +28,7 @@ const OrdersList = ({ initialCursor, initialOrders }: OrderListProps) => {
       : orders.filter((o) => o.status === activeStatus);
 
   return (
-    <section className="flex flex-col gap-3 px-2">
+    <section className="flex flex-col gap-3">
       <div className="flex justify-between mb-2">
         <h4 className="text-2xl font-semibold">Pedidos</h4>
         <Link
@@ -40,12 +40,14 @@ const OrdersList = ({ initialCursor, initialOrders }: OrderListProps) => {
       </div>
 
       <StatusFilter onFilter={handleFilter} />
-      {filtered.map((order) => (
-        <Link href={`/admin/pedidos/${order.id}`} key={order.id}>
-          <OrderCard order={order} />
-        </Link>
-      ))}
-      <div ref={sentinelRef} className="h-4" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((order) => (
+          <Link href={`/admin/pedidos/${order.id}`} key={order.id}>
+            <OrderCard order={order} />
+          </Link>
+        ))}
+        <div ref={sentinelRef} className="h-4" />
+      </div>
 
       {loading && <p className="text-center py-4">Cargando...</p>}
       {!hasMore && (

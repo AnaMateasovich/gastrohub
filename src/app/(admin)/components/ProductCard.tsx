@@ -28,7 +28,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
   (product);
   return (
     <div
-      className="flex justify-between gap-2"
+      className="flex justify-between gap-3"
       onClick={() => routerPush && router.push(`${routerPush}/${product.slug}`)}
     >
       <div className="relative min-w-[80px]">

@@ -15,7 +15,7 @@ const page = async () => {
   const products: ProductType[] = await getProducts();
 
   return (
-    <section className="p-2">
+    <section className="mt-2 p-2">
       <h1 className="text-xl font-semibold mb-3 ">Nuestros productos</h1>
       <ProductList products={products} />
     </section>

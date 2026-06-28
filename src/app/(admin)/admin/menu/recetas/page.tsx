@@ -7,7 +7,7 @@ import { getRecipesWithCost } from "@/src/lib/costs";
 
 const page = () => {
   return (
-    <section className="mx-4">
+    <section className="">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <BackButton />

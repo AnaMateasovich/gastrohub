@@ -6,7 +6,11 @@ import { OrderType } from "@/src/app/types/order.type";
 const page = async () => {
   const { orders, nextCursor } = await getOrders();
 
-  return <OrdersList initialOrders={orders} initialCursor={nextCursor} />;
+  return (
+    <section className="">
+      <OrdersList initialOrders={orders} initialCursor={nextCursor} />
+    </section>
+  );
 };
 
 export default page;

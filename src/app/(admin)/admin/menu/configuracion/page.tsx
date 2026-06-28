@@ -9,7 +9,7 @@ import SettingsRow from "../../../components/SettingsRow";
 
 const page = () => {
   return (
-    <section className="mx-4">
+    <section className="">
       <div className="flex items-center gap-2">
         <BackButton />
         <h1 className="text-2xl font-bold">Configuración</h1>

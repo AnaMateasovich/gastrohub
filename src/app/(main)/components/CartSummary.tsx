@@ -84,12 +84,19 @@ const CartSummary = () => {
           </div>
         </div>
       )}
+
       {message && (
-        <p className="text-green-600 font-medium text-center px-4">{message}</p>
+        <p className="text-green-600 font-medium text-center px-4 md:px-0">{message}</p>
       )}
+
       {cart?.length > 0 ? (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 shadow-xl">
-          <div className="bg-[var(--color-card)] w-90 gap-4 flex flex-col  rounded-xl py-4 px-8">
+        <div
+          className="
+            fixed bottom-20 left-1/2 -translate-x-1/2 w-90 shadow-xl z-30
+            md:static md:left-auto md:translate-x-0 md:w-full md:sticky md:top-[90px]
+          "
+        >
+          <div className="bg-[var(--color-card)] gap-4 flex flex-col rounded-xl py-4 px-8">
             <p className="text-lg">
               Cant. de productos:{" "}
               <span className="font-bold">{getCartProductsQuantity()}</span>

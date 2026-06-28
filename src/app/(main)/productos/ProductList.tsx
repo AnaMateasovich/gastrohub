@@ -8,7 +8,7 @@ const ProductList = ({ products }: ProductListProps) => {
   const { addProduct } = useCart();
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
       {products.map((product, index) => (
         <li key={product.id}>
           <ProductCard product={product} onAdd={addProduct} priority={index < 3 } routerPush="/productos"/>

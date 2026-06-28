@@ -3,7 +3,7 @@ import UserProfileEdit from '../../components/UserProfileEdit'
 const page = () => {
   
   return (
-    <div className='px-2 mt-8'>
+    <div className='mx-auto px-2 mt-8 max-w-[500px]'>
         <UserProfileEdit />
     </div>
   )

@@ -17,7 +17,7 @@ async function ProductDetail({ params }: { params: Params }) {
 
   return (
     <div>
-      <div className="flex gap-4 items-center mb-2 ml-2">
+      <div className="mt-3 flex gap-4 items-center mb-2 ml-2">
         <BackButton />
         <h3 className="text-xl font-bold">Productos</h3>
       </div>
