@@ -33,7 +33,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
     >
       <div className="relative min-w-[80px]">
         <Image
-          src={product.images[0].url}
+          src={product.images[0]?.url ?? '/no-image.png'}
           fill
           sizes="120px"
           alt={product.name}

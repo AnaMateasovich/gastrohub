@@ -1,4 +1,4 @@
-import FormCreateRecipe from "@/src/app/(admin)/components/FormCreateRecipe";
+import FormCreateRecipe from "@/src/app/(admin)/components/forms/FormCreateRecipe";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import { getRecipeByIdWithItems } from "@/src/lib/recipes";
 import { Suspense } from "react";

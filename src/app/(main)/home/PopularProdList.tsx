@@ -12,7 +12,7 @@ const PopularProdList = ({products}: Props) => {
       {products.map((product) => (
         <div key={product.id}>
           <PopularProductsCard
-            imageSrc={product.images[0].url}
+            imageSrc={product.images[0]?.url ?? '/no-image.png'}
             name={product.name}
           />
         </div>

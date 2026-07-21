@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { getProductBySlug } from "@/src/lib/products";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { ProductImageType } from "@/src/app/types/product.type";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import ProductDetails from "@/src/app/(main)/components/ProductDetails";
 
@@ -10,6 +8,7 @@ type Params = Promise<{ slug: string }>;
  
 async function ProductDetail({ params }: { params: Params }){
   const { slug } = await params;
+  
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();

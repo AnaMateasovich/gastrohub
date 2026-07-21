@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { CostType } from "@/src/app/types/cost.type";
 import { RecipeWithCostType } from "@/src/app/types/recipe.type";
 import { useRouter } from "next/router";
-import RecipeCard from "../../../components/RecipeCard";
+import RecipeCard from "../../../components/recipes/RecipeCard";
 
 type Props = {
   recipes: RecipeWithCostType[]
@@ -22,7 +22,7 @@ const ListRecipes = ({recipes}: Props) => {
   
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {recipes.map((recipe) => (
         <div key={recipe.id}>
           <RecipeCard

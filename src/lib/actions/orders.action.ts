@@ -2,22 +2,29 @@
 import { revalidateTag } from "next/cache";
 import { prisma } from "../prisma";
 import { CreateOrderInput } from "../../app/types/order.type";
-import { Product } from "@prisma/client";
-import { getUser } from "../user";
+import { Product, Role } from "@prisma/client";
 import { createOrderSchema } from "../validations/order.schema";
+import { requireRole } from "../auth/role";
 
 export async function createOrder(data: CreateOrderInput) {
-  const session = await getUser();
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
 
   const parsed = createOrderSchema.safeParse(data);
 
   if (!parsed.success) {
-     console.error(parsed.error.flatten());
+    console.error(parsed.error.flatten());
     throw new Error("Datos invalidos");
   }
 
-  const { customerName, customerLastname, email, phone, address, orderItems, wantsDelivery } =
-    parsed.data;
+  const {
+    customerName,
+    customerLastname,
+    email,
+    phone,
+    address,
+    orderItems,
+    wantsDelivery,
+  } = parsed.data;
 
   const userId = parsed.data.userId ?? session?.user?.id ?? null;
 
@@ -60,8 +67,9 @@ export async function createOrder(data: CreateOrderInput) {
 
   const total = subtotal + deliveryFee;
 
-  await prisma.orders.create({
+  await prisma .order.create({
     data: {
+      organizationId: session.organizationId,
       customerName,
       customerLastname,
       email,
@@ -81,13 +89,15 @@ export async function createOrder(data: CreateOrderInput) {
     },
   });
 
-  revalidateTag("orders", "");
+  revalidateTag(`orders-${session.organizationId}`, "");
 }
 
 export async function updateStatusOrder(id: number, status: string) {
-  await prisma.orders.update({
-    where: { id },
+  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
+  await prisma .order.update({
+    where: { id, organizationId: session.organizationId },
     data: { status },
   });
-  revalidateTag("orders", "");
+  revalidateTag(`orders-${session.organizationId}`, "");
 }

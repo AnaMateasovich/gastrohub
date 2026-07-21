@@ -1,5 +1,5 @@
 import { ChefHat } from "lucide-react";
-import { RecipeType } from "../../types/recipe.type";
+import { RecipeType } from "../../../types/recipe.type";
 import { getDisplayUnit, toDisplayUnit } from "@/src/lib/units";
 
 type Props = {

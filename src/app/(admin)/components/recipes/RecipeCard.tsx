@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { EllipsisVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { RecipeWithCostType } from "../../types/recipe.type";
+import { RecipeWithCostType } from "../../../types/recipe.type";
 import { deleteRecipeById } from "@/src/lib/actions/recipe.action";
 import { toast } from "sonner";
 

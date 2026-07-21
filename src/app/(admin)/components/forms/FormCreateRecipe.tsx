@@ -2,18 +2,18 @@
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../../(main)/components/Button";
-import RecipeItemRow from "./RecipeItemRow";
-import { Ingredient } from "../../types/ingredient.type";
+import Button from "../../../(main)/components/Button";
+import RecipeItemRow from "../recipes/RecipeItemRow";
+import { Ingredient } from "../../../types/ingredient.type";
 import {
   createRecipeSchema,
   CreateRecipeType,
 } from "@/src/lib/validations/recipe.schema";
-import Input from "../../(main)/components/Input";
+import Input from "../../../(main)/components/Input";
 import { toDisplayUnit, YIELD_UNITS } from "@/src/lib/units";
 import { createRecipe, updateRecipe } from "@/src/lib/actions/recipe.action";
 import { useRouter } from "next/navigation";
-import { RecipeType } from "../../types/recipe.type";
+import { RecipeType } from "../../../types/recipe.type";
 import { toast } from "sonner";
 
 type FormCreateRecipeProps = {

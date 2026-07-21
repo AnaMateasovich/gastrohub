@@ -1,8 +1,8 @@
 import React from "react";
-import { Ingredient } from "../../types/ingredient.type";
+import { Ingredient } from "../../../types/ingredient.type";
 import { UseFormRegister, UseFormWatch } from "react-hook-form";
 import { getDisplayUnit } from "@/src/lib/units";
-import Input from "../../(main)/components/Input";
+import Input from "../../../(main)/components/Input";
 
 type Props = {
   index: number;

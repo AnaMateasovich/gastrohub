@@ -1,5 +1,6 @@
 import { getOrders } from "@/src/lib/orders";
 import { prisma } from "@/src/lib/prisma";
+import { getCurrentTenant } from "@/src/lib/tenant";
 import { Orders_status as OrderStatus, Prisma, Product } from "@prisma/client";
 import { create } from "domain";
 import { NextRequest, NextResponse } from "next/server";
@@ -34,6 +35,8 @@ export async function POST(req: Request) {
       );
     }
 
+    const organization = await getCurrentTenant()
+
     const {
       customerName,
       email,
@@ -47,6 +50,7 @@ export async function POST(req: Request) {
 
     const products: Product[] = await prisma.product.findMany({
       where: {
+        organization: organization.id,
         id: {
           in: items.map((item) => item.productId),
         },
@@ -79,7 +83,7 @@ export async function POST(req: Request) {
     const discountAmount = Number((subtotal * (discount / 100)).toFixed(2));
     const total = Number((subtotal + deliveryFee - discountAmount).toFixed(2));
 
-    const order = await prisma.orders.create({
+    const order = await prisma .order.create({
       data: {
         customerName,
         email,

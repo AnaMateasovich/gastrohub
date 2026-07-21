@@ -2,11 +2,11 @@ import Link from "next/link";
 import ProductListAdmin from "./ProductListAdmin";
 import { ProductWithRecipeAndCostsType } from "@/src/app/types/product.type";
 import { getProductsAdmin } from "@/src/lib/products";
+import { headers } from "next/headers";
 
 const page = async () => {
+  const products: ProductWithRecipeAndCostsType[] = await getProductsAdmin();
 
-    const products: ProductWithRecipeAndCostsType[] = await getProductsAdmin();
-  
   return (
     <section className=" flex flex-col gap-2">
       <div className="flex justify-between items-center mb-2">
@@ -19,7 +19,7 @@ const page = async () => {
         </Link>
       </div>
 
-      <ProductListAdmin products={products}/>
+      <ProductListAdmin products={products} />
     </section>
   );
 };

@@ -5,7 +5,7 @@ import Input from "./Input";
 import Button from "./Button";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/src/contexts/UserContext";
-import { login } from "@/src/lib/actions/login.action";
+import { login } from "@/src/lib/auth/login.action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/src/lib/validations/login.schema";
 import { useState } from "react";

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { registerUser } from "@/src/lib/actions/register.action";
+import { registerUser } from "@/src/lib/auth/register.action";
 import { toast } from "sonner";
 
 const registerSchema = z.object({

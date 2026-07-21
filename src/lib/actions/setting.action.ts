@@ -1,9 +1,13 @@
 "use server";
 import { storeSettingsSchema } from "../validations/configure.schema";
 import { prisma } from "../prisma";
-import { StoreSettingsFormType } from "@/src/app/(admin)/components/FormConfigure";
+import { StoreSettingsFormType } from "@/src/app/(admin)/components/forms/FormConfigure";
+import { requireRole } from "../auth/role";
+import { Role } from "@prisma/client";
 
 export const createStoreSettings = async (data: StoreSettingsFormType) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   const parsed = storeSettingsSchema.safeParse(data);
 
   if (!parsed.success) {
@@ -13,6 +17,7 @@ export const createStoreSettings = async (data: StoreSettingsFormType) => {
 
   const settings = await prisma.storeSettings.create({
     data: {
+      organizationId: session.organizationId,
       deliveryFee: parsed.data.deliveryFee,
       freeDeliveryFrom: parsed.data.freeDeliveryFrom,
       minimumOrderAmount: parsed.data.minimumOrderAmount,
@@ -34,6 +39,8 @@ export const createStoreSettings = async (data: StoreSettingsFormType) => {
 };
 
 export const updateStoreSettings = async (data: StoreSettingsFormType) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   const parsed = storeSettingsSchema.safeParse(data);
 
   if (!parsed.success) {
@@ -44,6 +51,7 @@ export const updateStoreSettings = async (data: StoreSettingsFormType) => {
   const settings = await prisma.storeSettings.update({
     where: { id: 1 },
     data: {
+      organizationId: session.organizationId,
       deliveryFee: parsed.data.deliveryFee,
       freeDeliveryFrom: parsed.data.freeDeliveryFrom,
       minimumOrderAmount: parsed.data.minimumOrderAmount,

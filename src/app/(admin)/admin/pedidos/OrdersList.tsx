@@ -2,9 +2,9 @@
 import { OrderType } from "@/src/app/types/order.type";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import OrderCard from "../../components/OrderCard";
-import StatusFilter from "../../components/StatusFilter";
+import OrderCard from "../../components/orders/OrderCard";
 import { useInfiniteOrders } from "@/src/app/hooks/useInfiiteOrders";
+import StatusFilter from "../../components/orders/StatusFilter";
 
 type OrderListProps = {
   initialOrders: OrderType[];

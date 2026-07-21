@@ -1,5 +1,5 @@
 import { getOrderById } from "@/src/lib/orders";
-import Order from "../../../components/Order";
+import Order from "../../../components/orders/Order";
 import { Suspense } from "react";
 
 type PageProps = {

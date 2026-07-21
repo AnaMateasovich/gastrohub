@@ -1,9 +1,10 @@
 "use server";
 import { getOrders } from "@/src/lib/orders";
 import OrdersList from "./OrdersList";
-import { OrderType } from "@/src/app/types/order.type";
+import { headers } from "next/headers";
 
 const page = async () => {
+
   const { orders, nextCursor } = await getOrders();
 
   return (

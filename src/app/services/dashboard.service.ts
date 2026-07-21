@@ -4,6 +4,9 @@ import { getProductProfit } from "@/src/lib/costs";
 import { OrderType } from "../types/order.type";
 import { connection } from "next/server";
 import { mapProduct } from "@/src/utils/products.utils";
+import { getCurrentTenant } from "@/src/lib/tenant";
+import { requireRole } from "@/src/lib/auth/role";
+import { Role } from "@prisma/client";
 
 export const getDashboardStats = async (from?: string, to?: string) => {
   await connection();
@@ -19,8 +22,11 @@ export const getDashboardStats = async (from?: string, to?: string) => {
   const endDate = new Date(toDate);
   endDate.setDate(endDate.getDate() + 1);
 
-  const orders = await prisma.orders.findMany({
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
+  const orders = await prisma.order.findMany({
     where: {
+      organizationId: session.organizationId,
       createdAt: { gte: startDate, lte: endDate },
       status: { not: "CANCELLED" },
     },
@@ -57,7 +63,7 @@ export const getDashboardStats = async (from?: string, to?: string) => {
     (o: OrderType) => Number(o.deliveryFee) === 0,
   ).length;
 
-  const cancelled = await prisma.orders.count({
+  const cancelled = await prisma .order.count({
     where: {
       createdAt: { gte: startDate, lte: endDate },
       status: "CANCELLED",
@@ -83,14 +89,11 @@ export const getDashboardStats = async (from?: string, to?: string) => {
       order.orderItems.reduce((itemAcc, item) => {
         const profitData = getProductProfit(mapProduct(item.product));
         const unitCost = Number(profitData?.cost ?? 0);
-        order.orderItems.forEach((item) => {
-
-});
+        order.orderItems.forEach((item) => {});
         return itemAcc + unitCost * item.quantity;
       }, 0)
     );
   }, 0);
-  
 
   const estimatedProfit = Math.round(totalRevenue - totalCost);
 

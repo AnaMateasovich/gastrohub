@@ -39,7 +39,7 @@
     // He quitado el .prisma de aquí
     ,
     ".next/dev/types/**/*.ts"
-  ],
+, "src/lib/tenant.ts"  ],
   "exclude": [
     "node_modules"
   ]

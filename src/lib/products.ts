@@ -1,19 +1,22 @@
-"use server"
+"use server";
 import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "./prisma";
-import { Product } from "@prisma/client";
+import { Product, Role } from "@prisma/client";
 import {
   ProductWithRecipeType,
   RecipeItemType,
 } from "../app/types/recipe.type";
 import { getProductCost, getProductProfit } from "./costs";
+import { requireRole } from "./auth/role";
+import { withOrg } from "./auth/with-org";
 
-export const getProducts = async () => {
+export const getProductsCached = async (organizationId: string) => {
   "use cache";
-  cacheTag("products");
+  cacheTag(`products-${organizationId}`);
   cacheLife("max");
+
   const products = await prisma.product.findMany({
-    where: { isActive: true },
+    where: { organizationId, isActive: true },
     include: {
       images: {
         orderBy: {
@@ -32,12 +35,19 @@ export const getProducts = async () => {
   }));
 };
 
-export const getProductsAdmin = async () => {
+export async function getProducts() {
+  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getProductsCached);
+}
+
+export const getProductsAdminCached = async (organizationId: string) => {
   "use cache";
-  cacheTag("products");
+  cacheTag(`products-${organizationId}`);
   cacheLife("max");
 
   const products = await prisma.product.findMany({
+    where: {
+      organizationId,
+    },
     include: {
       images: {
         orderBy: { position: "asc" },
@@ -86,13 +96,27 @@ export const getProductsAdmin = async () => {
     };
   });
 };
-export const getProductBySlug = async (slug: string) => {
+
+export async function getProductsAdmin() {
+  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getProductsAdminCached);
+}
+
+export const getProductBySlugCached = async (
+  organizationId: string,
+  slug: string,
+) => {
   "use cache";
+  cacheTag(`products-${organizationId}`);
   cacheTag(`product-${slug}`);
-  cacheTag("products");
   cacheLife("max");
+
   const product = await prisma.product.findUnique({
-    where: { slug },
+    where: {
+      organizationId_slug: {
+        organizationId,
+        slug,
+      },
+    },
     include: {
       images: true,
       recipe: {
@@ -131,10 +155,24 @@ export const getProductBySlug = async (slug: string) => {
   };
 };
 
+export async function getProductBySlug(slug: string) {
+  return withOrg(
+    [Role.OWNER, Role.ADMIN, Role.STAFF],
+    getProductBySlugCached,
+    slug,
+  );
+}
 
 export async function checkSlugAvailable(slug: string) {
+  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
   const product = await prisma.product.findUnique({
-    where: { slug },
+    where: {
+      organizationId_slug: {
+        organizationId: session.organizationId,
+        slug,
+      },
+    },
   });
 
   return !product;

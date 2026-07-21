@@ -1,5 +1,5 @@
 import React from 'react'
-import CreateOrderForm from '../../../components/FormCreateOrder'
+import CreateOrderForm from '../../../components/forms/FormCreateOrder'
 
 const page = () => {
   return (

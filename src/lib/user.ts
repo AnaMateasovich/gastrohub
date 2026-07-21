@@ -2,8 +2,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { RegisterType } from "../app/types/register.type";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
 
 export async function createUser({
   email,
@@ -35,27 +33,4 @@ export async function createUser({
   const { password: _, ...userWithoutPassword } = user;
 
   return userWithoutPassword;
-}
-
-export async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return null;
-
-  try {
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.JWT_SECRET!)
-    );
-
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId as string },
-      omit: { password: true },
-    });
-
-    return user;
-  } catch (error) {
-    console.error("getUser error:", error);
-    return null;
-  }
 }

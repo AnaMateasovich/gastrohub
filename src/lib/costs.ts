@@ -1,8 +1,10 @@
 // src/lib/costs.ts
 import { ProductWithRecipeType, RecipeType } from "../app/types/recipe.type";
 import { prisma } from "./prisma";
-import { Ingredient, Product, RecipeItem } from "@prisma/client";
+import { Ingredient, Product, RecipeItem, Role } from "@prisma/client";
 import { toDisplayUnit } from "./units";
+import { getCurrentTenant } from "./tenant";
+import { requireRole } from "./auth/role";
 
 // export const getCostByProductId = async () => {
 //   const products = await prisma.product.findMany({
@@ -69,7 +71,12 @@ export const getProductProfit = (product: ProductWithRecipeType) => {
 
 
 export const getRecipesWithCost = async () => {
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+  console.log(session)
   const recipes = await prisma.recipe.findMany({
+    where: {
+    organizationId: session.organizationId
+    },
     include: { items: { include: { ingredient: true } } },
   });
 

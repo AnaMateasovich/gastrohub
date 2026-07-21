@@ -1,4 +1,4 @@
-import { OrderType } from "../../types/order.type";
+import { OrderType } from "../../../types/order.type";
 import StatusOrder from "./StatusOrder";
 import { ChevronRight, Dot } from "lucide-react";
 
@@ -14,14 +14,14 @@ const OrderCard = ({ order }: OrderCardProps) => {
   );
 
   return (
-    <div className="bg-white flex items-center justify-between px-4 py-2 shadow-md rounded-xl">
+    <div className="bg-white flex items-center justify-between px-4 py-2 shadow-md rounded-xl overflow-hidden">
       <div className="flex flex-col ">
         <div className="flex items-center gap-2">
           <p className="text-lg">#{order.id}</p>
           <p className="text-gray-600">{localDate}</p>
         </div>
-        <p className="text-xl font-semibold">{order.customerName} {order.customerLastname}</p>
-        <div className="flex items-center text-gray-600">
+        <p className="text-xl font-semibold whitespace-nowrap">{order.customerName} {order.customerLastname}</p>
+        <div className="flex items-center text-gray-600 whitespace-nowrap">
           <p>{order.orderItems.length} productos</p>
           <Dot size={25} />
           <p>${total}</p>

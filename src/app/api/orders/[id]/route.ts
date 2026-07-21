@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
-    const order = await prisma.orders.findUnique({
+    const order = await prisma .order.findUnique({
       where: { id },
       include: {
         orderItems: {
@@ -67,11 +67,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Status inválido" }, { status: 400 });
     }
 
-    const updatedOrder = await prisma.orders.update({
+    const updatedOrder = await prisma .order.update({
       where: { id: Number(id) },
       data: { status },
     });
-    revalidateTag("orders", "");
+    revalidateTag(`orders-${session.organizationId}`, "");
     return NextResponse.json(updatedOrder);
   } catch (error) {
     console.error(error);

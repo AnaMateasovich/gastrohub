@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { updateIngredientsSchema } from "../route";
 import { prisma } from "@/src/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { getCurrentTenant } from "@/src/lib/tenant";
 
 export async function PATCH(
   req: Request,
@@ -26,9 +27,11 @@ export async function PATCH(
       );
     }
 
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
     const { name, unit, price, stock } = parsed.data;
     const existing = await prisma.ingredient.findUnique({
-      where: { id },
+      where: { id, organization: organization.id },
       select: { price: true },
     });
 
@@ -76,10 +79,13 @@ export async function DELETE(
   try {
     const { id: rawId } = await params;
     const id = parseInt(rawId);
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
 
-    await prisma.ingredientPriceHistory.deleteMany({ where: { ingredientId: id } });
+    await prisma.ingredientPriceHistory.deleteMany({
+      where: { id, organization: organization.id },
+    });
     await prisma.ingredient.delete({ where: { id } });
-    
+
     return NextResponse.json({ message: "Ingrediente eliminado" });
   } catch (error: any) {
     if (error.code === "P2003") {

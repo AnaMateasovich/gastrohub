@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import BackButton from "@/src/app/(main)/components/BackButton";
-import FormCreateRecipe from "@/src/app/(admin)/components/FormCreateRecipe";
+import FormCreateRecipe from "@/src/app/(admin)/components/forms/FormCreateRecipe";
 
 const page = () => {
 

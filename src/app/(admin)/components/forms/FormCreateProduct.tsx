@@ -2,11 +2,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import Input from "../../(main)/components/Input";
+import Input from "../../../(main)/components/Input";
 import { useState } from "react";
-import Button from "../../(main)/components/Button";
-import BackButton from "../../(main)/components/BackButton";
-import { ProductType } from "../../types/product.type";
+import Button from "../../../(main)/components/Button";
+import BackButton from "../../../(main)/components/BackButton";
+import { ProductType } from "../../../types/product.type";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X } from "lucide-react";
@@ -86,6 +86,7 @@ const FormCreateProduct = ({
   const [existingImages, setExistingImages] = useState(
     productToEdit?.images ?? [],
   );
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [imageError, setImageError] = useState("");
 
   const router = useRouter();
@@ -134,6 +135,29 @@ const FormCreateProduct = ({
     setStep(2);
   };
 
+const uploadImages = async () => {
+  const uploadedUrls: string[] = [];
+
+  for (const file of imagesFile) {
+    const fd = new FormData();
+    fd.append("image", file);
+    const res = await fetch("/api/products/images", {
+      method: "POST",
+      body: fd,
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error ?? "Error al subir una imagen");
+    }
+
+    const { url } = await res.json();
+    uploadedUrls.push(url);
+  }
+
+  return uploadedUrls;
+};
+
   // Submit final al crear
   const handleCreate = async () => {
     if (!productData) return;
@@ -143,6 +167,10 @@ const FormCreateProduct = ({
     if (costType === "recipe-new" && !recipeFormData) return;
 
     try {
+      setIsUploading(true);
+
+      const uploadedUrls = await uploadImages();
+
       const formData = new FormData();
       const { formData: data, images } = productData;
 
@@ -154,7 +182,7 @@ const FormCreateProduct = ({
       formData.append("saleUnit", data.saleUnit);
       formData.append("extraCost", String(data.extraCost ?? 0));
       formData.append("isActive", String(data.isActive));
-      images.forEach((file) => formData.append("images", file));
+      uploadedUrls.forEach((url) => formData.append("imageUrls", url));
 
       if (costType === "manual") {
         formData.append("manualCost", manualCostValue);
@@ -166,10 +194,13 @@ const FormCreateProduct = ({
 
       await createProduct(formData);
       toast.success("Producto creado");
-      reset()
+      reset();
+      setStep(1);
       router.push(`/admin/productos`);
     } catch (error) {
       toast.error("Error al crear el producto");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -180,6 +211,8 @@ const FormCreateProduct = ({
       return;
     }
     try {
+      const uploadedUrls = await uploadImages();
+
       const formData = new FormData();
       formData.append("id", productToEdit!.id.toString());
       formData.append("name", data.name);
@@ -190,7 +223,7 @@ const FormCreateProduct = ({
       formData.append("saleUnit", data.saleUnit);
       formData.append("extraCost", String(data.extraCost ?? 0));
       formData.append("isActive", String(data.isActive));
-      imagesFile.forEach((file) => formData.append("images", file));
+      uploadedUrls.forEach((url) => formData.append("imageUrls", url));
 
       if (imagesToDelete.length > 0) {
         await deleteProductImageById(imagesToDelete, productToEdit!.slug);
@@ -329,7 +362,7 @@ const FormCreateProduct = ({
                 <X size={20} />
               </button>
               <Image
-                src={image.url}
+                src={image.url ?? "/no-image.png"}
                 alt={productToEdit.name}
                 width={100}
                 height={120}

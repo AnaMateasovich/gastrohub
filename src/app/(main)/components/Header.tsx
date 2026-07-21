@@ -29,7 +29,7 @@ const Header = () => {
     <header className="bg-[var(--color-background)] border-b border-gray-300 fixed top-0 left-0 w-full z-9999 shadow-[0_2px_10px_rgba(0,0,0,0.06)]">
       <div className="max-w-[1400px] w-full mx-auto flex items-center justify-between px-4 md:px-10 h-[60px] md:h-[70px]">
         <Link href="/home" className="text-xl font-bold text-[var(--color-primary-dark)]">
-          Sabores Naturales
+          GastroHub
         </Link>
 
         {/* Links de texto, solo en desktop */}

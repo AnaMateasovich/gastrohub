@@ -1,5 +1,7 @@
+import { requireRole } from "@/src/lib/auth/role";
 import { prisma } from "@/src/lib/prisma";
-import { Ingredient, Prisma } from "@prisma/client";
+import { getCurrentTenant } from "@/src/lib/tenant";
+import { Ingredient, Prisma, Role } from "@prisma/client";
 import { NextResponse } from "next/server";
 import z from "zod";
 
@@ -35,12 +37,18 @@ export async function POST(req: Request) {
 
     const { name, unit, price, stock } = parsed.data;
 
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
+    if (!organization) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const ingredient = await prisma.ingredient.create({
       data: {
         name,
         unit,
         price: new Prisma.Decimal(price),
         stock: stock !== undefined ? new Prisma.Decimal(stock as number) : null,
+        organization: organization.id,
       },
     });
 
@@ -56,14 +64,18 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
     const ingredients = await prisma.ingredient.findMany({
+      where: {
+        organizationId: session.organizationId,
+      },
       orderBy: { name: "asc" },
     });
 
     const parsed = ingredients.map((ing: Ingredient) => ({
       ...ing,
-      price: Number(ing.price)
-    }))
+      price: Number(ing.price),
+    }));
 
     return NextResponse.json(parsed);
   } catch (error) {

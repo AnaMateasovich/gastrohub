@@ -1,5 +1,5 @@
 "use client";
-import { OrderType } from "../../types/order.type";
+import { OrderType } from "../../../types/order.type";
 import {
   BookText,
   Calendar,
@@ -9,17 +9,17 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
-import Button from "../../(main)/components/Button";
-import LinkComponent from "../../(main)/components/LinkComponent";
+import Button from "../../../(main)/components/Button";
+import LinkComponent from "../../../(main)/components/LinkComponent";
 import {
   confirmOrderMessage,
   getWhatsappLink,
   readyMessage,
 } from "@/src/utils/whatssapp";
 import { useState } from "react";
-import BackButton from "../../(main)/components/BackButton";
+import BackButton from "../../../(main)/components/BackButton";
 import StatusOrder from "./StatusOrder";
-import { OrderStatus } from "../../types/orderStatus.type";
+import { OrderStatus } from "../../../types/orderStatus.type";
 import { updateStatusOrder } from "@/src/lib/actions/orders.action";
 import { useRouter } from "next/navigation";
 
@@ -189,7 +189,7 @@ const Order = ({ order }: OrderProps) => {
                   <div className="flex items-center gap-2 ">
                     <div className="relative w-15 h-15">
                       <Image
-                        src={item.product.images[0].url}
+                        src={item.product.images[0]?.url ?? '/no-image.png'}
                         fill
                         sizes="100px"
                         alt={item.product.name}

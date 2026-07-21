@@ -1,5 +1,5 @@
 "use server";
-import { Ingredient } from "@prisma/client";
+import { Ingredient, Role } from "@prisma/client";
 import { prisma } from "../prisma";
 import {
   createRecipeSchema,
@@ -9,8 +9,11 @@ import {
 } from "../validations/recipe.schema";
 import { revalidateTag } from "next/cache";
 import { toStorageUnit } from "../units";
+import { requireRole } from "../auth/role";
 
 export const createRecipe = async (data: CreateRecipeType) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   const parsed = createRecipeSchema.safeParse(data);
   if (!parsed.success) throw new Error("Datos inválidos");
 
@@ -25,6 +28,7 @@ export const createRecipe = async (data: CreateRecipeType) => {
 
   const recipe = await prisma.recipe.create({
     data: {
+      organizationId: session.organizationId,
       name: parsed.data.name,
       yield: parsed.data.yield,
       yieldUnit: parsed.data.yieldUnit,
@@ -45,14 +49,16 @@ export const createRecipe = async (data: CreateRecipeType) => {
 };
 
 export const updateRecipe = async (data: UpdateRecipeType) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   const parsed = updateRecipeSchema.safeParse(data);
   if (!parsed.success) throw new Error("Datos inválidos");
 
-  const recipeId = parsed.data.id
+  const recipeId = parsed.data.id;
 
   const ingredientIds = parsed.data.items.map((i) => i.ingredientId);
   const ingredients = await prisma.ingredient.findMany({
-    where: { id: { in: ingredientIds } },
+    where: { id: { in: ingredientIds }, organizationId: session.organizationId },
     select: { id: true, unit: true },
   });
   const unitMap = Object.fromEntries(
@@ -60,7 +66,7 @@ export const updateRecipe = async (data: UpdateRecipeType) => {
   );
 
   const recipe = await prisma.recipe.update({
-    where: { id: recipeId },
+    where: { id: recipeId, organizationId: session.organizationId },
     data: {
       name: parsed.data.name,
       yield: parsed.data.yield,
@@ -83,24 +89,28 @@ export const updateRecipe = async (data: UpdateRecipeType) => {
 };
 
 export const deleteRecipeById = async (id: number) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   await prisma.product.updateMany({
-    where: { recipeId: id },
+    where: { recipeId: id, organizationId: session.organizationId },
     data: { recipeId: null },
   });
-  await prisma.recipe.delete({ where: { id } });
-  revalidateTag("products", "");
+  await prisma.recipe.delete({ where: { id }, organizationId: session.organizationId });
+ revalidateTag(`orders-${session.organizationId}`, "");
 };
 
 export const assignRecipeToProduct = async (
   productId: number,
   recipeId: number,
 ) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   await prisma.product.update({
-    where: { id: productId },
+    where: { id: productId, organizationId: session.organizationId },
     data: {
       recipeId,
       manualCost: null,
     },
   });
-  revalidateTag("products", "");
+ revalidateTag(`orders-${session.organizationId}`, "");
 };

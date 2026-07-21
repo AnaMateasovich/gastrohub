@@ -19,7 +19,7 @@ const StatusOrder = ({ status }: StatusOrderProps) => {
   SHIPPED: "bg-purple-300/70 text-purple-800",
   CANCELLED: "bg-red-300/70 text-red-800"
 };
-  return <p className={`px-3 text-sm py-1 rounded-sm font-semibold ${statusColor[status]}`}>{statusOrder[status]}</p>;
+  return <p className={`px-3 text-sm py-1 rounded-sm font-semibold truncate ${statusColor[status]}`}>{statusOrder[status]}</p>;
 };
 
 export default StatusOrder;

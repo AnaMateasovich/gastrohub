@@ -4,8 +4,8 @@ import { getSettings } from "@/src/lib/settings";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import React, { Suspense } from "react";
-import SettingsGroup from "../../../components/SettingsGroup";
-import SettingsRow from "../../../components/SettingsRow";
+import SettingsGroup from "../../../components/settings/SettingsGroup";
+import SettingsRow from "../../../components/settings/SettingsRow";
 
 const page = () => {
   return (

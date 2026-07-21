@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import FormCreateProduct from '../../../components/FormCreateProduct'
+import FormCreateProduct from '../../../components/forms/FormCreateProduct'
 import { getRecipesSelect } from '@/src/lib/recipes';
 
 async function CreateProductContent() {

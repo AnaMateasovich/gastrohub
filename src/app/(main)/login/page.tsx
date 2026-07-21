@@ -20,7 +20,7 @@ const page = () => {
         <div className="w-full max-w-[400px] flex flex-col gap-6 md:bg-white/95 md:backdrop-blur-sm md:rounded-3xl md:shadow-2xl md:p-10">
           <div className="text-center">
             <h1 className="text-3xl font-bold italic text-white md:text-[var(--color-primary-dark)] [text-shadow:2px_2px_4px_rgba(0,0,0,0.5)] md:[text-shadow:none]">
-              Sabores Naturales
+              GastroHub
             </h1>
             <h4 className="text-lg mt-1 text-white md:text-gray-500 [text-shadow:2px_2px_4px_rgba(0,0,0,0.5)] md:[text-shadow:none]">
               Iniciá sesión para seguir pidiendo

@@ -52,7 +52,7 @@ const ProductCard = ({
       <div className="relative w-full flex items-center">
         <div className="w-[80px] self-stretch relative rounded-lg overflow-hidden flex-shrink-0">
           <Image
-            src={product.images[0].url}
+            src={product.images[0]?.url ?? '/no-image.png'}
             alt={product.name}
             fill
             sizes="200px"

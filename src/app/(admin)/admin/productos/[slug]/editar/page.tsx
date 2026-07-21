@@ -1,4 +1,4 @@
-import FormCreateProduct from "@/src/app/(admin)/components/FormCreateProduct";
+import FormCreateProduct from "@/src/app/(admin)/components/forms/FormCreateProduct";
 import { ProductType } from "@/src/app/types/product.type";
 import { getProductBySlug } from "@/src/lib/products";
 import { getRecipesSelect } from "@/src/lib/recipes";
@@ -8,6 +8,7 @@ type Params = Promise<{ slug: string }>;
 
 const ProductEditing = async ({ params }: { params: Params }) => {
   const { slug } = await params;
+  
   const [product, recipes] = await Promise.all([
     getProductBySlug(slug),
     getRecipesSelect(),

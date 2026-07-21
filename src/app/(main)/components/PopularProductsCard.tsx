@@ -14,7 +14,7 @@ const PopularProductsCard = ({
     <div className="w-[170px] rounded-2xl overflow-hidden shadow-md bg-white flex-shrink-0">
       <div className="relative w-full h-[140px]">
         <Image
-          src={imageSrc}
+          src={imageSrc ?? '/no-image.png'}
           alt={name}
           fill
           className="object-cover"

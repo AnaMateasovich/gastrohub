@@ -1,4 +1,4 @@
-import FormConfigure from "@/src/app/(admin)/components/FormConfigure";
+import FormConfigure from "@/src/app/(admin)/components/forms/FormConfigure";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import { StoreSettingsType } from "@/src/app/types/storeSettings";
 import { getSettings } from "@/src/lib/settings";

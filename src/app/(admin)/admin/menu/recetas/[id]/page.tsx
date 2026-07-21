@@ -3,7 +3,7 @@ import React, { Suspense } from "react";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import RecipeProduct from "@/src/app/(admin)/components/RecipeProduct";
+import RecipeProduct from "@/src/app/(admin)/components/recipes/RecipeProduct";
 
 type Props = Promise<{ id: string }>;
 

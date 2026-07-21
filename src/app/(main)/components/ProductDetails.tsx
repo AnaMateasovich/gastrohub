@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
 import { getProductCost, getProductProfit } from "@/src/lib/costs";
-import RecipeProduct from "../../(admin)/components/RecipeProduct";
+import RecipeProduct from "../../(admin)/components/recipes/RecipeProduct";
 import { ChevronRight, Leaf, Sparkles } from "lucide-react";
 
 type Props = {
@@ -42,17 +42,15 @@ const ProductDetails = async ({ product, mode = "client" }: Props) => {
         {/* ─── Galería ─────────────────────────────────────────── */}
         <div className="md:w-1/2 md:flex-shrink-0">
           <div className="relative self-stretch w-full h-[400px] md:h-[480px] overflow-hidden md:rounded-3xl">
-            {mainImage && (
               <Image
                 priority
-                key={mainImage.id}
-                src={mainImage.url}
+                key={mainImage?.id ?? "no-image"}
+                src={mainImage?.url ?? '/no-image.png'}
                 alt={product.name}
                 sizes="(max-width: 768px) 100vw, 500px"
                 fill
                 className="object-cover"
               />
-            )}
 
             {mode !== "admin" && (
               <div className="absolute top-4 left-4 flex gap-2">
@@ -75,7 +73,7 @@ const ProductDetails = async ({ product, mode = "client" }: Props) => {
                   }`}
                 >
                   <Image
-                    src={image.url}
+                    src={image.url ?? '/no-image.png'}
                     alt={`${product.name} ${i + 1}`}
                     fill
                     sizes="64px"

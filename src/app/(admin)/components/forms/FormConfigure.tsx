@@ -1,11 +1,11 @@
 "use client"
 import { storeSettingsSchema } from "@/src/lib/validations/configure.schema";
 import z from "zod";
-import { StoreSettingsInput, StoreSettingsType } from "../../types/storeSettings";
+import { StoreSettingsInput, StoreSettingsType } from "../../../types/storeSettings";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "../../(main)/components/Input";
-import Button from "../../(main)/components/Button";
+import Input from "../../../(main)/components/Input";
+import Button from "../../../(main)/components/Button";
 import { createStoreSettings, updateStoreSettings } from "@/src/lib/actions/setting.action";
 import { toast } from "sonner";
 

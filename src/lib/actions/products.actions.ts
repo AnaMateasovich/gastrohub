@@ -3,13 +3,13 @@ import { revalidateTag } from "next/cache";
 import z from "zod";
 import path from "path";
 import fs from "fs/promises";
-import { Ingredient, ProductImage } from "@prisma/client";
-import { getUser } from "../user";
+import { Ingredient, ProductImage, Role } from "@prisma/client";
 import { prisma } from "../prisma";
 import { createRecipeSchema } from "../validations/recipe.schema";
 import { toStorageUnit } from "../units";
 import { mapProduct } from "@/src/utils/products.utils";
-import { requireAdmin } from "../auth";
+import { requireRole } from "../auth/role";
+import { getCurrentTenant } from "../tenant";
 
 const createProductSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -34,8 +34,10 @@ const createProductSchema = z.object({
 });
 
 export const createProduct = async (formData: FormData) => {
-  const admin = await requireAdmin();
-  if (!admin) throw new Error("No autorizado");
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+  const tenant = await getCurrentTenant();
+
+  const imageUrls = formData.getAll("imageUrls") as string[];
 
   const raw = {
     name: formData.get("name") as string,
@@ -51,19 +53,6 @@ export const createProduct = async (formData: FormData) => {
   const result = createProductSchema.safeParse(raw);
   if (!result.success)
     throw new Error(JSON.stringify(result.error.flatten().fieldErrors));
-
-  const images = formData.getAll("images") as File[];
-  const savedImages = await Promise.all(
-    images.map(async (image, index) => {
-      const bytes = await image.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const filename = `${Date.now()}-${image.name.replace(/\s/g, "-")}`;
-      const folder = path.join(process.cwd(), "public/products");
-      await fs.mkdir(folder, { recursive: true });
-      await fs.writeFile(path.join(folder, filename), buffer);
-      return { url: `/products/${filename}`, position: index };
-    }),
-  );
 
   // Costo: manual o receta
   const manualCost = formData.get("manualCost");
@@ -89,6 +78,7 @@ export const createProduct = async (formData: FormData) => {
 
     const recipe = await prisma.recipe.create({
       data: {
+        organizationId: session.organizationId,
         name: parsed.data.name,
         yield: parsed.data.yield,
         yieldUnit: parsed.data.yieldUnit,
@@ -106,46 +96,67 @@ export const createProduct = async (formData: FormData) => {
 
   const product = await prisma.product.create({
     data: {
+      organizationId: session.organizationId,
       ...result.data,
-      images: { create: savedImages },
       manualCost: manualCost ? Number(manualCost) : null,
       recipeId: finalRecipeId,
     },
   });
 
-  revalidateTag("products", "");
+  await prisma.productImage.createMany({
+    data: imageUrls.map((url, i) => ({
+      productId: product.id,
+      url,
+      position: i,
+    })),
+  });
+
+  revalidateTag(`orders-${session.organizationId}`, "");
 
   return {
     ...product,
     price: Number(product.price),
     extraCost: Number(product.extraCost),
     manualCost: Number(product.manualCost),
-    saleAmount: Number(product.saleAmount)
+    saleAmount: Number(product.saleAmount),
   };
 };
+
 export const deleteProductImageById = async (
   imageIds: number[],
   slug: string,
 ) => {
-  await prisma.productimage.deleteMany({
-    where: { id: { in: imageIds } },
-  });
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
 
-  revalidateTag("products", "");
+  await prisma.productImage.deleteMany({
+  where: {
+    id: {
+      in: imageIds,
+    },
+    product: {
+      organizationId: session.organizationId,
+    },
+  },
+});
+
+  revalidateTag(`orders-${session.organizationId}`, "");
   revalidateTag(`product-${slug}`, "");
 };
 
 export const toggleProductActive = async (id: number, isActive: boolean) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
   await prisma.product.update({
-    where: { id },
+    where: { id, organizationId: session.organizationId },
     data: { isActive: !isActive },
   });
-  revalidateTag("products", "");
+  revalidateTag(`orders-${session.organizationId}`, "");
 };
 
 export const deleteProductById = async (id: number) => {
+  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+
   const product = await prisma.product.findUnique({
-    where: { id },
+    where: { id, organizationId: session.organizationId },
     include: { images: true },
   });
 
@@ -158,20 +169,20 @@ export const deleteProductById = async (id: number) => {
     );
   }
 
-  await prisma.product.delete({ where: { id } });
+  await prisma.product.delete({
+    where: { id, organizationId: session.organizationId },
+  });
 
-  revalidateTag("products", "");
+  revalidateTag(`orders-${session.organizationId}`, "");
 };
 
 export const updateProduct = async (formData: FormData) => {
-  const admin = await requireAdmin();
-  if (!admin) {
-    throw new Error("No autorizado");
-  }
+  const session = await requireRole([Role.ADMIN, Role.OWNER]);
 
-  // Capturamos el ID del producto a editar
   const id = Number(formData.get("id"));
   if (!id) throw new Error("ID de producto no provisto");
+
+  const imageUrls = formData.getAll("imageUrls") as string[];
 
   const raw = {
     name: formData.get("name") as string,
@@ -189,50 +200,45 @@ export const updateProduct = async (formData: FormData) => {
     throw new Error(JSON.stringify(result.error.flatten().fieldErrors));
   }
 
-  // Procesamos las imágenes NUEVAS si es que subieron alguna
-  const images = formData.getAll("images") as File[];
-  // Filtramos por si viene un File vacío
-  const validImages = images.filter((img) => img.name && img.size > 0);
-
-  const savedImages = await Promise.all(
-    validImages.map(async (image, index) => {
-      const bytes = await image.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const filename = `${Date.now()}-${image.name.replace(/\s/g, "-")}`;
-      const folder = path.join(process.cwd(), "public/products");
-      await fs.mkdir(folder, { recursive: true });
-      await fs.writeFile(path.join(folder, filename), buffer);
-      return { url: `/products/${filename}`, position: index };
-    }),
-  );
-
   // Actualizamos en Prisma
   const product = await prisma.product.update({
-    where: { id },
+    where: { id, organizationId: session.organizationId },
     data: {
       ...result.data,
-      // Si hay imágenes nuevas, las agregamos a la relación sin pisar las viejas
-      images: savedImages.length > 0 ? { create: savedImages } : undefined,
     },
   });
 
-  // Revalidamos los tags de Next.js para que impacte el cambio
-  revalidateTag("products", "");
-  revalidateTag(`product-${product.slug}`, "");
-  return mapProduct(product)
+  if (imageUrls.length > 0) {
+    const existingCount = await prisma.productImage.count({
+      where: { productId: product.id },
+    });
 
+    await prisma.productImage.createMany({
+      data: imageUrls.map((url, i) => ({
+        productId: product.id,
+        url,
+        position: existingCount + i,
+      })),
+    });
+  }
+  // Revalidamos los tags de Next.js para que impacte el cambio
+  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`product-${product.slug}`, "");
+  return mapProduct(product);
 };
 
 export const updateProductCost = async (
   productId: number,
   cost: { type: "manual"; value: number } | { type: "recipe"; value: number },
 ) => {
+  const session = await requireRole([Role.ADMIN, Role.OWNER]);
+
   await prisma.product.update({
-    where: { id: productId },
+    where: { id: productId, organizationId: session.organizationId },
     data: {
       manualCost: cost.type === "manual" ? cost.value : null,
       recipeId: cost.type === "recipe" ? cost.value : null,
     },
   });
-  revalidateTag("products", "");
+  revalidateTag(`orders-${session.organizationId}`, "");
 };

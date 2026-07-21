@@ -19,7 +19,7 @@ const Page = async () => {
           {products.map((product) => (
             <PopularProductsCard
               key={product.id}
-              imageSrc={product.images[0].url}
+              imageSrc={product.images[0]?.url}
               name={product.name}
             />
           ))}

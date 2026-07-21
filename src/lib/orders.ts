@@ -2,17 +2,25 @@ import { cacheLife, cacheTag } from "next/cache";
 import { OrderType } from "../app/types/order.type";
 import { mapOrder } from "../utils/orders.utils";
 import { prisma } from "./prisma";
+import { getTenantFromHost } from "./tenant";
+import { requireRole } from "./auth/role";
+import { Role } from "@prisma/client";
+import { withOrg } from "./auth/with-org";
 
 const PAGE_SIZE = 20;
 
-export async function getOrders(
+export async function getOrdersCached(
+  organizationId: string,
   cursor?: number,
 ): Promise<{ orders: OrderType[]; nextCursor: number | null }> {
   "use cache";
-  cacheTag("orders");
+  cacheTag(`orders-${organizationId}`);
   cacheLife("max");
 
-  const orders = await prisma.orders.findMany({
+  const orders = await prisma.order.findMany({
+    where: {
+      organizationId,
+    },
     take: PAGE_SIZE + 1,
     ...(cursor && {
       cursor: { id: cursor },
@@ -36,9 +44,15 @@ export async function getOrders(
   };
 }
 
+export async function getOrders() {
+  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getOrdersCached);
+}
+
 export async function getOrderById(id: number): Promise<OrderType> {
-  const order = await prisma.orders.findUnique({
-    where: { id },
+  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
+  const order = await prisma.order.findUnique({
+    where: { organizationId: session.organizationId, id },
     include: {
       orderItems: {
         include: {

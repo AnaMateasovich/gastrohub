@@ -8,7 +8,7 @@ const UserProfileLetter = () => {
 
   if (!user) return null;
 
-  const firstLetter = user?.name.charAt(0);
+  const firstLetter = user?.name?.charAt(0) ?? 'U';
   const hash = getHash(user.email)
   const color = userColors[hash % userColors.length]
 

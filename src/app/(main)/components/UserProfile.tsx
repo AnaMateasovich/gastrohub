@@ -9,7 +9,7 @@ import UserProfileLetter from "./UserProfileLetter";
 const UserProfile = () => {
   const { user, handleLogout } = useUser();
 
-  const name = user?.name;
+  const name = user?.name ?? 'Sin especificar'
   const phone = user?.phone ? "+" + user.phone : "Sin especificar";
   const address = user?.address ?? "Sin especificar";
 

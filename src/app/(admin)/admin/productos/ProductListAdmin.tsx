@@ -1,6 +1,5 @@
 "use client";
 import {
-  ProductType,
   ProductWithRecipeAndCostsType,
 } from "@/src/app/types/product.type";
 import { useEffect, useState } from "react";
