@@ -42,6 +42,8 @@ export const createRecipe = async (data: CreateRecipeType) => {
     },
   });
 
+  revalidateTag(`recipes-${session.organizationId}`, "");
+
   return {
     ...recipe,
     yield: Number(recipe.yield),
@@ -58,7 +60,10 @@ export const updateRecipe = async (data: UpdateRecipeType) => {
 
   const ingredientIds = parsed.data.items.map((i) => i.ingredientId);
   const ingredients = await prisma.ingredient.findMany({
-    where: { id: { in: ingredientIds }, organizationId: session.organizationId },
+    where: {
+      id: { in: ingredientIds },
+      organizationId: session.organizationId,
+    },
     select: { id: true, unit: true },
   });
   const unitMap = Object.fromEntries(
@@ -90,13 +95,22 @@ export const updateRecipe = async (data: UpdateRecipeType) => {
 
 export const deleteRecipeById = async (id: number) => {
   const session = await requireRole([Role.OWNER, Role.ADMIN]);
+  
+  const recipe = await prisma.recipe.findFirst({
+    where: { id, organizationId: session.organizationId },
+  });
 
+  if (!recipe) {
+    throw new Error("Receta no encontrada");
+  }
   await prisma.product.updateMany({
     where: { recipeId: id, organizationId: session.organizationId },
     data: { recipeId: null },
   });
-  await prisma.recipe.delete({ where: { id }, organizationId: session.organizationId });
- revalidateTag(`orders-${session.organizationId}`, "");
+  await prisma.recipe.delete({
+    where: { id },
+  });
+  revalidateTag(`recipes-${session.organizationId}`, "");
 };
 
 export const assignRecipeToProduct = async (
@@ -112,5 +126,4 @@ export const assignRecipeToProduct = async (
       manualCost: null,
     },
   });
- revalidateTag(`orders-${session.organizationId}`, "");
 };

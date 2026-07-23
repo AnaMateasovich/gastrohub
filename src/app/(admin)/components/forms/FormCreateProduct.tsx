@@ -389,7 +389,7 @@ const uploadImages = async () => {
   return (
     <>
       <div className="flex items-center gap-2 mb-6">
-        <BackButton />
+        <BackButton url={`/admin/productos`}/>
         <h3 className="text-xl font-bold">
           {productToEdit
             ? "Editar Producto"
@@ -406,6 +406,7 @@ const uploadImages = async () => {
             <form
               onSubmit={handleSubmit(handleNextStep)}
               className="flex flex-col gap-2"
+              data-testid="product-form-step-1-crear"
             >
               {formFields}
               <Button type="submit" text="Siguiente →" />
@@ -512,6 +513,8 @@ const uploadImages = async () => {
       {/* ── EDITAR ── */}
       {productToEdit && (
         <form
+              data-testid="product-form-step-1-editar"
+
           onSubmit={handleSubmit(handleEdit)}
           className="flex flex-col gap-2"
         >

@@ -27,7 +27,9 @@ import { requireRole } from "./auth/role";
 //   return costMap;
 // };
 
-export const getProductCost = (product: ProductWithRecipeType): number | null => {
+export const getProductCost = (
+  product: ProductWithRecipeType,
+): number | null => {
   if (!product.recipe && !product.manualCost) return null;
 
   let cost = 0;
@@ -37,19 +39,25 @@ export const getProductCost = (product: ProductWithRecipeType): number | null =>
       const unit = item.ingredient.unit;
 
       const quantityInBase = toDisplayUnit(Number(item.quantity), unit);
-      const pricePerBase = Number(item.ingredient.price) / toDisplayUnit(1, unit);
+      const pricePerBase =
+        Number(item.ingredient.price) / toDisplayUnit(1, unit);
 
       return acc + pricePerBase * quantityInBase;
     }, 0);
 
     // Costo por unidad base del yield (g, ml, u)
-    const yieldInBase = toDisplayUnit(Number(product.recipe.yield), product.recipe.yieldUnit);
+    const yieldInBase = toDisplayUnit(
+      Number(product.recipe.yield),
+      product.recipe.yieldUnit,
+    );
     const costPerBase = yieldInBase > 0 ? totalRecipeCost / yieldInBase : 0;
 
     // Cantidad vendida del producto también hay que convertirla a base
-    const saleAmountInBase = toDisplayUnit(Number(product.saleAmount), product.saleUnit);
+    const saleAmountInBase = toDisplayUnit(
+      Number(product.saleAmount),
+      product.saleUnit,
+    );
     cost = costPerBase * saleAmountInBase;
-  
   } else {
     cost = Number(product.manualCost!);
   }
@@ -68,14 +76,11 @@ export const getProductProfit = (product: ProductWithRecipeType) => {
   return { cost, profit, profitPercent };
 };
 
-
-
 export const getRecipesWithCost = async () => {
-const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
-  console.log(session)
+  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
   const recipes = await prisma.recipe.findMany({
     where: {
-    organizationId: session.organizationId
+      organizationId: session.organizationId,
     },
     include: { items: { include: { ingredient: true } } },
   });
@@ -96,11 +101,11 @@ const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
       // cantidad guardada en DB está en la unidad del ingrediente
       // la convertimos a la unidad base (g, ml, u)
       const quantityInBase = toDisplayUnit(item.quantity, unit);
-      
+
       // el precio en DB es por la unidad del ingrediente (ej: precio por kg)
       // lo convertimos a precio por unidad base (precio por g)
       const pricePerBase = item.ingredient.price / toDisplayUnit(1, unit);
-      
+
       return acc + pricePerBase * quantityInBase;
     }, 0);
 

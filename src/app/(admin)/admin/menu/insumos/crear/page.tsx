@@ -1,6 +1,6 @@
 import React from 'react'
-import CreateIngredientForm from '../../../../components/CreateIngredientForm'
 import BackButton from '@/src/app/(main)/components/BackButton'
+import CreateIngredientForm from '@/src/app/(admin)/components/forms/CreateIngredientForm'
 
 const page = () => {
   return (

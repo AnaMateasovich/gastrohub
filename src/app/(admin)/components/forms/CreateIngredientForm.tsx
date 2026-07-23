@@ -3,12 +3,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import Input from "../../(main)/components/Input";
-import Button from "../../(main)/components/Button";
-import { Ingredient } from "../../types/ingredient.type";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { XlsFormFiller } from "./XlsFormFiller";
+import Input from "@/src/app/(main)/components/Input";
+import { Ingredient } from "@/src/app/types/ingredient.type";
+import Button from "@/src/app/(main)/components/Button";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),

@@ -111,7 +111,7 @@ export const createProduct = async (formData: FormData) => {
     })),
   });
 
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
 
   return {
     ...product,
@@ -138,8 +138,7 @@ export const deleteProductImageById = async (
     },
   },
 });
-
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
   revalidateTag(`product-${slug}`, "");
 };
 
@@ -149,7 +148,7 @@ export const toggleProductActive = async (id: number, isActive: boolean) => {
     where: { id, organizationId: session.organizationId },
     data: { isActive: !isActive },
   });
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
 };
 
 export const deleteProductById = async (id: number) => {
@@ -163,7 +162,7 @@ export const deleteProductById = async (id: number) => {
   if (product?.images?.length) {
     await Promise.all(
       product.images.map((image: ProductImage) => {
-        const filepath = path.join(process.cwd(), "public/products", image.url);
+        const filepath = path.join(process.cwd(), `public/products/${session.organizationId}`, image.url);
         return fs.unlink(filepath).catch(() => {});
       }),
     );
@@ -173,7 +172,7 @@ export const deleteProductById = async (id: number) => {
     where: { id, organizationId: session.organizationId },
   });
 
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
 };
 
 export const updateProduct = async (formData: FormData) => {
@@ -222,7 +221,7 @@ export const updateProduct = async (formData: FormData) => {
     });
   }
   // Revalidamos los tags de Next.js para que impacte el cambio
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
   revalidateTag(`product-${product.slug}`, "");
   return mapProduct(product);
 };
@@ -240,5 +239,5 @@ export const updateProductCost = async (
       recipeId: cost.type === "recipe" ? cost.value : null,
     },
   });
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`products-${session.organizationId}`, "");
 };

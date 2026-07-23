@@ -10,11 +10,11 @@ datasource db {
 // ─── TENANCY ────────────────────────────────────────────────
 
 model Organization {
-  id            String          @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String
-  slug          String          @unique
-  plan          String          @default("free")
-  createdAt     DateTime        @default(now())
+  slug          String         @unique
+  plan          String         @default("free")
+  createdAt     DateTime       @default(now())
   memberships   Membership[]
   products      Product[]
   orders        Order[]
@@ -114,23 +114,23 @@ model OrderItem {
 }
 
 model Order {
-  id               Int            @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   organizationId   String
   customerName     String
   customerLastname String
   phone            String
   status           Orders_status
-  createdAt        DateTime       @default(now())
-  email            String         @default("")
-  address          String         @default("")
+  createdAt        DateTime      @default(now())
+  email            String        @default("")
+  address          String        @default("")
   customerId       String?
-  subtotal         Decimal?       @db.Decimal(10, 2)
-  total            Decimal?       @db.Decimal(10, 2)
-  deliveryFee      Decimal?       @db.Decimal(10, 2)
-  discount         Decimal?       @db.Decimal(10, 2)
-  note             String?        @db.Text
-  organization     Organization   @relation(fields: [organizationId], references: [id])
-  customer         Customer?      @relation(fields: [customerId], references: [id], map: "Order_customerId_fkey")
+  subtotal         Decimal?      @db.Decimal(10, 2)
+  total            Decimal?      @db.Decimal(10, 2)
+  deliveryFee      Decimal?      @db.Decimal(10, 2)
+  discount         Decimal?      @db.Decimal(10, 2)
+  note             String?       @db.Text
+  organization     Organization  @relation(fields: [organizationId], references: [id])
+  customer         Customer?     @relation(fields: [customerId], references: [id], map: "Order_customerId_fkey")
   orderItems       OrderItem[]
 
   @@index([customerId], map: "Order_customerId_fkey")
@@ -151,6 +151,7 @@ model Ingredient {
   priceHistory   IngredientPriceHistory[]
   recipeItems    RecipeItem[]
 
+  @@unique([organizationId, name])
   @@index([organizationId])
 }
 
@@ -166,6 +167,7 @@ model Recipe {
   products       Product[]
   items          RecipeItem[]
 
+  @@unique([organizationId, name])
   @@index([organizationId])
 }
 
@@ -178,6 +180,7 @@ model RecipeItem {
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "RecipeItem_ibfk_2")
   recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "RecipeItem_recipeId_fk")
 
+  @@unique([recipeId, ingredientId])
   @@index([ingredientId], map: "ingredientId")
   @@index([recipeId], map: "RecipeItem_recipeId_fk")
 }

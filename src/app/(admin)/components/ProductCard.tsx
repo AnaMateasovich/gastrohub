@@ -21,19 +21,22 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
   const router = useRouter();
 
   const handleDelete = async (id: number) => {
+    const confirm = window.confirm("¿Estás seguro que quieres eliminar el producto?")
+    if(!confirm) return
     await deleteProductById(id);
     onDelete?.(id);
     setMenuOpen(false);
   };
-  (product);
+  product;
   return (
     <div
+      data-testid={`product-card-${product.slug}`}
       className="flex justify-between gap-3"
       onClick={() => routerPush && router.push(`${routerPush}/${product.slug}`)}
     >
       <div className="relative min-w-[80px]">
         <Image
-          src={product.images[0]?.url ?? '/no-image.png'}
+          src={product.images[0]?.url ?? "/no-image.png"}
           fill
           sizes="120px"
           alt={product.name}
@@ -54,7 +57,10 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
         </p>
         <div className="flex gap-2 mb-1">
           <p className="font-bold">${product.price.toFixed(2)}</p>
-          <p className="text-gray-600">por {product.saleAmount}{product.saleUnit}</p>
+          <p className="text-gray-600">
+            por {product.saleAmount}
+            {product.saleUnit}
+          </p>
         </div>
         <div className="flex w-full gap-1">
           <div className="bg-[var(--color-natural-bg)] rounded-sm py-1 px-3 leading-tight">
@@ -78,6 +84,8 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
       </div>
       <div className="relative">
         <button
+          data-testid={`product-menu-toggle-${product.slug}`}
+          aria-label="boton-editar"
           className="text-3xl p-2 font-bold text-[var(--color-primary)]"
           onClick={(e) => {
             e.stopPropagation();
@@ -90,6 +98,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
         {menuOpen && (
           <div className="absolute right-0 top-8 bg-white rounded-xl shadow-md z-10 flex flex-col min-w-[130px] border border-[var(--color-border)] z-99999">
             <button
+              data-testid={`product-edit-${product.slug}`}
               className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -100,6 +109,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
               Editar
             </button>
             <button
+              data-testid={`product-activate-${product.slug}`}
               className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -110,6 +120,7 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
               {product.isActive ? "Desactivar" : "Activar"}
             </button>
             <button
+              data-testid={`product-delete-${product.slug}`}
               className="px-4 py-2 text-left hover:bg-gray-50 text-sm text-red-500"
               onClick={(e) => {
                 e.stopPropagation();

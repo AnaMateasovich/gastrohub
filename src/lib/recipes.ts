@@ -5,17 +5,22 @@ import { getCurrentTenant } from "./tenant";
 import { requireRole } from "./auth/role";
 import { Role } from "@prisma/client";
 
-export const getRecipes = async () => {
-  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+import { cacheLife, cacheTag } from "next/cache";
+import { withOrg } from "./auth/with-org";
 
-  const recipes = await prisma.recipe.findMany({
-    where: {
-      organizationId: session.organizationId,
-    },
+export const getRecipesCached = async (organizationId: string) => {
+  "use cache";
+  cacheTag(`recipes-${organizationId}`);
+  cacheLife("max");
+
+  return prisma.recipe.findMany({
+    where: { organizationId },
   });
-  if (recipes.length === 0) return [];
-  return recipes;
 };
+
+export async function getRecipes() {
+  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getRecipesCached);
+}
 
 export const getRecipeByIdWithItems = async (id: number) => {
   const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
@@ -61,15 +66,22 @@ export const assignRecipeToProduct = async (
   });
 };
 
-export const getRecipesSelect = async () => {
-  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+export const getRecipesSelectCached = async (organizationId: string) => {
+  "use cache";
+  cacheTag(`recipes-${organizationId}`);
+  cacheLife("max");
 
   const recipes = await prisma.recipe.findMany({
-    select: { id: true, name: true },
     where: {
-      organizationId: session.organizationId,
+      organizationId: organizationId,
     },
+    select: { id: true, name: true },
   });
   if (recipes.length === 0) return [];
+
   return recipes;
+};
+
+export const getRecipesSelect = async () => {
+  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getRecipesSelectCached);
 };

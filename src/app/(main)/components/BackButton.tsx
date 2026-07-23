@@ -1,20 +1,21 @@
 "use client";
 import { ArrowLeft } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
-const BackButton = () => {
-  const router = useRouter();
+type Props = {
+  url?: string;
+};
+
+const BackButton = ({ url }: Props) => {
   const pathname = usePathname();
-
-  const handleBack = () => {
-    const parentPath = pathname.split("/").slice(0, -1).join("/") || "/";
-    router.push(parentPath);
-  };
+  const parentPath = pathname.split("/").slice(0, -1).join("/") || "/";
+  const destination = url ?? parentPath;
 
   return (
-    <button onClick={handleBack} className="text-gray-600">
+    <Link href={destination} className="text-gray-600">
       <ArrowLeft />
-    </button>
+    </Link>
   );
 };
 
