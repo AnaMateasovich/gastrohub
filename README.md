@@ -14,7 +14,7 @@ SaaS multi-tenant para la gestión integral de emprendimientos gastronómicos (p
 **Panel de administración**
 - CRUD de productos con imágenes, slugs y variantes de venta
 - Sistema de recetas con ingredientes, rendimiento y cálculo de costo automático
-- Cálculo de ganancia por producto (costo manual o por receta)
+- Cálculo de ganancia por producto, ya sea a partir de una receta o de un costo manual (pensado para productos de reventa que no se elaboran in-house)
 - Gestión de pedidos con cambio de estado y notificaciones por WhatsApp
 - Dashboard con estadísticas de ventas
 
@@ -26,6 +26,17 @@ SaaS multi-tenant para la gestión integral de emprendimientos gastronómicos (p
 - Email de bienvenida automático (Resend)
 
 <!-- TODO: agregar acá "Suscripción y billing" cuando esté implementado -->
+
+---
+
+## 🏗️ Arquitectura multi-tenant
+
+Cada organización opera de forma completamente aislada dentro de la misma base de código e infraestructura:
+
+- **Aislamiento de datos:** todas las queries a la base de datos están scoped por `organizationId`, incluyendo los cache tags de Next.js (`"use cache"`) y las rutas de almacenamiento de archivos (`public/uploads/{tenantSlug}/...`).
+- **Resolución de tenant desacoplada:** la resolución de sesión/organización activa está separada de las funciones cacheadas mediante un helper genérico `withOrg<T>`, para que las Server Actions con `"use cache"` no dependan de contexto dinámico.
+- **Identificación por subdominio:** cada organización se identifica mediante un subdominio propio (`{slug}.dominio.com`), resuelto en middleware.
+- **Verificación de ownership:** las operaciones destructivas (borrado, edición) validan explícitamente que el recurso pertenezca a la organización activa antes de ejecutarse (`findFirst` + chequeo de `organizationId`, no solo `findUnique` por id).
 
 ---
 
@@ -96,7 +107,7 @@ npm run dev
 
 ## 🧪 Testing
 
-El proyecto incluye tests End-to-End (E2E) escritos en Python con Pytest + Playwright, que simulan el flujo real de un usuario en el navegador (login, gestión de productos, pedidos, aislamiento entre organizaciones, etc.).
+El proyecto incluye tests End-to-End (E2E) escritos en Python con Pytest + Playwright, que simulan el flujo real de un usuario en el navegador.
 
 ### Instalación
 
@@ -119,20 +130,20 @@ pytest -v
 
 Los tests usan las mismas credenciales que genera el seed de Prisma (ver tabla más arriba), así que no requieren configuración adicional — el archivo `tests/.env` ya viene con esos valores de demo.
 
-### Qué cubren
+### Qué cubren actualmente
 
-<!-- TODO: actualizar a medida que escribas los tests reales -->
-- Login y autenticación por organización
-- CRUD de productos (admin)
-- Flujo de compra (tienda pública)
-- Gestión de pedidos
-- Aislamiento multi-tenant (una organización no puede ver/modificar datos de otra)
+Suite en construcción activa, en paralelo a la migración a multi-tenant:
+- Creación de productos desde el panel de administración (costo manual y por receta)
+
+**Próximos frentes:** aislamiento multi-tenant entre organizaciones, flujo completo de checkout en la tienda pública, y gestión de pedidos.
+
+<!-- TODO: mover ítems de "Próximos frentes" a la lista de arriba a medida que se implementen -->
 
 ---
 
 ## 📂 Estructura
 
-\`\`\`
+```
 src/
 ├── app/
 │   ├── (main)/          # Tienda pública
@@ -152,7 +163,7 @@ prisma/
 └── seed.ts
 tests/
 └── e2e/                 # Tests End-to-End (Pytest + Playwright)
-\`\`\`
+```
 
 ---
 
