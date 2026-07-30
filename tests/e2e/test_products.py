@@ -1,7 +1,7 @@
 import os
 import uuid
 import pytest
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
 @pytest.fixture
 def test_create_product_manual_cost(owner_page):

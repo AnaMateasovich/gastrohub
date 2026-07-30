@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import NavAdmin from "../components/NavAdmin";
+import { Toaster } from "sonner";
 
 export default function AdminLayout({
   children,
@@ -13,6 +14,8 @@ export default function AdminLayout({
       </Suspense>
       <main className="h-full overflow-y-auto pb-20 md:pb-0 md:pl-[70px] mt-4 mx-4">
         {children}
+        <Toaster richColors position="top-right" />
+
       </main>
     </div>
   );

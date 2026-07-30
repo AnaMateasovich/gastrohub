@@ -34,6 +34,7 @@ const RecipeItemRow = ({
   return (
     <div className="flex gap-2">
       <select
+        data-testid={`items-${index}`}
         value={watch(`items.${index}.ingredientId`) || 0}
         {...register(`items.${index}.ingredientId`, {
           valueAsNumber: true,
@@ -53,6 +54,7 @@ const RecipeItemRow = ({
         <Input
           type="number"
           name={`items.${index}.quantity`}
+          data-testid={`item-quantity-${index}`}
           placeholder="Cantidad"
           register={register}
           registerOptions={{ valueAsNumber: true }}

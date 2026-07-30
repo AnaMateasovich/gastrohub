@@ -46,7 +46,7 @@ const IngredientCard = ({
   };
   return (
     <>
-      <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 flex flex-col gap-2 shadow-[var(--shadow-sm)]">
+      <div data-testid={`ingredint-card-${name}`} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 flex flex-col gap-2 shadow-[var(--shadow-sm)]">
         <div className="flex justify-between items-center">
           <h5 className="font-bold text-[var(--color-text-primary)] text-base m-0">
             {name}
@@ -56,6 +56,7 @@ const IngredientCard = ({
               {unit}
             </span>
             <button
+            data-testid={`edit-button-${name}`}
               onClick={() =>
                 router.push(`/admin/menu/insumos/${ingredientId}/editar`)
               }
@@ -64,6 +65,8 @@ const IngredientCard = ({
               <Pencil size={16} />
             </button>
             <button
+            data-testid={`delete-button-${name}`}
+
               onClick={() => handleDelete(ingredientId)}
               className="p-1 text-red-500"
             >
@@ -85,7 +88,7 @@ const IngredientCard = ({
               <p className="text-xs text-[var(--color-text-secondary)] m-0">
                 Stock
               </p>
-              <p className="text-base font-medium text-[var(--color-text-primary)] m-0">
+              <p data-testid={`ingredient-stock-${name}`} className="text-base font-medium text-[var(--color-text-primary)] m-0">
                 {stock} {unit}
               </p>
             </div>

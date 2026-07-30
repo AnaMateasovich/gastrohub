@@ -3,13 +3,15 @@ import { revalidateTag } from "next/cache";
 import z from "zod";
 import path from "path";
 import fs from "fs/promises";
-import { Ingredient, ProductImage, Role } from "@prisma/client";
+import { Ingredient, Prisma, ProductImage, Role } from "@prisma/client";
 import { prisma } from "../prisma";
 import { createRecipeSchema } from "../validations/recipe.schema";
 import { toStorageUnit } from "../units";
 import { mapProduct } from "@/src/utils/products.utils";
 import { requireRole } from "../auth/role";
 import { getCurrentTenant } from "../tenant";
+import { ActionResult } from "next/dist/shared/lib/app-router-types";
+
 
 const createProductSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -151,28 +153,53 @@ export const toggleProductActive = async (id: number, isActive: boolean) => {
   revalidateTag(`products-${session.organizationId}`, "");
 };
 
-export const deleteProductById = async (id: number) => {
+export const deleteProductById = async (id: number): Promise<ActionResult> => {
   const session = await requireRole([Role.OWNER, Role.ADMIN]);
 
-  const product = await prisma.product.findUnique({
-    where: { id, organizationId: session.organizationId },
-    include: { images: true },
-  });
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id, organizationId: session.organizationId },
+      include: { images: true },
+    });
 
-  if (product?.images?.length) {
-    await Promise.all(
-      product.images.map((image: ProductImage) => {
-        const filepath = path.join(process.cwd(), `public/products/${session.organizationId}`, image.url);
-        return fs.unlink(filepath).catch(() => {});
-      }),
-    );
+    if (!product) {
+      return { success: false, message: "Producto no encontrado." };
+    }
+
+    if (product.images?.length) {
+      await Promise.all(
+        product.images.map((image: ProductImage) => {
+          const filepath = path.join(
+            process.cwd(),
+            `public/products/${session.organizationId}`,
+            image.url
+          );
+          return fs.unlink(filepath).catch(() => {});
+        }),
+      );
+    }
+
+    await prisma.product.delete({
+      where: { id, organizationId: session.organizationId },
+    });
+
+    revalidateTag(`products-${session.organizationId}`, "");
+
+    return { success: true };
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2003"
+    ) {
+      console.error("FK constraint al borrar producto:", error.meta);
+      return {
+        success: false,
+        message: "No se puede eliminar: el producto tiene pedidos asociados.",
+      };
+    }
+    console.error(error);
+    return { success: false, message: "No se pudo eliminar el producto." };
   }
-
-  await prisma.product.delete({
-    where: { id, organizationId: session.organizationId },
-  });
-
-  revalidateTag(`products-${session.organizationId}`, "");
 };
 
 export const updateProduct = async (formData: FormData) => {

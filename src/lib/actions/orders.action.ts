@@ -24,11 +24,12 @@ export async function createOrder(data: CreateOrderInput) {
     address,
     orderItems,
     wantsDelivery,
+    customerId,
   } = parsed.data;
 
-  const userId = parsed.data.userId ?? session?.user?.id ?? null;
-
-  const settings = await prisma.storeSettings.findFirst();
+  const settings = await prisma.storeSettings.findUnique({
+    where: { organizationId: session.organizationId },
+  });
 
   if (!settings) {
     throw new Error("Configuración no encontrada");
@@ -37,6 +38,7 @@ export async function createOrder(data: CreateOrderInput) {
   const products: Product[] = await prisma.product.findMany({
     where: {
       id: { in: orderItems.map((item) => item.productId) },
+      organizationId: session.organizationId,
     },
   });
 
@@ -67,16 +69,39 @@ export async function createOrder(data: CreateOrderInput) {
 
   const total = subtotal + deliveryFee;
 
-  await prisma .order.create({
+  let finalCustomerId = customerId;
+
+  if (!finalCustomerId) {
+    const customer = await prisma.customer.upsert({
+      where: {
+        organizationId_email: {
+          organizationId: session.organizationId,
+          email,
+        },
+      },
+      update: {}, // no pisamos datos si ya existía
+      create: {
+        organizationId: session.organizationId,
+        name: customerName,
+        lastname: customerLastname,
+        email,
+        phone,
+        address,
+      },
+    });
+    finalCustomerId = customer.id;
+  }
+
+  await prisma.order.create({
     data: {
       organizationId: session.organizationId,
+      customerId: finalCustomerId,
       customerName,
       customerLastname,
       email,
       phone,
       address,
 
-      userId,
       status: "PENDING",
       subtotal,
       total,
@@ -95,7 +120,7 @@ export async function createOrder(data: CreateOrderInput) {
 export async function updateStatusOrder(id: number, status: string) {
   const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
 
-  await prisma .order.update({
+  await prisma.order.update({
     where: { id, organizationId: session.organizationId },
     data: { status },
   });

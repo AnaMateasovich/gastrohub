@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { updateIngredientsSchema } from "../route";
 import { prisma } from "@/src/lib/prisma";
-import { Prisma } from "@prisma/client";
-import { getCurrentTenant } from "@/src/lib/tenant";
+import { Prisma, Role } from "@prisma/client";
+import { requireRole } from "@/src/lib/auth/role";
 
 export async function PATCH(
   req: Request,
@@ -27,11 +27,11 @@ export async function PATCH(
       );
     }
 
-const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+    const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
 
     const { name, unit, price, stock } = parsed.data;
     const existing = await prisma.ingredient.findUnique({
-      where: { id, organization: organization.id },
+      where: { id, organizationId: session.organizationId },
       select: { price: true },
     });
 
@@ -79,15 +79,23 @@ export async function DELETE(
   try {
     const { id: rawId } = await params;
     const id = parseInt(rawId);
-const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+    const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
 
     await prisma.ingredientPriceHistory.deleteMany({
-      where: { id, organization: organization.id },
+      where: {
+        ingredientId: id,
+        ingredient: {
+          organizationId: session.organizationId,
+        },
+      },
     });
-    await prisma.ingredient.delete({ where: { id } });
+    await prisma.ingredient.delete({
+      where: { id, organizationId: session.organizationId },
+    });
 
     return NextResponse.json({ message: "Ingrediente eliminado" });
   } catch (error: any) {
+    console.error(error);
     if (error.code === "P2003") {
       return NextResponse.json(
         { error: "No podés eliminar un insumo que está asociado a una receta" },

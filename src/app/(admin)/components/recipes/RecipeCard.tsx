@@ -24,10 +24,10 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
       if (!confirmed) return;
       await deleteRecipeById(recipeId);
       onDelete?.(recipeId);
-      toast.success("Receta eliminada")
+      toast.success("Receta eliminada");
       setMenuOpen(false);
     } catch (error) {
-      toast.error("Ocurrio un error al eliminar la receta")
+      toast.error("Ocurrio un error al eliminar la receta");
     }
   };
 
@@ -37,11 +37,15 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
       onClick={() => router.push(`/admin/menu/recetas/${recipe.id}`)}
     >
       <div className="flex justify-between items-start">
-        <h5 className="font-bold text-lg text-base text-[var(--color-text-primary)]">
+        <h5
+          data-testid={`recipe-name-${recipe.name}`}
+          className="font-bold text-lg text-base text-[var(--color-text-primary)]"
+        >
           {recipe.name}
         </h5>
         <div className="relative">
           <button
+            data-testid={`btn-options-${recipe.name}`}
             onClick={(e) => {
               e.stopPropagation();
               setMenuOpen(!menuOpen);
@@ -52,6 +56,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
           {menuOpen && (
             <div className="absolute right-0 top-8 bg-white rounded-xl shadow-md z-10 flex flex-col min-w-[130px] border border-[var(--color-border)] z-99999">
               <button
+                data-testid={`btn-edit-${recipe.name}`}
                 className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -62,6 +67,8 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 Editar
               </button>
               <button
+                data-testid={`btn-delete-${recipe.name}`}
+
                 className="px-4 py-2 text-left hover:bg-gray-50 text-sm text-red-500"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -82,7 +89,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
           </p>
           <p>
             Rinde:{" "}
-            <strong>
+            <strong data-testid={`yeild-${recipe.name}`}>
               {recipe.yield}
               {recipe.yieldUnit}
             </strong>

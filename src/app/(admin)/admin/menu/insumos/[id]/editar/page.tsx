@@ -1,4 +1,4 @@
-import CreateIngredientForm from "@/src/app/(admin)/components/CreateIngredientForm";
+import CreateIngredientForm from "@/src/app/(admin)/components/forms/CreateIngredientForm";
 import BackButton from "@/src/app/(main)/components/BackButton";
 import { prisma } from "@/src/lib/prisma";
 import { Suspense } from "react";
@@ -26,7 +26,7 @@ async function EditIngredientContent({
   return (
     <div className="px-4">
       <div className="flex items-center gap-2 mb-6">
-        <BackButton />
+        <BackButton url={"/admin/menu/insumos"}/>
         <h3 className="text-xl font-bold">Editar ingrediente</h3>
       </div>
       <CreateIngredientForm ingredientToEdit={serializedIngredient} />

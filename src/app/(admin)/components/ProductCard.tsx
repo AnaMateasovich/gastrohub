@@ -7,6 +7,7 @@ import {
   toggleProductActive,
 } from "@/src/lib/actions/products.actions";
 import { ProductWithRecipeAndCostsType } from "../../types/product.type";
+import { toast } from "sonner";
 
 type Props = {
   product: ProductWithRecipeAndCostsType;
@@ -20,14 +21,25 @@ const ProductCard = ({ product, onDelete, routerPush }: Props) => {
 
   const router = useRouter();
 
-  const handleDelete = async (id: number) => {
-    const confirm = window.confirm("¿Estás seguro que quieres eliminar el producto?")
-    if(!confirm) return
-    await deleteProductById(id);
-    onDelete?.(id);
-    setMenuOpen(false);
-  };
-  product;
+const handleDelete = async (id: number) => {
+  const confirm = window.confirm(
+    "¿Estás seguro que quieres eliminar el producto?"
+  );
+
+  if (!confirm) return;
+
+  const result = await deleteProductById(id);
+
+  if (!result.success) {
+    toast.error(result.message);
+    return;
+  }
+
+  onDelete?.(id);
+  setMenuOpen(false);
+  toast.success("Producto eliminado");
+};
+
   return (
     <div
       data-testid={`product-card-${product.slug}`}

@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
 const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
 
-    if (!organization) {
+    if (!session.organizationId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const ingredient = await prisma.ingredient.create({
@@ -48,7 +48,7 @@ const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
         unit,
         price: new Prisma.Decimal(price),
         stock: stock !== undefined ? new Prisma.Decimal(stock as number) : null,
-        organization: organization.id,
+        organizationId: session.organizationId,
       },
     });
 

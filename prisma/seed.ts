@@ -116,7 +116,7 @@ async function main() {
         slug: "pan-de-campo",
         price: 2200,
         saleAmount: new Prisma.Decimal(1),
-        saleUnit: "unidad",
+        saleUnit: "u",
         stock: 20,
       },
     }),

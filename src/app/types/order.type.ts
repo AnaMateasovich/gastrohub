@@ -27,7 +27,7 @@ export type CreateOrderInput = {
   phone: string
   email: string
   address: string
-  userId: string | null
+  customerId: string | null
   wantsDelivery: boolean
   orderItems: {
     productId: number

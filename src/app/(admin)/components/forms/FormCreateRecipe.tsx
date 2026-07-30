@@ -70,7 +70,7 @@ const FormCreateRecipe = ({
           })),
         },
   });
-
+console.log(recipeToEdit)
   const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "items",
@@ -143,6 +143,7 @@ const FormCreateRecipe = ({
         registerOptions={{ valueAsNumber: true }}
       />
       <select
+        data-testid={`yeildUnit`}
         {...register("yieldUnit")}
         className="w-full bg-white border rounded-sm px-2 py-2 outline-none border-[var(--color-primary)]/60"
       >
