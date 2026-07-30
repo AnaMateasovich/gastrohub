@@ -4,6 +4,30 @@ SaaS multi-tenant para la gestión integral de emprendimientos gastronómicos (p
 
 ---
 
+## 📸 Capturas
+
+GastroHub está pensado mobile-first y probado en desktop, tablet y mobile:
+
+### Desktop
+
+| Dashboard | Órdenes |
+|---|---|
+| ![Dashboard](./docs/dashboard-dk.png) | ![Órdenes](./docs/orders-dk.png) |
+
+### Tablet
+
+| Dashboard | Menú | Ingredientes | Recetas | Crear ingrediente |
+|---|---|---|---|---|
+| ![Dashboard](./docs/dashboard-tb.png) | ![Menú](./docs/menu-tb.png) | ![Ingredientes](./docs/ingredients-tb.png) | ![Recetas](./docs/recipes-tb.png) | ![Crear ingrediente](./docs/create-ing-tb.png) |
+
+### Mobile
+
+| Dashboard | Productos | Crear producto |
+|---|---|---|
+| ![Dashboard](./docs/dashboard-mb.png) | ![Productos](./docs/products-mb.png) | ![Crear producto](./docs/create-product-mb.png) |
+
+---
+
 ## ✨ Features
 
 **Multi-tenancy & equipos**
@@ -109,6 +133,7 @@ npm run dev
 
 El proyecto incluye tests End-to-End (E2E) escritos en Python con Pytest + Playwright, que simulan el flujo real de un usuario en el navegador.
 
+
 ### Instalación
 
 ```bash
@@ -134,6 +159,8 @@ Los tests usan las mismas credenciales que genera el seed de Prisma (ver tabla m
 
 Suite en construcción activa, en paralelo a la migración a multi-tenant:
 - Creación de productos desde el panel de administración (costo manual y por receta)
+- CRUD de ingredientes
+- Creación de recetas con ingredientes asociados
 
 **Próximos frentes:** aislamiento multi-tenant entre organizaciones, flujo completo de checkout en la tienda pública, y gestión de pedidos.
 
@@ -144,6 +171,7 @@ Suite en construcción activa, en paralelo a la migración a multi-tenant:
 ## 📂 Estructura
 
 ```
+docs/                    # Screenshots para este README
 src/
 ├── app/
 │   ├── (main)/          # Tienda pública
