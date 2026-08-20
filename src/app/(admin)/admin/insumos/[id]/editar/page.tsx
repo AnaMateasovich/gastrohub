@@ -26,7 +26,7 @@ async function EditIngredientContent({
   return (
     <div className="px-4">
       <div className="flex items-center gap-2 mb-6">
-        <BackButton url={"/admin/menu/insumos"}/>
+        <BackButton url={"/admin/insumos"}/>
         <h3 className="text-xl font-bold">Editar ingrediente</h3>
       </div>
       <CreateIngredientForm ingredientToEdit={serializedIngredient} />

@@ -131,14 +131,14 @@ const CreateIngredientForm = ({
           setXlsRows([]);
           setXlsIndex(0);
           reset({ unit: "kg" });
-          router.push("/admin/menu/insumos");
+          router.push("/admin/insumos");
         }
         return;
       }
 
       reset();
       if (!createAndContinue) {
-        router.push(`/admin/menu/insumos`);
+        router.push(`/admin/insumos`);
       }
     } catch (error) {
       toast.error("Hubo un error al crear el ingrediente");
@@ -155,7 +155,7 @@ const CreateIngredientForm = ({
     setXlsRows([]);
     setXlsIndex(0);
     reset({ unit: "kg" });
-    router.push("/admin/menu/insumos");
+    router.push("/admin/insumos");
   }
 };
 

@@ -32,7 +32,6 @@ function getInnerType(zodType: z.core.$ZodType): z.core.$ZodType {
 }
 
 function coerceValue(raw: unknown, zodType: any): unknown {
-  console.log(raw);
   const inner = getInnerType(zodType);
    const def = (inner as any)?._zod?.def ?? (inner as any)?._def;
   const typeName = def?.type ?? def?.typeName;

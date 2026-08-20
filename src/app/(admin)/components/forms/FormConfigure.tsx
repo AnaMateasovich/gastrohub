@@ -1,13 +1,22 @@
-"use client"
+"use client";
 import { storeSettingsSchema } from "@/src/lib/validations/configure.schema";
 import z from "zod";
-import { StoreSettingsInput, StoreSettingsType } from "../../../types/storeSettings";
+import {
+  StoreSettingsInput,
+  StoreSettingsType,
+} from "../../../types/storeSettings";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "../../../(main)/components/Input";
 import Button from "../../../(main)/components/Button";
-import { createStoreSettings, updateStoreSettings } from "@/src/lib/actions/setting.action";
+import {
+  createStoreSettings,
+  updateStoreSettings,
+} from "@/src/lib/actions/setting.action";
 import { toast } from "sonner";
+import { useState } from "react";
+import Image from "next/image";
+import { X } from "lucide-react";
 
 export type StoreSettingsFormType = z.infer<typeof storeSettingsSchema>;
 
@@ -24,6 +33,13 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
     resolver: zodResolver(storeSettingsSchema),
     defaultValues: settingsToEdit
       ? {
+          organizationName: settingsToEdit.organizationName ?? "",
+          heroImageUrl: settingsToEdit.heroImageUrl ?? "",
+          heroBadgeText: settingsToEdit.heroBadgeText ?? "",
+          heroTitle: settingsToEdit.heroTitle ?? "",
+          heroHighlight: settingsToEdit.heroHighlight ?? "",
+          heroSubtitle: settingsToEdit.heroSubtitle ?? "",
+          ctaLabel: settingsToEdit.ctaLabel ?? "",
           deliveryFee: Number(settingsToEdit.deliveryFee),
           freeDeliveryFrom: settingsToEdit.freeDeliveryFrom
             ? Number(settingsToEdit.freeDeliveryFrom)
@@ -53,24 +69,151 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
         },
   });
 
+  // Imagen del hero
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [heroImagePreview, setHeroImagePreview] = useState<string | null>(
+    settingsToEdit?.heroImageUrl ?? null,
+  );
+  const [heroImageError, setHeroImageError] = useState("");
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+
+  const handleHeroImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setHeroImageFile(file);
+    setHeroImageError("");
+    setHeroImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveHeroImage = () => {
+    setHeroImageFile(null);
+    setHeroImagePreview(null);
+  };
+
+  const uploadHeroImage = async (): Promise<string | undefined> => {
+    if (!heroImageFile) return settingsToEdit?.heroImageUrl ?? undefined;
+
+    const fd = new FormData();
+    fd.append("image", heroImageFile);
+
+    const res = await fetch("/api/images", {
+      method: "POST",
+      body: fd,
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error ?? "Error al subir la imagen");
+    }
+
+    const { url } = await res.json();
+    return url;
+  };
+
   const onSubmit = async (data: StoreSettingsFormType) => {
     try {
+      setIsUploadingHero(true);
+      const heroImageUrl = await uploadHeroImage();
+
+      const payload = { ...data, heroImageUrl };
+
       if (settingsToEdit) {
-        await updateStoreSettings(data);
+        await updateStoreSettings(payload);
       } else {
-        await createStoreSettings(data)
+        await createStoreSettings(payload);
       }
       toast.success("Configuración guardada");
     } catch {
       toast.error("Hubo un error al guardar la configuración");
+    } finally {
+      setIsUploadingHero(false);
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-2 mt-4"
     >
+      <h2 className="font-semibold text-lg mt-2">Personalización de Landing</h2>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-[var(--color-text-secondary)]">
+          Imagen de portada
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleHeroImageChange}
+          className={`w-full bg-white border rounded-sm px-2 py-2 outline-none ${
+            heroImageError
+              ? "border-red-500"
+              : "border-[var(--color-primary)]/60"
+          }`}
+        />
+        {heroImageError && <div className="text-red-600">{heroImageError}</div>}
+
+        {heroImagePreview && (
+          <div className="relative w-fit">
+            <button
+              type="button"
+              className="absolute bg-red-600 text-white rounded top-2 right-2"
+              onClick={handleRemoveHeroImage}
+            >
+              <X size={20} />
+            </button>
+            <Image
+              src={heroImagePreview}
+              alt="Portada"
+              width={280}
+              height={150}
+              className="object-cover rounded-md"
+            />
+          </div>
+        )}
+      </div>
+
+      <Input
+        type="text"
+        name="organizationName"
+        register={register}
+        placeholder="Nombre de la tienda"
+        error={errors.organizationName?.message}
+      />
+      <Input
+        type="text"
+        name="heroBadgeText"
+        register={register}
+        placeholder="Texto del badge (ej: Hecho a mano)"
+        error={errors.heroBadgeText?.message}
+      />
+      <Input
+        type="text"
+        name="heroTitle"
+        register={register}
+        placeholder="Título principal"
+        error={errors.heroTitle?.message}
+      />
+      <Input
+        type="text"
+        name="heroHighlight"
+        register={register}
+        placeholder="Frase destacada (segunda línea, color acento)"
+        error={errors.heroHighlight?.message}
+      />
+      <Input
+        type="text"
+        name="heroSubtitle"
+        register={register}
+        placeholder="Subtítulo"
+        error={errors.heroSubtitle?.message}
+      />
+      <Input
+        type="text"
+        name="ctaLabel"
+        register={register}
+        placeholder="Texto del botón (ej: Ver productos)"
+        error={errors.ctaLabel?.message}
+      />
       <h2 className="font-semibold text-lg mt-2">Envíos</h2>
       <Input
         type="number"

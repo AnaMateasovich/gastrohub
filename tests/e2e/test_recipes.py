@@ -5,7 +5,7 @@ from playwright.sync_api import expect
 def test_create_recipe(owner_page):
     recipe_name = "Cookie de avena"
 
-    owner_page.goto("/admin/menu/recetas/crear") 
+    owner_page.goto("/admin/recetas/crear") 
 
     owner_page.get_by_placeholder("Nombre de la receta").fill(recipe_name)
     owner_page.get_by_placeholder("¿Cuánto rinde esta receta? ej: 3").fill("5")
@@ -17,7 +17,7 @@ def test_create_recipe(owner_page):
     owner_page.locator('input[name="items.1.quantity"]').fill("100")
 
     owner_page.get_by_role("button", name="Crear", exact=True).click()
-    owner_page.wait_for_url("/admin/menu/recetas")
+    owner_page.wait_for_url("/admin/recetas")
     expect(owner_page.get_by_text(recipe_name, exact=True)).to_be_visible()
 
     return {"nombre": recipe_name}
@@ -26,7 +26,7 @@ def test_create_recipe(owner_page):
 def test_edit_recipe(owner_page, test_create_recipe):
     recipe_name = test_create_recipe["nombre"]
 
-    owner_page.goto("/admin/menu/recetas") 
+    owner_page.goto("/admin/recetas") 
 
     owner_page.get_by_test_id(f"btn-options-{recipe_name}").click()
 
@@ -43,7 +43,7 @@ def test_edit_recipe(owner_page, test_create_recipe):
 def test_delete_recipe(owner_page, test_create_recipe):
     recipe_name = test_create_recipe["nombre"]
 
-    owner_page.goto("/admin/menu/recetas") 
+    owner_page.goto("/admin/recetas") 
 
     owner_page.get_by_test_id(f"btn-options-{recipe_name}").click()
 

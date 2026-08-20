@@ -18,7 +18,7 @@ GastroHub está pensado mobile-first y probado en desktop, tablet y mobile:
 
 | Dashboard | Menú | Ingredientes | Recetas | Crear ingrediente |
 |---|---|---|---|---|
-| ![Dashboard](./docs/dashboard-tb.png) | ![Menú](./docs/menu-tb.png) | ![Ingredientes](./docs/ingredients-tb.png) | ![Recetas](./docs/recipes-tb.png) | ![Crear ingrediente](./docs/create-ing-tb.png) |
+| ![Dashboard](./docs/dashboard-tb.png) | ![Menú](./docs-tb.png) | ![Ingredientes](./docs/ingredients-tb.png) | ![Recetas](./docs/recipes-tb.png) | ![Crear ingrediente](./docs/create-ing-tb.png) |
 
 ### Mobile
 

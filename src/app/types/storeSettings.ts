@@ -1,5 +1,12 @@
 export type StoreSettingsType = {
   id: number;
+  organizationName: string | null;
+  heroImageUrl: string | null;
+  heroBadgeText: string | null;
+  heroTitle: string | null;
+  heroHighlight: string | null;
+  heroSubtitle: string | null;
+  ctaLabel: string | null;
   deliveryFee: number;
   freeDeliveryFrom?: number;
   minimumOrderAmount?: number;

@@ -70,7 +70,6 @@ const FormCreateRecipe = ({
           })),
         },
   });
-console.log(recipeToEdit)
   const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "items",
@@ -84,7 +83,7 @@ console.log(recipeToEdit)
           ...data,
         });
         toast.success("Receta actualizada");
-        router.push("/admin/menu/recetas");
+        router.push("/admin/recetas");
       } else if (onRecipeReady) {
         onRecipeReady(data);
         reset();
@@ -93,7 +92,7 @@ console.log(recipeToEdit)
         toast.success("Receta creada");
         reset();
         if (!createAndContinue) {
-          router.push("/admin/menu/recetas");
+          router.push("/admin/recetas");
         }
       }
     } catch (error) {

@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CostType } from "@/src/app/types/cost.type";
 import { RecipeWithCostType } from "@/src/app/types/recipe.type";
-import { useRouter } from "next/router";
-import RecipeCard from "../../../components/recipes/RecipeCard";
+import RecipeCard from "../../components/recipes/RecipeCard";
 
 type Props = {
   recipes: RecipeWithCostType[]

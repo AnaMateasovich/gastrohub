@@ -40,19 +40,25 @@ async function main() {
   });
 
   await prisma.membership.upsert({
-    where: { userId_organizationId: { userId: ownerA.id, organizationId: orgA.id } },
+    where: {
+      userId_organizationId: { userId: ownerA.id, organizationId: orgA.id },
+    },
     update: {},
     create: { userId: ownerA.id, organizationId: orgA.id, role: Role.OWNER },
   });
 
   await prisma.membership.upsert({
-    where: { userId_organizationId: { userId: adminA.id, organizationId: orgA.id } },
+    where: {
+      userId_organizationId: { userId: adminA.id, organizationId: orgA.id },
+    },
     update: {},
     create: { userId: adminA.id, organizationId: orgA.id, role: Role.ADMIN },
   });
 
   await prisma.membership.upsert({
-    where: { userId_organizationId: { userId: staffA.id, organizationId: orgA.id } },
+    where: {
+      userId_organizationId: { userId: staffA.id, organizationId: orgA.id },
+    },
     update: {},
     create: { userId: staffA.id, organizationId: orgA.id, role: Role.STAFF },
   });
@@ -62,14 +68,35 @@ async function main() {
     update: {},
     create: {
       organizationId: orgA.id,
+      organizationName: "Sabores Naturales",
+
       deliveryFee: new Prisma.Decimal(1000),
       freeDeliveryFrom: new Prisma.Decimal(20000),
       minimumOrderAmount: new Prisma.Decimal(0),
+
       storeOpen: true,
-      allowGuestCheckout: true,
-      enableCoupons: true,
+      openingTime: "08:00",
+      closingTime: "20:00",
+
       whatsappPhone: "3464555111",
       storeEmail: "hola@sabores.com",
+      instagramUrl: "https://instagram.com/saboresnaturales.casilda",
+
+      allowGuestCheckout: true,
+      enableCoupons: true,
+      maxDiscountPercentage: 30,
+
+      announcementBar: "🚚 Envío gratis en compras superiores a $20.000.",
+
+      maintenanceMode: false,
+
+      heroImageUrl: "/hero-default.webp",
+      heroBadgeText: "Panadería Artesanal",
+      heroTitle: "Panificados frescos",
+      heroHighlight: "todos los días",
+      heroSubtitle:
+        "Descubrí panes, facturas, tortas y productos elaborados con ingredientes de calidad.",
+      ctaLabel: "Ver productos",
     },
   });
 
@@ -77,7 +104,7 @@ async function main() {
   const harina = await prisma.ingredient.create({
     data: {
       organizationId: orgA.id,
-      name: "Harina 0000",
+      name: "Harina 000",
       unit: "kg",
       price: new Prisma.Decimal(800),
       stock: new Prisma.Decimal(50),
@@ -91,7 +118,13 @@ async function main() {
       yield: new Prisma.Decimal(12),
       yieldUnit: "unidades",
       items: {
-        create: [{ ingredientId: harina.id, quantity: new Prisma.Decimal(1), unit: "kg" }],
+        create: [
+          {
+            ingredientId: harina.id,
+            quantity: new Prisma.Decimal(1),
+            unit: "kg",
+          },
+        ],
       },
     },
   });
@@ -180,14 +213,22 @@ async function main() {
         total: new Prisma.Decimal(4500),
         deliveryFee: new Prisma.Decimal(1000),
         orderItems: {
-          create: [{ productId: productos[i % productos.length].id, quantity: 1, price: 3500 }],
+          create: [
+            {
+              productId: productos[i % productos.length].id,
+              quantity: 1,
+              price: 3500,
+            },
+          ],
         },
       },
     });
   }
 
   await prisma.coupon.upsert({
-    where: { organizationId_code: { organizationId: orgA.id, code: "BIENVENIDA10" } },
+    where: {
+      organizationId_code: { organizationId: orgA.id, code: "BIENVENIDA10" },
+    },
     update: {},
     create: {
       organizationId: orgA.id,
@@ -218,7 +259,9 @@ async function main() {
   });
 
   await prisma.membership.upsert({
-    where: { userId_organizationId: { userId: ownerB.id, organizationId: orgB.id } },
+    where: {
+      userId_organizationId: { userId: ownerB.id, organizationId: orgB.id },
+    },
     update: {},
     create: { userId: ownerB.id, organizationId: orgB.id, role: Role.OWNER },
   });
@@ -228,8 +271,35 @@ async function main() {
     update: {},
     create: {
       organizationId: orgB.id,
+      organizationName: "Otra Pastelería",
+
       deliveryFee: new Prisma.Decimal(500),
+      freeDeliveryFrom: new Prisma.Decimal(15000),
+      minimumOrderAmount: new Prisma.Decimal(0),
+
       storeOpen: true,
+      openingTime: "09:00",
+      closingTime: "19:00",
+
+      whatsappPhone: "3464333333",
+      storeEmail: "contacto@otrapasteleria.com",
+      instagramUrl: "https://instagram.com/otrapasteleria",
+
+      allowGuestCheckout: true,
+      enableCoupons: true,
+      maxDiscountPercentage: 20,
+
+      announcementBar: "🍰 Tortas y pastelería artesanal hechas en el día.",
+
+      maintenanceMode: false,
+
+      heroImageUrl: "/hero-default.jpg",
+      heroBadgeText: "Pastelería Artesanal",
+      heroTitle: "Los mejores",
+      heroHighlight: "postres caseros",
+      heroSubtitle:
+        "Encontrá tortas, alfajores y productos dulces preparados con recetas tradicionales.",
+      ctaLabel: "Comprar ahora",
     },
   });
 
@@ -267,7 +337,210 @@ async function main() {
       status: Orders_status.PENDING,
       subtotal: new Prisma.Decimal(4000),
       total: new Prisma.Decimal(4000),
-      orderItems: { create: [{ productId: productoB.id, quantity: 1, price: 4000 }] },
+      orderItems: {
+        create: [{ productId: productoB.id, quantity: 1, price: 4000 }],
+      },
+    },
+  });
+  const roleCocinero = await prisma.employeeRole.create({
+    data: {
+      organizationId: orgA.id,
+      name: "Cocinero",
+    },
+  });
+
+  const roleAdministrativa = await prisma.employeeRole.create({
+    data: {
+      organizationId: orgA.id,
+      name: "Administrativa",
+    },
+  });
+
+  const roleDelivery = await prisma.employeeRole.create({
+    data: {
+      organizationId: orgA.id,
+      name: "Delivery",
+    },
+  });
+
+  const empleadosA = await Promise.all([
+    prisma.employee.create({
+      data: {
+        organizationId: orgA.id,
+        name: "Carlos Fernández",
+        roleId: roleCocinero.id,
+        phone: "3464555555",
+        baseSalary: new Prisma.Decimal(650000),
+        active: true,
+      },
+    }),
+
+    prisma.employee.create({
+      data: {
+        organizationId: orgA.id,
+        name: "María López",
+        roleId: roleAdministrativa.id,
+        phone: "3464666666",
+        baseSalary: new Prisma.Decimal(550000),
+        active: true,
+      },
+    }),
+
+    prisma.employee.create({
+      data: {
+        organizationId: orgA.id,
+        name: "Pedro Gómez",
+        roleId: roleDelivery.id,
+        phone: "3464777777",
+        baseSalary: new Prisma.Decimal(450000),
+        active: true,
+      },
+    }),
+  ]);
+
+  const proveedoresA = await Promise.all([
+    prisma.supplier.create({
+      data: {
+        organizationId: orgA.id,
+        name: "Distribuidora La Harina",
+        contactName: "Jorge Martínez",
+        phone: "3464888888",
+        email: "ventas@laharina.com",
+        active: true,
+      },
+    }),
+    prisma.supplier.create({
+      data: {
+        organizationId: orgA.id,
+        name: "Envases del Centro",
+        contactName: "Laura Sánchez",
+        phone: "3464999999",
+        email: "ventas@envasescentro.com",
+        active: true,
+      },
+    }),
+    prisma.supplier.create({
+      data: {
+        organizationId: orgA.id,
+        name: "Lácteos Casilda",
+        contactName: "Roberto Díaz",
+        phone: "3464000001",
+        email: "contacto@lacteoscasilda.com",
+        active: true,
+      },
+    }),
+  ]);
+
+  // Gastos de proveedores
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "SUPPLIER",
+      amount: new Prisma.Decimal(45000),
+      date: new Date("2026-08-05"),
+      category: "Insumos",
+      paymentMethod: "TRANSFER",
+      description: "Compra de harina 0000 y harina integral",
+      isRecurring: false,
+      supplierId: proveedoresA[0].id,
+    },
+  });
+
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "SUPPLIER",
+      amount: new Prisma.Decimal(28000),
+      date: new Date("2026-08-08"),
+      category: "Envases",
+      paymentMethod: "CASH",
+      description: "Compra de cajas y bolsas",
+      isRecurring: false,
+      supplierId: proveedoresA[1].id,
+    },
+  });
+
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "SUPPLIER",
+      amount: new Prisma.Decimal(35000),
+      date: new Date("2026-08-10"),
+      category: "Lácteos",
+      paymentMethod: "TRANSFER",
+      description: "Compra de manteca y leche",
+      isRecurring: false,
+      supplierId: proveedoresA[2].id,
+    },
+  });
+
+  // Gastos de empleados
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "EMPLOYEE",
+      amount: new Prisma.Decimal(650000),
+      date: new Date("2026-08-01"),
+      category: "Sueldo",
+      paymentMethod: "TRANSFER",
+      description: "Sueldo mensual - Carlos Fernández",
+      isRecurring: true,
+      employeeId: empleadosA[0].id,
+    },
+  });
+
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "EMPLOYEE",
+      amount: new Prisma.Decimal(550000),
+      date: new Date("2026-08-01"),
+      category: "Sueldo",
+      paymentMethod: "TRANSFER",
+      description: "Sueldo mensual - María López",
+      isRecurring: true,
+      employeeId: empleadosA[1].id,
+    },
+  });
+
+  // Gastos fijos
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "FIXED",
+      amount: new Prisma.Decimal(320000),
+      date: new Date("2026-08-03"),
+      category: "Alquiler",
+      paymentMethod: "TRANSFER",
+      description: "Alquiler del local",
+      isRecurring: true,
+    },
+  });
+
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "FIXED",
+      amount: new Prisma.Decimal(85000),
+      date: new Date("2026-08-06"),
+      category: "Luz",
+      paymentMethod: "TRANSFER",
+      description: "Factura de electricidad",
+      isRecurring: true,
+    },
+  });
+
+  // Otros gastos
+  await prisma.expense.create({
+    data: {
+      organizationId: orgA.id,
+      type: "OTHER",
+      amount: new Prisma.Decimal(18000),
+      date: new Date("2026-08-12"),
+      category: "Mantenimiento",
+      paymentMethod: "CASH",
+      description: "Reparación de horno",
+      isRecurring: false,
     },
   });
 

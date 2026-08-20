@@ -35,6 +35,7 @@ const ProductCard = ({
   quantity = 0,
 }: ProductCardProps) => {
   const [added, setAdded] = useState<boolean>(false);
+  const [src, setSrc] = useState(product.images[0]?.url || "/no-image.png");
 
   const router = useRouter();
 
@@ -52,18 +53,21 @@ const ProductCard = ({
       <div className="relative w-full flex items-center">
         <div className="w-[80px] self-stretch relative rounded-lg overflow-hidden flex-shrink-0">
           <Image
-            src={product.images[0]?.url ?? '/no-image.png'}
+            src={src}
             alt={product.name}
             fill
             sizes="200px"
             className="object-cover"
             priority={priority}
+            onError={() => setSrc("/no-image.png")}
           />
         </div>
         <div className="px-2 flex flex-col gap-2 ml-2">
           <div>
             <h3 className="font-bold text-xl">{product.name}</h3>
-            <p className="line-clamp-2 md:line-clamp-3">{product.description}</p>
+            <p className="line-clamp-2 md:line-clamp-3">
+              {product.description}
+            </p>
             <p className="text-xl font-bold">${product.price}</p>
           </div>
         </div>

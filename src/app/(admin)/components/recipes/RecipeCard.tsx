@@ -34,7 +34,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
   return (
     <div
       className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 flex flex-col gap-3 shadow-[var(--shadow-sm)]"
-      onClick={() => router.push(`/admin/menu/recetas/${recipe.id}`)}
+      onClick={() => router.push(`/admin/recetas/${recipe.id}`)}
     >
       <div className="flex justify-between items-start">
         <h5
@@ -60,7 +60,7 @@ const RecipeCard = ({ recipe, onDelete }: Props) => {
                 className="px-4 py-2 text-left hover:bg-gray-50 text-sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/admin/menu/recetas/${recipe.id}/editar`);
+                  router.push(`/admin/recetas/${recipe.id}/editar`);
                   setMenuOpen(!menuOpen);
                 }}
               >

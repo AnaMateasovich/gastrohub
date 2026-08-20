@@ -66,7 +66,6 @@ const FormCreateOrder = () => {
 
   const onSubmit = async (data: OrderFormType) => {
     try {
-      console.log("hola")
       setOnSubmiting(true);
 
       await createOrder({
@@ -121,7 +120,6 @@ const FormCreateOrder = () => {
   }, []);
   return (
     <form onSubmit={handleSubmit(onSubmit, (errors) => {
-  console.log("VALIDACION FALLO:", errors);
 })}>
       {step === 1 && (
         <div className="flex flex-col gap-3">

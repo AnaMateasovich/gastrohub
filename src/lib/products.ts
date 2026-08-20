@@ -8,7 +8,7 @@ import {
 } from "../app/types/recipe.type";
 import { getProductCost, getProductProfit } from "./costs";
 import { requireRole } from "./auth/role";
-import { withOrg } from "./auth/with-org";
+import { withOrg, withPublicOrg } from "./auth/with-org";
 
 export const getProductsCached = async (organizationId: string) => {
   "use cache";
@@ -36,8 +36,9 @@ export const getProductsCached = async (organizationId: string) => {
 };
 
 export async function getProducts() {
-  return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getProductsCached);
+  return withPublicOrg(getProductsCached);
 }
+
 
 export const getProductsAdminCached = async (organizationId: string) => {
   "use cache";
@@ -99,6 +100,11 @@ export const getProductsAdminCached = async (organizationId: string) => {
 
 export async function getProductsAdmin() {
   return withOrg([Role.OWNER, Role.ADMIN, Role.STAFF], getProductsAdminCached);
+}
+
+
+export async function getProductBySlugPublic(slug: string) {
+  return withPublicOrg(getProductBySlugCached, slug);
 }
 
 export const getProductBySlugCached = async (

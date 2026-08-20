@@ -5,9 +5,11 @@ import { CreateOrderInput } from "../../app/types/order.type";
 import { Product, Role } from "@prisma/client";
 import { createOrderSchema } from "../validations/order.schema";
 import { requireRole } from "../auth/role";
+import { getCurrentTenant } from "../tenant";
 
 export async function createOrder(data: CreateOrderInput) {
-  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+  const tenant = await getCurrentTenant();
+  const organizationId = tenant.id;
 
   const parsed = createOrderSchema.safeParse(data);
 
@@ -28,7 +30,7 @@ export async function createOrder(data: CreateOrderInput) {
   } = parsed.data;
 
   const settings = await prisma.storeSettings.findUnique({
-    where: { organizationId: session.organizationId },
+    where: { organizationId: organizationId },
   });
 
   if (!settings) {
@@ -38,7 +40,7 @@ export async function createOrder(data: CreateOrderInput) {
   const products: Product[] = await prisma.product.findMany({
     where: {
       id: { in: orderItems.map((item) => item.productId) },
-      organizationId: session.organizationId,
+      organizationId: organizationId,
     },
   });
 
@@ -75,13 +77,13 @@ export async function createOrder(data: CreateOrderInput) {
     const customer = await prisma.customer.upsert({
       where: {
         organizationId_email: {
-          organizationId: session.organizationId,
+          organizationId: organizationId,
           email,
         },
       },
       update: {}, // no pisamos datos si ya existía
       create: {
-        organizationId: session.organizationId,
+        organizationId: organizationId,
         name: customerName,
         lastname: customerLastname,
         email,
@@ -94,7 +96,7 @@ export async function createOrder(data: CreateOrderInput) {
 
   await prisma.order.create({
     data: {
-      organizationId: session.organizationId,
+      organizationId: organizationId,
       customerId: finalCustomerId,
       customerName,
       customerLastname,
@@ -114,7 +116,7 @@ export async function createOrder(data: CreateOrderInput) {
     },
   });
 
-  revalidateTag(`orders-${session.organizationId}`, "");
+  revalidateTag(`orders-${organizationId}`, "");
 }
 
 export async function updateStatusOrder(id: number, status: string) {

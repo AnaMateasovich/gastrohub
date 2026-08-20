@@ -58,7 +58,7 @@ const IngredientCard = ({
             <button
             data-testid={`edit-button-${name}`}
               onClick={() =>
-                router.push(`/admin/menu/insumos/${ingredientId}/editar`)
+                router.push(`/admin/insumos/${ingredientId}/editar`)
               }
               className="p-1 text-[var(--color-primary)]"
             >

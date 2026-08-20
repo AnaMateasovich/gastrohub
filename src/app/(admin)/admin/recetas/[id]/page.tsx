@@ -20,7 +20,7 @@ const RecipePage = async ({ params }: { params: Props }) => {
           <h1 className="text-2xl font-bold">Receta</h1>
         </div>
         <div className="bg-[var(--color-primary)] text-white p-2 rounded-sm">
-          <Link href={`/admin/menu/recetas/${recipe.id}/editar`}>
+          <Link href={`/admin/recetas/${recipe.id}/editar`}>
             <Pencil size={20} />
           </Link>
         </div>

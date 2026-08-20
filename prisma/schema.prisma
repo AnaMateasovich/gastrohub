@@ -23,6 +23,10 @@ model Organization {
   ingredients   Ingredient[]
   coupons       Coupon[]
   storeSettings StoreSettings?
+  employees     Employee[]
+  employeeRole  EmployeeRole[]
+  suppliers     Supplier[]
+  expenses      Expense[]
 }
 
 model User {
@@ -195,11 +199,10 @@ model IngredientPriceHistory {
   @@index([ingredientId], map: "ingredientId")
 }
 
-// ─── CONFIGURACIÓN DE TIENDA ────────────────────────────────
-
 model StoreSettings {
   organizationId        String       @id
   organization          Organization @relation(fields: [organizationId], references: [id])
+  organizationName      String?      @db.VarChar(20)
   deliveryFee           Decimal      @db.Decimal(10, 2)
   freeDeliveryFrom      Decimal?     @db.Decimal(10, 2)
   minimumOrderAmount    Decimal?     @db.Decimal(10, 2)
@@ -214,7 +217,16 @@ model StoreSettings {
   maxDiscountPercentage Int?
   announcementBar       String?      @db.Text
   maintenanceMode       Boolean      @default(false)
-  updatedAt             DateTime     @default(now()) @updatedAt @db.DateTime(0)
+
+  // Landing / Hero
+  heroImageUrl  String? @db.VarChar(500)
+  heroBadgeText String? @db.VarChar(100)
+  heroTitle     String? @db.VarChar(150)
+  heroHighlight String? @db.VarChar(150)
+  heroSubtitle  String? @db.VarChar(255)
+  ctaLabel      String? @db.VarChar(50)
+
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(0)
 }
 
 model Coupon {
@@ -229,6 +241,79 @@ model Coupon {
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([organizationId, code])
+}
+
+enum ExpenseType {
+  SUPPLIER // insumos, envases
+  EMPLOYEE // sueldos
+  FIXED // alquiler, impuestos, servicios
+  OTHER
+}
+
+model EmployeeRole {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  employees      Employee[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Employee {
+  id             Int          @id @default(autoincrement())
+  organizationId String
+  name           String
+  roleId         String?
+  role           EmployeeRole? @relation(fields: [roleId], references: [id])
+  phone          String?
+  baseSalary     Decimal?     @db.Decimal(10, 2)
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  expenses       Expense[]
+
+  @@index([organizationId])
+  @@index([roleId])
+}
+
+model Supplier {
+  id             Int          @id @default(autoincrement())
+  organizationId String
+  name           String
+  contactName    String?
+  phone          String?
+  email          String?
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  expenses       Expense[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Expense {
+  id             Int          @id @default(autoincrement())
+  organizationId String
+  type           ExpenseType
+  amount         Decimal      @db.Decimal(10, 2)
+  date           DateTime     @default(now())
+  category       String? // "alquiler", "luz", "sueldo", "insumos"... libre para filtrar
+  paymentMethod  String?
+  description    String?      @db.Text
+  isRecurring    Boolean      @default(false) // para alquiler/impuestos que se repiten cada mes
+  supplierId     Int?
+  employeeId     Int?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  supplier       Supplier?    @relation(fields: [supplierId], references: [id])
+  employee       Employee?    @relation(fields: [employeeId], references: [id])
+
+  @@index([organizationId])
+  @@index([supplierId])
+  @@index([employeeId])
+  @@index([date])
 }
 
 // ─── ENUMS ──────────────────────────────────────────────────

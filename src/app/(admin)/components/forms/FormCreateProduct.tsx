@@ -141,7 +141,7 @@ const uploadImages = async () => {
   for (const file of imagesFile) {
     const fd = new FormData();
     fd.append("image", file);
-    const res = await fetch("/api/products/images", {
+    const res = await fetch("/api/images", {
       method: "POST",
       body: fd,
     });

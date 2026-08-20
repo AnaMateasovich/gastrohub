@@ -1,5 +1,7 @@
+import { requireRole } from "@/src/lib/auth/role";
 import { prisma } from "@/src/lib/prisma";
 import { revalidateTag } from "next/cache";
+import { Role } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -51,7 +53,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
+    const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+    }
+
     const body = await req.json();
     const { status } = body;
 
@@ -67,8 +76,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Status inválido" }, { status: 400 });
     }
 
-    const updatedOrder = await prisma .order.update({
-      where: { id: Number(id) },
+    const updatedOrder = await prisma.order.update({
+      where: { id, organizationId: session.organizationId },
       data: { status },
     });
     revalidateTag(`orders-${session.organizationId}`, "");
