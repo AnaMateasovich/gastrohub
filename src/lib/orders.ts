@@ -2,7 +2,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { OrderType } from "../app/types/order.type";
 import { mapOrder } from "../utils/orders.utils";
 import { prisma } from "./prisma";
-import { getTenantFromHost } from "./tenant";
+import { getTenantFromHost } from "./tenant/tenant";
 import { requireRole } from "./auth/role";
 import { Role } from "@prisma/client";
 import { withOrg } from "./auth/with-org";

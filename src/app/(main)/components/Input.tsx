@@ -17,12 +17,23 @@ const Input = <T extends FieldValues> ({ type, placeholder, register, registerOp
       <input
         type={type}
         placeholder={placeholder}
-        {...register(name)}{...register(name, registerOptions)}
+      {...register(name, registerOptions)}
         className={`w-full bg-white border rounded-sm px-2 py-2 outline-none ${
           error ? "border-red-500" : "border-[var(--color-primary)]/60"
         } `}
       />
-      {error && <p className={`${errorWhitBg ? 'bg-red-600/70 text-white text-sm mt-1 pl-1' : 'text-red-500 text-sm'}`}>{error}</p>}
+            {error && (
+        <p
+          className={`${
+            errorWhitBg
+              ? "bg-red-600/70 text-white text-sm mt-1 pl-1"
+              : "text-red-500 text-sm"
+          }`}
+        >
+          {error}
+        </p>
+      )}
+
     </div>
   );
 };

@@ -1,7 +1,7 @@
 "use server";
 import { prisma } from "@/src/lib/prisma";
 import { RecipeItemType } from "../app/types/recipe.type";
-import { getCurrentTenant } from "./tenant";
+import { getCurrentTenant } from "./tenant/tenant";
 import { requireRole } from "./auth/role";
 import { Role } from "@prisma/client";
 

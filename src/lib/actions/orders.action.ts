@@ -5,7 +5,7 @@ import { CreateOrderInput } from "../../app/types/order.type";
 import { Product, Role } from "@prisma/client";
 import { createOrderSchema } from "../validations/order.schema";
 import { requireRole } from "../auth/role";
-import { getCurrentTenant } from "../tenant";
+import { getCurrentTenant } from "../tenant/tenant";
 
 export async function createOrder(data: CreateOrderInput) {
   const tenant = await getCurrentTenant();

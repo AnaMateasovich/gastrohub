@@ -1,6 +1,6 @@
 import { requireRole } from "@/src/lib/auth/role";
 import { prisma } from "@/src/lib/prisma";
-import { getCurrentTenant } from "@/src/lib/tenant";
+import { getCurrentTenant } from "@/src/lib/tenant/tenant";
 import { Ingredient, Prisma, Role } from "@prisma/client";
 import { NextResponse } from "next/server";
 import z from "zod";

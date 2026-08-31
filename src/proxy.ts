@@ -1,58 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "./lib/auth/verify-token";
-import { getTenantFromHost } from "./lib/tenant";
+import { extractSlug } from "./lib/tenant/extract-slug";
 
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
-  const isAuthPage =
-    req.nextUrl.pathname === "/login" ||
-    req.nextUrl.pathname === "/register";
+  const host = req.headers.get("host");
 
-  const isProtectedPage =
-    req.nextUrl.pathname.startsWith("/admin");
+  const pathname = req.nextUrl.pathname;
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isProtectedPage = pathname.startsWith("/admin");
+
+  const hostname = host?.split(":")[0] ?? "";
+  const slug = extractSlug(hostname);
+  const isRootDomain = slug === null;
+
+  const requestHeaders = new Headers(req.headers);
+  if (slug) requestHeaders.set("x-tenant-slug", slug);
+
+  let payload: { role: string; organizationId: string } | null = null;
+
+  if (token) {
+    try {
+      payload = await verifyToken(token);
+      requestHeaders.set("x-user-role", payload.role);
+      requestHeaders.set("x-user-org-id", payload.organizationId);
+    } catch {
+    }
+  }
+
+  if (pathname === "/register" && !isRootDomain) {
+    return NextResponse.rewrite(new URL("/404", req.url));
+  }
 
   if (!token && isProtectedPage) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (token) {
-    try {
-      const payload = await verifyToken(token);
-      if (isProtectedPage) {
-        const host = req.headers.get("host");
-
-        if (!host) {
-          return NextResponse.redirect(new URL("/login", req.url));
-        }
-
-        const tenant = await getTenantFromHost(host);
-        if (tenant.id !== payload.organizationId) {
-          return NextResponse.redirect(new URL("/login", req.url));
-        }
-
-        // Opcional: verificar rol
-        if (payload.role !== "ADMIN" && payload.role !== "OWNER") {
-          return NextResponse.redirect(new URL("/home", req.url));
-        }
+  if (token && payload) {
+    if (isProtectedPage) {
+      if (!host) {
+        return NextResponse.redirect(new URL("/login", req.url));
       }
-
-      if (isAuthPage) {
+      if (payload.role !== "ADMIN" && payload.role !== "OWNER") {
         return NextResponse.redirect(new URL("/home", req.url));
       }
-    } catch {
-      const response = NextResponse.redirect(
-        new URL("/login", req.url)
-      );
-
-      response.cookies.delete("token");
-
-      return response;
     }
+
+    if (isAuthPage) {
+      return NextResponse.redirect(new URL("/home", req.url));
+    }
+  } else if (token && !payload) {
+   
+    const response = NextResponse.redirect(new URL("/login", req.url));
+    response.cookies.delete("token");
+    return response;
   }
 
-  return NextResponse.next();
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+  ],
 };

@@ -3,7 +3,7 @@ import { ProductWithRecipeType, RecipeType } from "../app/types/recipe.type";
 import { prisma } from "./prisma";
 import { Ingredient, Product, RecipeItem, Role } from "@prisma/client";
 import { toDisplayUnit } from "./units";
-import { getCurrentTenant } from "./tenant";
+import { getCurrentTenant } from "./tenant/tenant";
 import { requireRole } from "./auth/role";
 
 // export const getCostByProductId = async () => {

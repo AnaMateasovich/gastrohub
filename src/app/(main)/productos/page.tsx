@@ -1,7 +1,7 @@
 import { getProducts } from "@/src/lib/products";
 import { ProductType } from "../../types/product.type";
 import ProductList from "./ProductList";
-import { getCurrentTenant } from "@/src/lib/tenant";
+import { getCurrentTenant } from "@/src/lib/tenant/tenant";
 
 export const metadata = {
   title: "Pan Integral y Waffles de Almendras Artesanales en Casilda, Santa Fe",

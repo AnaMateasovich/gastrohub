@@ -4,7 +4,6 @@ import { getProductProfit } from "@/src/lib/costs";
 import { OrderType } from "../types/order.type";
 import { connection } from "next/server";
 import { mapProduct } from "@/src/utils/products.utils";
-import { getCurrentTenant } from "@/src/lib/tenant";
 import { requireRole } from "@/src/lib/auth/role";
 import { Role } from "@prisma/client";
 

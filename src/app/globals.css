@@ -1,32 +1,38 @@
 @import "tailwindcss";
 
 :root {
+  --gh-ink: #241a12;
+  --gh-paper: #f6f1e7de;
+  --gh-green: #1e6f5c;
+  --gh-mustard: #d9a441;
+  --gh-line: #c9bfae;
+
   /* 🌿 Colores principales */
-  --color-primary: #3A7D44;        /* Verde principal */
-  --color-primary-light: #5FAE6E;  /* Verde claro */
-  --color-primary-dark: #2C5E34;   /* Verde oscuro */
+  --color-primary: #3a7d44; /* Verde principal */
+  --color-primary-light: #5fae6e; /* Verde claro */
+  --color-primary-dark: #2c5e34; /* Verde oscuro */
 
   /* 🌱 Secundarios */
-  --color-secondary: #A3B18A;      /* Verde suave */
-  --color-accent: #DDB892;         /* Beige cálido natural */
+  --color-secondary: #a3b18a; /* Verde suave */
+  --color-accent: #ddb892; /* Beige cálido natural */
 
---color-bg-image: #50371e;     
+  --color-bg-image: #50371e;
 
   /* 🤍 Neutrales */
-  --color-background: #F8F7F4;     /* Fondo general */
-  --color-surface: #FFFFFF;        /* Cards */
-  --color-border: #E5E5E5;         /* Bordes suaves */
+  --color-background: #f8f7f4; /* Fondo general */
+  --color-surface: #ffffff; /* Cards */
+  --color-border: #e5e5e5; /* Bordes suaves */
 
   /* 🖤 Texto */
-  --color-text-primary: #1F2933;   /* Texto principal */
-  --color-text-secondary: #6B7280; /* Texto secundario */
-  --color-text-muted: #9CA3AF;     /* Placeholder */
+  --color-text-primary: #1f2933; /* Texto principal */
+  --color-text-secondary: #6b7280; /* Texto secundario */
+  --color-text-muted: #9ca3af; /* Placeholder */
 
   /* 🚦 Estados */
-  --color-success: #4CAF50;
-  --color-error: #E53935;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
+  --color-success: #4caf50;
+  --color-error: #e53935;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
 
   /* 🌿 Extras marca */
   --color-organic: #9aaf91;
@@ -37,11 +43,11 @@
   --radius-md: 12px;
   --radius-lg: 20px;
 
-  --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Playfair Display', serif;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Playfair Display", serif;
 }
 
 @theme inline {
@@ -102,8 +108,10 @@ button {
 }
 
 @keyframes onAutoFillStart {
-  from {}
-  to {}
+  from {
+  }
+  to {
+  }
 }
 
 input:-webkit-autofill {

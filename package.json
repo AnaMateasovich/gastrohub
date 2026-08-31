@@ -32,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/k6": "^2.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -39,6 +40,7 @@
     "eslint-config-next": "16.2.1",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.22.3",
     "typescript": "^5"
   }

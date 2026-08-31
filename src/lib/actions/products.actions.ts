@@ -9,7 +9,7 @@ import { createRecipeSchema } from "../validations/recipe.schema";
 import { toStorageUnit } from "../units";
 import { mapProduct } from "@/src/utils/products.utils";
 import { requireRole } from "../auth/role";
-import { getCurrentTenant } from "../tenant";
+import { getCurrentTenant } from "../tenant/tenant";
 import { ActionResult } from "next/dist/shared/lib/app-router-types";
 
 

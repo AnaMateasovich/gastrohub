@@ -2,8 +2,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { prisma } from "./prisma";
 import { withOrg } from "./auth/with-org";
-import { Expense, Role } from "@prisma/client";
+import { Expense, ExpenseType, Role } from "@prisma/client";
 import { requireRole } from "./auth/role";
+import { DateFilter, resolveDateRange } from "../utils/date.utils";
+import { getSession } from "./auth/get-session";
 
 export async function getExpenseListCached(organizationId: string) {
   "use cache";
@@ -27,7 +29,6 @@ export async function getExpenseList() {
 }
 
 export async function getExpenseById(id: string) {
-  
   const session = await requireRole([Role.OWNER, Role.ADMIN]);
 
   const expense = await prisma.expense.findFirst({
@@ -41,15 +42,45 @@ export async function getExpenseById(id: string) {
     },
   });
 
-  const employee = expense.employee ? {
-    ...expense.employee,
-    roleId: Number(expense.employee.roleId),
-    baseSalary: Number(expense.employee.baseSalary)
-  } : null
+  const employee = expense.employee
+    ? {
+        ...expense.employee,
+        roleId: Number(expense.employee.roleId),
+        baseSalary: Number(expense.employee.baseSalary),
+      }
+    : null;
 
   return {
     ...expense,
     amount: Number(expense.amount),
-    employee
+    employee,
   };
 }
+
+export const getSupplierExpenses = async (filter: DateFilter) => {
+  const session = await getSession();
+
+  const { start, end } = resolveDateRange(filter);
+
+  const expenses = await prisma.expense.findMany({
+    where: {
+      organizationId: session.organizationId,
+      type: ExpenseType.SUPPLIER,
+      date: {
+        gte: start,
+        lte: end,
+      },
+    },
+    include: {
+      supplier: true,
+    },
+    orderBy: {
+      data: "desc",
+    },
+  });
+
+  return expenses.map((expense: Expense) => ({
+    ...expense,
+    amount: Number(expense.amount),
+  }));
+};

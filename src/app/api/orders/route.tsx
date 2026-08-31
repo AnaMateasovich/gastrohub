@@ -1,6 +1,6 @@
 import { getOrders } from "@/src/lib/orders";
 import { prisma } from "@/src/lib/prisma";
-import { getCurrentTenant } from "@/src/lib/tenant";
+import { getCurrentTenant } from "@/src/lib/tenant/tenant";
 import { Orders_status as OrderStatus, Prisma, Product } from "@prisma/client";
 import { create } from "domain";
 import { NextRequest, NextResponse } from "next/server";

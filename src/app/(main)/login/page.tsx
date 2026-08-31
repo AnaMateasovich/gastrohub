@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const page = () => {
+type PageProps = {
+  searchParams: Promise<{ registered?: string }>;
+};
+
+const page = async ({ searchParams }: PageProps) => {
+  const { registered } = await searchParams;
   return (
     <section className="relative h-screen w-full overflow-hidden flex-shrink-0">
       <Image
@@ -26,12 +31,19 @@ const page = () => {
               Iniciá sesión para seguir pidiendo
             </h4>
           </div>
-
+          {registered === "true" && (
+            <div className="bg-green-50 text-center border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3 text-center">
+              ¡Cuenta creada con éxito! Iniciá sesión para continuar.
+            </div>
+          )}
           <LoginComponent />
 
           <p className="text-white md:text-gray-500 [text-shadow:2px_2px_4px_rgba(0,0,0,0.5)] md:[text-shadow:none] text-center text-sm">
             ¿No tenés una cuenta?{" "}
-            <Link href="/register" className="font-bold md:text-[var(--color-primary-dark)] md:font-medium">
+            <Link
+              href="/register"
+              className="font-bold md:text-[var(--color-primary-dark)] md:font-medium"
+            >
               Registrate
             </Link>
           </p>

@@ -1,5 +1,5 @@
 import { requireRole } from "@/src/lib/auth/role";
-import { getCurrentTenant } from "@/src/lib/tenant";
+import { getCurrentTenant } from "@/src/lib/tenant/tenant";
 import {
   ALLOWED_MIME_TYPES,
   detectImageType,

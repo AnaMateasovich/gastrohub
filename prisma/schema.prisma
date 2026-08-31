@@ -9,29 +9,47 @@ datasource db {
 
 // ─── TENANCY ────────────────────────────────────────────────
 
+enum PlanTier {
+  FREE
+  STARTER
+  PRO
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
 model Organization {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  plan          String         @default("free")
-  createdAt     DateTime       @default(now())
-  memberships   Membership[]
-  products      Product[]
-  orders        Order[]
-  customers     Customer[]
-  recipes       Recipe[]
-  ingredients   Ingredient[]
-  coupons       Coupon[]
-  storeSettings StoreSettings?
-  employees     Employee[]
-  employeeRole  EmployeeRole[]
-  suppliers     Supplier[]
-  expenses      Expense[]
+  id                   String             @id @default(cuid())
+  name                 String
+  slug                 String             @unique
+  plan                 PlanTier           @default(FREE)
+  subscriptionStatus   SubscriptionStatus @default(TRIALING)
+  trialEndsAt          DateTime?
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  createdAt            DateTime           @default(now())
+  memberships          Membership[]
+  products             Product[]
+  orders               Order[]
+  customers            Customer[]
+  recipes              Recipe[]
+  ingredients          Ingredient[]
+  coupons              Coupon[]
+  storeSettings        StoreSettings?
+  employees            Employee[]
+  employeeRole         EmployeeRole[]
+  suppliers            Supplier[]
+  expenses             Expense[]
 }
 
 model User {
   id          String       @id @default(cuid())
   email       String       @unique
+  name        String
   password    String
   memberships Membership[]
 }
@@ -200,23 +218,35 @@ model IngredientPriceHistory {
 }
 
 model StoreSettings {
-  organizationId        String       @id
-  organization          Organization @relation(fields: [organizationId], references: [id])
-  organizationName      String?      @db.VarChar(20)
-  deliveryFee           Decimal      @db.Decimal(10, 2)
-  freeDeliveryFrom      Decimal?     @db.Decimal(10, 2)
-  minimumOrderAmount    Decimal?     @db.Decimal(10, 2)
-  storeOpen             Boolean      @default(true)
-  openingTime           String?      @db.VarChar(10)
-  closingTime           String?      @db.VarChar(10)
-  whatsappPhone         String?      @db.VarChar(30)
-  storeEmail            String?      @db.VarChar(255)
-  instagramUrl          String?      @db.VarChar(255)
-  allowGuestCheckout    Boolean      @default(true)
-  enableCoupons         Boolean      @default(true)
+  organizationId String       @id
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  organizationName String? @db.VarChar(100)
+  storeDescription String? @db.Text
+
+  deliveryFee       Decimal  @db.Decimal(10, 2)
+  freeDeliveryFrom Decimal? @db.Decimal(10, 2)
+  minimumOrderAmount Decimal? @db.Decimal(10, 2)
+
+  storeOpen   Boolean @default(true)
+  openingTime String? @db.VarChar(10)
+  closingTime String? @db.VarChar(10)
+
+  whatsappPhone String? @db.VarChar(30)
+  storeEmail   String? @db.VarChar(255)
+  instagramUrl String? @db.VarChar(255)
+
+  // Ubicación
+  city    String? @db.VarChar(100)
+  province String? @db.VarChar(100)
+  address String? @db.VarChar(255)
+
+  allowGuestCheckout Boolean @default(true)
+  enableCoupons      Boolean @default(true)
   maxDiscountPercentage Int?
-  announcementBar       String?      @db.Text
-  maintenanceMode       Boolean      @default(false)
+
+  announcementBar String? @db.Text
+  maintenanceMode Boolean @default(false)
 
   // Landing / Hero
   heroImageUrl  String? @db.VarChar(500)
@@ -262,16 +292,16 @@ model EmployeeRole {
 }
 
 model Employee {
-  id             Int          @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   organizationId String
   name           String
   roleId         String?
   role           EmployeeRole? @relation(fields: [roleId], references: [id])
   phone          String?
-  baseSalary     Decimal?     @db.Decimal(10, 2)
-  active         Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  baseSalary     Decimal?      @db.Decimal(10, 2)
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  organization   Organization  @relation(fields: [organizationId], references: [id])
   expenses       Expense[]
 
   @@index([organizationId])
@@ -316,7 +346,7 @@ model Expense {
   @@index([date])
 }
 
-// ─── ENUMS ──────────────────────────────────────────────────
+// ─── ENUM ──────────────────────────────────────────────────
 
 enum Role {
   OWNER

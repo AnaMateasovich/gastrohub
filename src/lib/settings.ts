@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { getCurrentTenant } from "./tenant";
+import { getCurrentTenant } from "./tenant/tenant";
 
 export async function getSettings() {
   const tenant = await getCurrentTenant()
