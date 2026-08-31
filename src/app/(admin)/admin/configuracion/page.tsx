@@ -9,11 +9,12 @@ import SettingsRow from "../../components/settings/SettingsRow";
 
 const page = () => {
   return (
-    <section className="">
+    <section>
       <div className="flex items-center gap-2">
-          <BackButton url="/admin/menu"/>
+        <BackButton url="/admin/menu" />
         <h1 className="text-2xl font-bold">Configuración</h1>
       </div>
+
       <Suspense>
         <SettingsSection />
       </Suspense>
@@ -23,15 +24,18 @@ const page = () => {
 
 const SettingsSection = async () => {
   const config: StoreSettingsType | null = await getSettings();
+
   if (!config) {
     return (
       <div className="mt-6 flex flex-col items-center text-center gap-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-6 shadow-[var(--shadow-sm)]">
         <p className="text-[var(--color-text-primary)] font-medium">
           Todavía no configuraste tu tienda
         </p>
+
         <p className="text-sm text-[var(--color-text-secondary)]">
           Definí el costo de envío, horarios y métodos de contacto.
         </p>
+
         <Link
           href="/admin/configuracion/editar"
           className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md mt-1"
@@ -44,6 +48,7 @@ const SettingsSection = async () => {
 
   return (
     <div className="mt-4 flex flex-col gap-4">
+
       <div className="flex justify-end">
         <Link
           href="/admin/configuracion/editar"
@@ -53,7 +58,29 @@ const SettingsSection = async () => {
           Editar
         </Link>
       </div>
-      {(config.heroImageUrl || config.heroTitle || config.heroSubtitle) && (
+
+      {/* Información de la tienda */}
+
+      <SettingsGroup title="Información de la tienda">
+        <SettingsRow
+          label="Nombre"
+          value={config.organizationName || "Sin configurar"}
+        />
+
+        <SettingsRow
+          label="Descripción"
+          value={config.storeDescription || "Sin configurar"}
+        />
+      </SettingsGroup>
+
+      {/* Landing */}
+
+      {(config.heroImageUrl ||
+        config.heroBadgeText ||
+        config.heroTitle ||
+        config.heroHighlight ||
+        config.heroSubtitle ||
+        config.ctaLabel) && (
         <SettingsGroup title="Personalización de Landing">
           {config.heroImageUrl && (
             <SettingsRow
@@ -62,26 +89,27 @@ const SettingsSection = async () => {
               highlight="success"
             />
           )}
-           <SettingsRow
-            label="Logo"
-            value={config.organizationName || "Sin configurar"}
-          />
+
           <SettingsRow
             label="Badge"
             value={config.heroBadgeText || "Sin configurar"}
           />
+
           <SettingsRow
             label="Título"
             value={config.heroTitle || "Sin configurar"}
           />
+
           <SettingsRow
             label="Frase destacada"
             value={config.heroHighlight || "Sin configurar"}
           />
+
           <SettingsRow
             label="Subtítulo"
             value={config.heroSubtitle || "Sin configurar"}
           />
+
           <SettingsRow
             label="Texto del botón"
             value={config.ctaLabel || "Sin configurar"}
@@ -89,25 +117,36 @@ const SettingsSection = async () => {
         </SettingsGroup>
       )}
 
+      {/* Envíos */}
+
       <SettingsGroup title="Envíos">
-        <SettingsRow label="Costo de envío" value={`$${config.deliveryFee}`} />
+        <SettingsRow
+          label="Costo de envío"
+          value={`$${config.deliveryFee}`}
+        />
+
         <SettingsRow
           label="Envío gratis desde"
           value={
-            config.freeDeliveryFrom
+            config.freeDeliveryFrom !== null &&
+            config.freeDeliveryFrom !== undefined
               ? `$${config.freeDeliveryFrom}`
               : "Sin configurar"
           }
         />
+
         <SettingsRow
           label="Monto mínimo de compra"
           value={
-            config.minimumOrderAmount
+            config.minimumOrderAmount !== null &&
+            config.minimumOrderAmount !== undefined
               ? `$${config.minimumOrderAmount}`
               : "Sin configurar"
           }
         />
       </SettingsGroup>
+
+      {/* Horarios */}
 
       <SettingsGroup title="Horarios y estado">
         <SettingsRow
@@ -115,14 +154,17 @@ const SettingsSection = async () => {
           value={config.storeOpen ? "Abierta" : "Cerrada"}
           highlight={config.storeOpen ? "success" : "danger"}
         />
+
         <SettingsRow
           label="Apertura"
           value={config.openingTime || "Sin configurar"}
         />
+
         <SettingsRow
           label="Cierre"
           value={config.closingTime || "Sin configurar"}
         />
+
         <SettingsRow
           label="Modo mantenimiento"
           value={config.maintenanceMode ? "Activado" : "Desactivado"}
@@ -130,39 +172,77 @@ const SettingsSection = async () => {
         />
       </SettingsGroup>
 
+      {/* Contacto */}
+
       <SettingsGroup title="Contacto">
         <SettingsRow
           label="WhatsApp"
           value={config.whatsappPhone || "Sin configurar"}
         />
+
         <SettingsRow
           label="Email"
           value={config.storeEmail || "Sin configurar"}
         />
+
         <SettingsRow
           label="Instagram"
           value={config.instagramUrl || "Sin configurar"}
         />
       </SettingsGroup>
 
+      {/* Ubicación */}
+
+      <SettingsGroup title="Ubicación">
+        <SettingsRow
+          label="Ciudad"
+          value={config.city || "Sin configurar"}
+        />
+
+        <SettingsRow
+          label="Provincia"
+          value={config.province || "Sin configurar"}
+        />
+
+        <SettingsRow
+          label="Dirección"
+          value={config.address || "Sin configurar"}
+        />
+      </SettingsGroup>
+
+      {/* Pedidos y cupones */}
+
       <SettingsGroup title="Pedidos y cupones">
         <SettingsRow
           label="Compra sin registro"
-          value={config.allowGuestCheckout ? "Permitida" : "No permitida"}
+          value={
+            config.allowGuestCheckout
+              ? "Permitida"
+              : "No permitida"
+          }
         />
+
         <SettingsRow
           label="Cupones"
-          value={config.enableCoupons ? "Habilitados" : "Deshabilitados"}
+          value={
+            config.enableCoupons
+              ? "Habilitados"
+              : "Deshabilitados"
+          }
         />
+
         <SettingsRow
           label="Descuento máximo"
           value={
-            config.maxDiscountPercentage
+            config.maxDiscountPercentage !== null &&
+            config.maxDiscountPercentage !== undefined
               ? `${config.maxDiscountPercentage}%`
               : "Sin configurar"
           }
         />
       </SettingsGroup>
+
+      {/* Anuncios */}
 
       {config.announcementBar && (
         <SettingsGroup title="Anuncios">
@@ -175,4 +255,5 @@ const SettingsSection = async () => {
     </div>
   );
 };
+
 export default page;

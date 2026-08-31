@@ -34,6 +34,7 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
     defaultValues: settingsToEdit
       ? {
           organizationName: settingsToEdit.organizationName ?? "",
+          storeDescription: settingsToEdit.storeDescription ?? "",
           heroImageUrl: settingsToEdit.heroImageUrl ?? "",
           heroBadgeText: settingsToEdit.heroBadgeText ?? "",
           heroTitle: settingsToEdit.heroTitle ?? "",
@@ -53,6 +54,9 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
           whatsappPhone: settingsToEdit.whatsappPhone ?? "",
           storeEmail: settingsToEdit.storeEmail ?? "",
           instagramUrl: settingsToEdit.instagramUrl ?? "",
+          city: settingsToEdit.city ?? "",
+          province: settingsToEdit.province ?? "",
+          address: settingsToEdit.address ?? "",
           allowGuestCheckout: settingsToEdit.allowGuestCheckout,
           enableCoupons: settingsToEdit.enableCoupons,
           maxDiscountPercentage:
@@ -179,6 +183,15 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
         placeholder="Nombre de la tienda"
         error={errors.organizationName?.message}
       />
+
+      <Input
+        type="text"
+        name="storeDescription"
+        register={register}
+        placeholder="Descripción de la tienda"
+        error={errors.storeDescription?.message}
+      />
+
       <Input
         type="text"
         name="heroBadgeText"
@@ -290,7 +303,31 @@ const FormConfigure = ({ settingsToEdit }: FormConfigureProps) => {
         placeholder="Instagram (url)"
         error={errors.instagramUrl?.message}
       />
+      <h2 className="font-semibold text-lg mt-2">Ubicación</h2>
 
+      <Input
+        type="text"
+        name="city"
+        register={register}
+        placeholder="Ciudad"
+        error={errors.city?.message}
+      />
+
+      <Input
+        type="text"
+        name="province"
+        register={register}
+        placeholder="Provincia"
+        error={errors.province?.message}
+      />
+
+      <Input
+        type="text"
+        name="address"
+        register={register}
+        placeholder="Dirección"
+        error={errors.address?.message}
+      />
       <h2 className="font-semibold text-lg mt-2">Pedidos y cupones</h2>
       <div className="flex items-center justify-between bg-white border rounded-sm px-2 py-2 border-[var(--color-primary)]/60">
         <label htmlFor="allowGuestCheckout">Permitir compra sin registro</label>

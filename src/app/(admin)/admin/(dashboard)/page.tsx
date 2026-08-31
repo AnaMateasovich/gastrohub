@@ -1,6 +1,6 @@
-import { getDashboardStats } from "../../services/dashboard.service";
+import { getDashboardStats } from "../../../services/dashboard.service";
 import { Suspense } from "react";
-import DashboardCards from "../components/dashboard/DashboardCards";
+import DashboardCards from "../../components/dashboard/DashboardCards";
 
 const Dashboard = async () => {
   const stats = await getDashboardStats();

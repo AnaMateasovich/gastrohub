@@ -9,6 +9,9 @@ import Providers from "../providers";
 import Footer from "./components/Footer";
 import { getSettings } from "@/src/lib/settings";
 import { StoreSettingsType } from "../types/storeSettings";
+import { headers } from "next/headers";
+import { prisma } from "@/src/lib/prisma";
+import StoreConfigAlert from "./components/StoreConfigAlert";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,60 +23,57 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Sabores Naturales",
-    template: "%s | Sabores Naturales",
-  },
-  description:
-    "Plataforma multitenant para gestionar panaderías, rotiserías y negocios gastronómicos. Administración de productos, pedidos, clientes, recetas, stock y ventas desde un solo lugar.",
-  keywords: [
-    "Sabores Naturales",
-    "multitenant",
-    "panadería",
-    "rotisería",
-    "gastronomía",
-    "ecommerce",
-    "pedidos online",
-    "gestión de negocios",
-    "Next.js",
-  ],
-  authors: [{ name: "Ana Mateasovich" }],
-  creator: "Ana Mateasovich",
-  applicationName: "Sabores Naturales",
-  metadataBase: new URL("https://saboresnaturales.app"), // Cambiá por tu dominio
-  openGraph: {
-    title: "Sabores Naturales",
-    description:
-      "Gestioná tu negocio gastronómico con una plataforma moderna y multitenant.",
-    type: "website",
-    locale: "es_AR",
-    siteName: "Sabores Naturales",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Sabores Naturales",
-    description:
-      "Plataforma multitenant para la gestión de negocios gastronómicos.",
-  },
-};
-
 export default async function MainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const headersList = await headers();
+  const tenantSlug = headersList.get("x-tenant-slug");
+  const userRole = headersList.get("x-user-role");
+  const userOrgId = headersList.get("x-user-org-id");
+  const organization = await prisma.organization.findUnique({
+    where: { slug: tenantSlug ?? "" },
+  });
 
-  const settings:StoreSettingsType = await getSettings();
+  const isOwnerViewing =
+    !!userOrgId &&
+    !!organization &&
+    organization.id === userOrgId &&
+    (userRole === "ADMIN" || userRole === "OWNER");
+
+  const settings: StoreSettingsType = await getSettings();
+  console.log(settings)
   return (
     <main className="min-h-full flex flex-col">
       <Suspense fallback={null}>
         <Providers>
-          <Header logo={settings.organizationName}/>
+          <StoreConfigAlert
+            settings={settings}
+            isOwnerViewing={isOwnerViewing}
+          />
+          <Header
+            logo={settings?.organizationName ?? "Gastrohub"}
+            configAlert={
+              <StoreConfigAlert
+                settings={settings}
+                isOwnerViewing={isOwnerViewing}
+              />
+            }
+          />
           <main className="flex-1 w-full max-w-[1400px] mx-auto pt-[60px] md:pt-[70px] pb-[70px] md:pb-0">
             {children}
           </main>
           <Nav />
         </Providers>
-        <Footer />
+        <Footer
+          organizationName={settings?.organizationName}
+          storeDescription={settings?.storeDescription}
+          city={settings?.city}
+          province={settings?.province}
+          instagramUrl={settings?.instagramUrl}
+          whatsappNumber={settings?.whatsappPhone}
+          openingTime={settings?.openingTime}
+          closingTime={settings?.closingTime}
+        />
       </Suspense>
     </main>
   );
