@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { loginSchema } from "../validations/login.schema";
-import { getCurrentTenant } from "../tenant";
+import { getCurrentTenant } from "../tenant/tenant";
 import { requireRole } from "./role";
 import { Role } from "@prisma/client";
 

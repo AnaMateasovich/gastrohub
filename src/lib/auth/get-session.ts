@@ -36,6 +36,7 @@ export async function getSession() {
     return {
       ...user,
       organizationId: payload.organizationId,
+      organizationSlug: payload.organizationSlug,
       role: payload.role,
     };
   } catch {

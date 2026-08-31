@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import "server-only";
-import { prisma } from "./prisma";
+import { prisma } from "../prisma";
+import { extractSlug } from "./extract-slug";
+
 
 export async function getCurrentTenant() {
   const host = (await headers()).get("host");
@@ -12,24 +14,17 @@ export async function getCurrentTenant() {
   return getTenantFromHost(host);
 }
 
-export async function getTenantFromHost(host:string) {
-
+export async function getTenantFromHost(host: string) {
   const hostname = host.split(":")[0];
 
-  let slug: string | null = null;
-
-  if (hostname.endsWith("lvh.me")) {
-    slug = hostname.split(".")[0];
-  }
+  const slug = extractSlug(hostname);
 
   if (!slug) {
-    throw new Error("Tenant no encontrado");
+    return null;
   }
 
   const tenant = await prisma.organization.findUnique({
-    where: {
-      slug,
-    },
+    where: { slug },
   });
 
   if (!tenant) {
@@ -38,3 +33,4 @@ export async function getTenantFromHost(host:string) {
 
   return tenant;
 }
+

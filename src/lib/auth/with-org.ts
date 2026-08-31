@@ -1,6 +1,6 @@
 import { Role } from "@prisma/client";
 import { requireRole } from "./role";
-import { getCurrentTenant } from "../tenant";
+import { getCurrentTenant } from "../tenant/tenant";
 
 export async function withOrg<T, A extends unknown[] = []>(
   roles: Role[],

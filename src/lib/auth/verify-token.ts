@@ -3,17 +3,17 @@
 import { Role } from "@prisma/client";
 import { jwtVerify } from "jose";
 
-type SessionPayload = {
+type TokenPayload = {
   userId: string;
   organizationId: string;
+  organizationSlug: string; 
   role: Role;
 };
 
-export async function verifyToken(token: string): Promise<SessionPayload> {
+export async function verifyToken(token: string): Promise<TokenPayload> {
   const { payload } = await jwtVerify(
     token,
     new TextEncoder().encode(process.env.JWT_SECRET!),
   );
-
-  return payload as SessionPayload;
+  return payload as TokenPayload;
 }

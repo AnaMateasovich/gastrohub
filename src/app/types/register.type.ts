@@ -1,9 +1,10 @@
 export type RegisterType = {
-  email: string;
-  password: string;
-  name: string;
-  lastname: string
-  areaCod: string;
-  phone: string;
-  address: string;
+  companyName: string;
+  slug: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPassword: string;
+  ownerPasswordConfirm: string;
+  plan: "FREE" | "STARTER" | "PRO";
+  acceptTerms: boolean;
 };
