@@ -41,7 +41,6 @@ export default async function MainLayout({
     (userRole === "ADMIN" || userRole === "OWNER");
 
   const settings: StoreSettingsType = await getSettings();
-  console.log(settings)
   return (
     <main className="min-h-full flex flex-col">
       <Suspense fallback={null}>

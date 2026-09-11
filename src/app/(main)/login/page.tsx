@@ -12,7 +12,7 @@ const page = async ({ searchParams }: PageProps) => {
   return (
     <section className="relative h-screen w-full overflow-hidden flex-shrink-0">
       <Image
-        src="/hero.jpg"
+        src="/hero-default.jpg"
         alt="Pan recién horneado"
         fill
         sizes="100vw"
