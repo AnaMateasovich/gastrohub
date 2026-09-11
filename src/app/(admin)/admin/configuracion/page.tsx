@@ -1,4 +1,3 @@
-import BackButton from "@/src/app/(main)/components/BackButton";
 import { StoreSettingsType } from "@/src/app/types/storeSettings";
 import { getSettings } from "@/src/lib/settings";
 import { Pencil } from "lucide-react";
@@ -6,6 +5,7 @@ import Link from "next/link";
 import React, { Suspense } from "react";
 import SettingsGroup from "../../components/settings/SettingsGroup";
 import SettingsRow from "../../components/settings/SettingsRow";
+import BackButton from "@/src/app/(main)/components/BackButton";
 
 const page = () => {
   return (

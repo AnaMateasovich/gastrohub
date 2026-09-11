@@ -72,7 +72,7 @@ Cada organización opera de forma completamente aislada dentro de la misma base 
 - **Tailwind CSS**
 - **React Hook Form** + **Zod**
 - **Resend** — emails transaccionales
-- **bcryptjs** + **JWT** — autenticación
+- **bcrypt** + **JWT** — autenticación
 - **Pytest** + **Playwright** — tests E2E
 
 ---
