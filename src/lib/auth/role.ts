@@ -14,3 +14,4 @@ export async function requireRole(allowedRoles: Role[]) {
 
   return session;
 }
+

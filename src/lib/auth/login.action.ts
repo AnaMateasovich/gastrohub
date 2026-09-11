@@ -1,13 +1,11 @@
 "use server";
 import { LoginType } from "@/src/app/types/login.type";
 import { prisma } from "../prisma";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { loginSchema } from "../validations/login.schema";
 import { getCurrentTenant } from "../tenant/tenant";
-import { requireRole } from "./role";
-import { Role } from "@prisma/client";
 
 export async function login(data: LoginType) {
   const parsed = loginSchema.safeParse(data);
@@ -23,7 +21,8 @@ export async function login(data: LoginType) {
     include: {
       memberships: {
         where: {
-          organizationId: tenant.organizationId,
+          organizationId: tenant.id,
+          status: "ACTIVE"
         },
       },
     },
@@ -48,6 +47,7 @@ export async function login(data: LoginType) {
       userId: user.id,
       organizationId: membership.organizationId,
       role: membership.role,
+      organizationSlug: tenant.slug
     },
     secret,
     { expiresIn: "1d" },

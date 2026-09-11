@@ -21,6 +21,7 @@ export async function getSession() {
           userId: payload.userId,
           organizationId: payload.organizationId,
         },
+        status: "ACTIVE"
       },
       include: {
         user: true,
@@ -35,6 +36,7 @@ export async function getSession() {
 
     return {
       ...user,
+      userId: user.id,
       organizationId: payload.organizationId,
       organizationSlug: payload.organizationSlug,
       role: payload.role,
