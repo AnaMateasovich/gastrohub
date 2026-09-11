@@ -4,6 +4,7 @@ import { requireRole } from "../auth/role";
 import { prisma } from "../prisma";
 import { revalidateTag } from "next/cache";
 import { EmployeeInput, employeeSchema } from "../validations/employee.schema";
+import { withOrg } from "../auth/with-org";
 
 export async function createEmployee(data: EmployeeInput) {
   const session = await requireRole([Role.OWNER, Role.ADMIN]);
@@ -23,7 +24,7 @@ export async function createEmployee(data: EmployeeInput) {
   });
   revalidateTag(`employee-${session.organizationId}`, "");
 
-  return employee;
+  return { ...employee, employeeRoleId: String(employee.employeeRoleId) };
 }
 
 export async function updateEmployee(id: number, data: EmployeeInput) {
@@ -47,20 +48,37 @@ export async function updateEmployee(id: number, data: EmployeeInput) {
 
   return {
     ...employee,
-    roleId: Number(employee.roleId),
+    employeeRoleId: String(employee.employeeRoleId),
     baseSalary:
       employee.baseSalary !== null ? Number(employee.baseSalary) : null,
   };
 }
 
-export async function deleteEmployee(id: number) {
-  const session = await requireRole([Role.OWNER, Role.ADMIN]);
+export async function desactivateEmployee(employeeId: number) {
+  return withOrg(["OWNER"], async (organizationId) => {
+    const employee = await prisma.employee.update({
+      where: { id: employeeId, organizationId },
+      data: { active: false },
+    });
 
-  const employee = await prisma.employee.delete({
-    where: {
-      id,
-      organizationId: session.organizationId,
-    },
+    if (employee.userId) {
+      await revokeSystemAccess(employee.userId, organizationId);
+    }
+
+    await prisma.invitation.updateMany({
+      where: { employeeId, status: "PENDING" },
+      data: { status: "CANCELLED" },
+    });
+    revalidateTag(`employee-${organizationId}`, "");
   });
-  revalidateTag(`employee-${session.organizationId}`, "");
+}
+
+export async function revokeSystemAccess(
+  userId: string,
+  organizationId: string,
+) {
+  await prisma.membership.updateMany({
+    where: {userId, organizationId},
+    data: {status: "INACTIVE"}
+  })
 }

@@ -75,7 +75,7 @@ const RoleSelect = ({ roles: initialRoles, value, onChange }: Props) => {
       }}
       className="border rounded-md px-3 py-2 text-sm"
     >
-      <option value="">Sin especificar</option>
+      <option value="">Selecciona un rol de empleado</option>
       {roles.map((r) => (
         <option key={r.id} value={r.id}>
           {r.name}

@@ -1,6 +1,6 @@
 import { prisma } from "@/src/lib/prisma";
 import { cacheTag, cacheLife } from "next/cache";
-import { withOrg } from "./auth/with-org";
+import { withOrg } from "../auth/with-org";
 
 async function getEmployeeRolesCached(organizationId: string) {
   "use cache";

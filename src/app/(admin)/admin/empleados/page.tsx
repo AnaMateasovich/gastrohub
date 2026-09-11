@@ -1,13 +1,16 @@
-import React from "react";
-import { getEmployeeList } from "@/src/lib/employee";
+import { FilterStatusEmployee, getEmployeeList } from "@/src/lib/employee/employee";
 import EmployeeList from "./EmployeeList";
 
-const page = async () => {
-  const employee = await getEmployeeList();
+const page = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ status: FilterStatusEmployee }>;
+}) => {
+  const {status = "CURRENT"} = await searchParams
+  
+  const employees = await getEmployeeList({status});
 
-  return (
-  <EmployeeList employees={employee}/>
-  );
+  return <EmployeeList employees={employees} currentStatus={status}/>;
 };
 
 export default page;

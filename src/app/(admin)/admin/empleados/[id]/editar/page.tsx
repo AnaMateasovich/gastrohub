@@ -1,18 +1,21 @@
 import CreateEmployeeForm from "@/src/app/(admin)/components/forms/CreateEmployeeForm";
 import BackButton from "@/src/app/(main)/components/BackButton";
-import { getEmployeeById } from "@/src/lib/employee";
-import { getEmployeeRoles } from "@/src/lib/employee-rol.data";
-import React from "react";
+import { getEmployeeByIdWithUser } from "@/src/lib/employee/employee";
+import { getEmployeeRoles } from "@/src/lib/employee/employee-rol.data";
 
 type Params = Promise<{ id: string }>;
 
 const page = async ({ params }: { params: Params }) => {
   const { id } = await params;
 
-  const [employee, roles] = await Promise.all([
-    getEmployeeById(id),
+  const [employee, employeeRoles] = await Promise.all([
+    getEmployeeByIdWithUser(id),
     getEmployeeRoles(),
   ]);
+
+  if (!employee) {
+    return null;
+  }
 
   return (
     <div className="px-4">
@@ -20,7 +23,10 @@ const page = async ({ params }: { params: Params }) => {
         <BackButton url="/admin/empleados" />
         <h3 className="text-xl font-bold">Crear empleado</h3>
       </div>
-      <CreateEmployeeForm employeeToEdit={employee} roles={roles} />
+      <CreateEmployeeForm
+        employeeToEdit={employee}
+        employeeRoles={employeeRoles}
+      />
     </div>
   );
 };

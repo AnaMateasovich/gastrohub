@@ -6,7 +6,7 @@ export const employeeSchema = z.object({
     .min(1, "El nombre es obligatorio")
     .max(100, "El nombre es demasiado largo"),
 
-  roleId: z.string().min(1, "Seleccioná un puesto"),
+  employeeRoleId: z.string().min(1, "Seleccioná un puesto"),
 
   phone: z
     .string()

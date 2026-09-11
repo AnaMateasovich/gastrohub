@@ -1,6 +1,6 @@
 import CreateExpenseForm from "@/src/app/(admin)/components/forms/CreateExpenseForm";
 import BackButton from "@/src/app/(main)/components/BackButton";
-import { getEmployeeList } from "@/src/lib/employee";
+import { getEmployeeList } from "@/src/lib/employee/employee";
 import { getExpenseById } from "@/src/lib/expense";
 import { getSupplierList } from "@/src/lib/supplier";
 

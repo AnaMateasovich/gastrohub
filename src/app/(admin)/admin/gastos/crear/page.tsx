@@ -1,7 +1,7 @@
 import BackButton from "@/src/app/(main)/components/BackButton";
 import React from "react";
 import CreateExpenseForm from "../../../components/forms/CreateExpenseForm";
-import { getEmployeeList } from "@/src/lib/employee";
+import { getEmployeeList } from "@/src/lib/employee/employee";
 import { getSupplierList } from "@/src/lib/supplier";
 
 const page = async () => {
