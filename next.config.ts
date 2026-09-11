@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
-  allowedDevOrigins: ["*.lvh.me"],
+  allowedDevOrigins: ["*.lvh.me", "lvh.me"],
   async redirects() {
     return [
       {
