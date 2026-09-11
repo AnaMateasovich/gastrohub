@@ -15,7 +15,7 @@ const OrderDetails = async ({
   const order = await getOrderById(Number(id));
 
   return (
-    <section className="px-2">
+    <section className="px-2 mb-4">
       <Order order={order} />
     </section>
   );

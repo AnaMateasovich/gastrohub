@@ -66,7 +66,7 @@ const router = useRouter()
       phone: fullPhone,
       email: data.email,
       address: data.address,
-      userId: null,
+      customerId: null,
       wantsDelivery: wantsDelivery,
       orderItems: cart.map((item) => ({
         productId: item.product.id,

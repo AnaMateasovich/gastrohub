@@ -1,6 +1,6 @@
 "use client";
+import { OrderStatus } from "@/src/app/types/orderStatus.type";
 import React, { useState } from "react";
-import { OrderStatus } from "../../types/orderStatus.type";
 
 type FilterStatus = OrderStatus | "ALL"
 

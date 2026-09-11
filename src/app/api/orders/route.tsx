@@ -1,8 +1,7 @@
-import { getOrders } from "@/src/lib/orders";
+import { getOrdersCursor } from "@/src/lib/orders";
 import { prisma } from "@/src/lib/prisma";
 import { getCurrentTenant } from "@/src/lib/tenant/tenant";
 import { Orders_status as OrderStatus, Prisma, Product } from "@prisma/client";
-import { create } from "domain";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const organization = await getCurrentTenant()
+    const organization = await getCurrentTenant();
 
     const {
       customerName,
@@ -83,7 +82,7 @@ export async function POST(req: Request) {
     const discountAmount = Number((subtotal * (discount / 100)).toFixed(2));
     const total = Number((subtotal + deliveryFee - discountAmount).toFixed(2));
 
-    const order = await prisma .order.create({
+    const order = await prisma.order.create({
       data: {
         customerName,
         email,
@@ -114,6 +113,6 @@ export async function POST(req: Request) {
 
 export async function GET(req: NextRequest) {
   const cursor = req.nextUrl.searchParams.get("cursor");
-  const data = await getOrders(cursor ? Number(cursor) : undefined);
+  const data = await getOrdersCursor(cursor ? Number(cursor) : undefined);
   return NextResponse.json(data);
 }

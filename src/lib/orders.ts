@@ -68,3 +68,28 @@ export async function getOrderById(id: number): Promise<OrderType> {
 
   return mapOrder(order);
 }
+
+export async function getOrdersCursor(cursor?: number) {
+  const session = await requireRole([Role.OWNER, Role.ADMIN, Role.STAFF]);
+
+  const orders = await prisma.order.findMany({
+    where: {
+      organizationId: session.organizationId,
+    },
+    take: 20,
+    ...(cursor && {
+      skip: 1,
+      cursor: {
+        id: cursor,
+      },
+    }),
+    orderBy: {
+      id: "desc",
+    },
+    include: {
+      orderItems: true,
+    },
+  });
+
+  return orders;
+}

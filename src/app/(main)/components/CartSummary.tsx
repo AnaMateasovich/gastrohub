@@ -33,7 +33,7 @@ const CartSummary = () => {
           phone: user.phone,
           email: user.email,
           address: user.address,
-          userId: user.id,
+          customerId: user.id,
           orderItems: items,
           wantsDelivery,
         });

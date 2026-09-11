@@ -7,6 +7,7 @@ import {
   Motorbike,
   Phone,
   User,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Button from "../../../(main)/components/Button";
@@ -22,6 +23,7 @@ import StatusOrder from "./StatusOrder";
 import { OrderStatus } from "../../../types/orderStatus.type";
 import { updateStatusOrder } from "@/src/lib/actions/orders.action";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type OrderProps = {
   order: OrderType;
@@ -29,8 +31,13 @@ type OrderProps = {
 
 const Order = ({ order }: OrderProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>(order.status);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
+    order.status,
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
   const date = new Date(order.createdAt).toLocaleDateString();
 
@@ -41,7 +48,8 @@ const Order = ({ order }: OrderProps) => {
   const deliveryFee = Number(order.deliveryFee) || 0;
   const discount = Number(order.discount) || 0;
   const finalTotal = total + deliveryFee - discount;
-  const deliveryMethod = order.deliveryFee && order.deliveryFee > 0 ? "Envio a domicilio" : "Retira";
+  const deliveryMethod =
+    order.deliveryFee && order.deliveryFee > 0 ? "Envio a domicilio" : "Retira";
 
   const statusLabels: Record<string, string> = {
     PREPARING: "En preparación",
@@ -60,7 +68,8 @@ const Order = ({ order }: OrderProps) => {
   const getNextStatus = (): OrderStatus | null => {
     if (currentStatus === "PENDING") return "PREPARING";
     if (currentStatus === "PREPARING") return "READY";
-    if (currentStatus === "READY") return deliveryFee > 0 ? "SHIPPED" : "PICKEDUP";
+    if (currentStatus === "READY")
+      return deliveryFee > 0 ? "SHIPPED" : "PICKEDUP";
     return null;
   };
 
@@ -70,25 +79,34 @@ const Order = ({ order }: OrderProps) => {
     messageConfirm,
   );
 
-  const messageReady = confirmOrderMessage(order.user?.name);
   const whatsappReadyLink = readyMessage(order.user?.phone || "");
 
-  const handleChangeStatus = async (
-    orderId: number,
-    newStatus: OrderStatus,
-  ) => {
-    const confirm = window.confirm(
-      `Estas seguro que quieres cambiar el estado a ${statusLabels[newStatus]}`,
-    );
-    if (confirm) {
-      try {
-        await updateStatusOrder(orderId, newStatus);
-        router.refresh()
-        setCurrentStatus(newStatus);
-      } catch (error) {
-        console.error(error);
-        alert("Hubo un error al actualizar el estado");
-      }
+  const openModal = () => {
+    setSelectedStatus(currentStatus);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (isSaving) return;
+    setIsModalOpen(false);
+  };
+
+  const handleSaveStatus = async () => {
+    if (selectedStatus === currentStatus) {
+      setIsModalOpen(false);
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateStatusOrder(order.id, selectedStatus);
+      toast.success("Se cambió estado de la orden");
+      setCurrentStatus(selectedStatus);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Hubo un error al actualizar el estado");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -109,7 +127,9 @@ const Order = ({ order }: OrderProps) => {
           <section className="rounded-2xl border border-gray-100 shadow-[0_8px_25px_rgba(0,0,0,0.08)]">
             <header className="flex gap-2 pt-3 px-2 pb-1 border-b border-gray-200 rounded-t-xl shadow-[0_-4px_10px_rgba(0,0,0,0.08)]">
               <User size={25} className="text-gray-600" />
-              <h5 className="font-bold mb-1 shadow-[]">Información del cliente</h5>
+              <h5 className="font-bold mb-1 shadow-[]">
+                Información del cliente
+              </h5>
             </header>
             <div className="bg-white/80 py-2 px-3 space-y-3 rounded-xl">
               <div className="flex items-center gap-3 pb-2 border-b border-gray-200">
@@ -178,7 +198,9 @@ const Order = ({ order }: OrderProps) => {
           {/** PRODUCTOS */}
           <div>
             <header className="flex gap-2 mb-2 ml-2">
-              <h5 className="font-bold">Productos ({order.orderItems.length})</h5>
+              <h5 className="font-bold">
+                Productos ({order.orderItems.length})
+              </h5>
             </header>
             <div className="bg-white/80 py-2 px-3 space-y-3 rounded-xl shadow-md">
               {order.orderItems.map((item) => (
@@ -189,7 +211,7 @@ const Order = ({ order }: OrderProps) => {
                   <div className="flex items-center gap-2 ">
                     <div className="relative w-15 h-15">
                       <Image
-                        src={item.product.images[0]?.url ?? '/no-image.png'}
+                        src={item.product.images[0]?.url ?? "/no-image.png"}
                         fill
                         sizes="100px"
                         alt={item.product.name}
@@ -223,7 +245,9 @@ const Order = ({ order }: OrderProps) => {
               </div>
               <div className="flex justify-between text-xl font-bold">
                 <p>Total</p>
-                <p className="text-[var(--color-primary-dark)]">${finalTotal}</p>
+                <p className="text-[var(--color-primary-dark)]">
+                  ${finalTotal}
+                </p>
               </div>
             </div>
           </div>
@@ -231,12 +255,9 @@ const Order = ({ order }: OrderProps) => {
           {/* BOTONES DE ACCIÓN */}
           <div className="flex flex-col gap-2">
             <Button
-              text={getButtonText()}
+              text="Cambiar estado del pedido"
               type="button"
-              onClick={() => {
-                const next = getNextStatus();
-                if (next) handleChangeStatus(order.id, next);
-              }}
+              onClick={openModal}
               fontSize="text-lg"
             />
             {order.status === "PENDING" && (
@@ -254,7 +275,11 @@ const Order = ({ order }: OrderProps) => {
               </LinkComponent>
             )}
             {order.status === "PREPARING" && (
-              <LinkComponent href={whatsappReadyLink} target="_blank" bgColor="bg-none">
+              <LinkComponent
+                href={whatsappReadyLink}
+                target="_blank"
+                bgColor="bg-none"
+              >
                 <Button
                   text="Avisar listo por WhatsApp"
                   type="button"
@@ -263,19 +288,66 @@ const Order = ({ order }: OrderProps) => {
                 />
               </LinkComponent>
             )}
-            {order.status !== "CANCELLED" && (
-              <Button
-                text="Cancelar"
-                type="button"
-                onClick={() => handleChangeStatus(order.id, "CANCELLED")}
-                bgColor="bg-gray-300"
-                textColor="text-gray-900"
-                fontSize="text-lg"
-              />
-            )}
           </div>
         </div>
       </div>
+
+      {/* MODAL CAMBIO DE ESTADO */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h5 className="font-bold text-lg">Cambiar estado del pedido</h5>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isSaving}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <label className="block text-sm text-gray-600 mb-1">
+              Nuevo estado
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-dark)]"
+              disabled={isSaving}
+            >
+              {Object.entries(statusLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex gap-2">
+              <Button
+                text="Cancelar"
+                type="button"
+                onClick={closeModal}
+                bgColor="bg-gray-300"
+                textColor="text-gray-900"
+                fontSize="text-base"
+              />
+              <Button
+                text={isSaving ? "Guardando..." : "Guardar"}
+                type="button"
+                onClick={handleSaveStatus}
+                fontSize="text-base"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
