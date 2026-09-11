@@ -84,3 +84,28 @@ export const getSupplierExpenses = async (filter: DateFilter) => {
     amount: Number(expense.amount),
   }));
 };
+
+export const getExpensesTotalCached = async (
+  organizationId: string,
+  fromISO: string,
+  toISO: string,
+) => {
+  "use cache";
+  cacheTag(`dashboard-${organizationId}`);
+  cacheTag(`expense-${organizationId}`);
+  cacheLife("max");
+
+  const startDate = new Date(fromISO);
+  const endDate = new Date(toISO);
+  endDate.setDate(endDate.getDate() + 1);
+
+  const result = await prisma.expense.aggregate({
+    where: {
+      organizationId,
+      date: { gte: startDate, lte: endDate },
+    },
+    _sum: { amount: true },
+  });
+
+  return Number(result._sum.amount ?? 0);
+};

@@ -1,9 +1,9 @@
 "use server";
-import {  updateTag } from "next/cache";
 import { requireRole } from "../auth/role";
 import { ExpenseInput, expenseSchema } from "../validations/expense.schema";
 import { prisma } from "../prisma";
 import {  Role } from "@prisma/client";
+import { revalidateTag } from "next/cache";
 
 export async function createExpense(data: ExpenseInput) {
   const session = await requireRole([Role.OWNER, Role.ADMIN]);
@@ -22,7 +22,7 @@ export async function createExpense(data: ExpenseInput) {
       date: new Date(parsed.data.date),
     },
   });
-  updateTag(`expense-${session.organizationId}`);
+  revalidateTag(`expense-${session.organizationId}`, "");
 
   return {
     ...expense,
@@ -48,7 +48,7 @@ export async function updateExpense(id: number, data: ExpenseInput) {
     },
     data: { ...parsed.data, date: new Date(parsed.data.date) },
   });
-  updateTag(`expense-${session.organizationId}`);
+  revalidateTag(`expense-${session.organizationId}`, "");
 
   return {
     ...expense,
@@ -66,6 +66,6 @@ export async function deleteexpense(id: number) {
       organizationId: session.organizationId,
     },
   });
-  updateTag(`expense-${session.organizationId}`);
+  revalidateTag(`expense-${session.organizationId}`, "");
 
 }

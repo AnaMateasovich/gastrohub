@@ -1,4 +1,4 @@
-import { ProductWithRecipeType } from "./recipe.type";
+import { ProductWithRecipeType, RecipeType } from "./recipe.type";
 
 export type ProductImageType = {
   id: number;
@@ -23,6 +23,7 @@ export type ProductType = {
   manualCost?: number | null;
   extraCost?: number;
   images: ProductImageType[];
+  recipe?: RecipeType
 };
 
 export type ProductWithRecipeAndCostsType = ProductWithRecipeType & {
