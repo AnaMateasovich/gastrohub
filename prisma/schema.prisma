@@ -44,25 +44,73 @@ model Organization {
   employeeRole         EmployeeRole[]
   suppliers            Supplier[]
   expenses             Expense[]
+  invitations          Invitation[]
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  password    String
-  memberships Membership[]
+  id              String       @id @default(cuid())
+  email           String       @unique
+  name            String
+  password        String
+  memberships     Membership[]
+  invitation      Invitation[]
+  invitationsSent Invitation[] @relation("InvitationsSent")
+  employee        Employee?
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model Membership {
-  id             String       @id @default(cuid())
+  id             String           @id @default(cuid())
   userId         String
   organizationId String
-  role           Role         @default(STAFF)
-  user           User         @relation(fields: [userId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  role           Role             @default(STAFF)
+  status         MembershipStatus @default(ACTIVE)
+  deactivatedAt  DateTime?
+  user           User             @relation(fields: [userId], references: [id])
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime         @default(now())
 
   @@unique([userId, organizationId])
+  @@index([status])
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  tokenHash String           @unique
+  status    InvitationStatus @default(PENDING)
+  role      Role             @default(STAFF)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  employeeRoleId String
+  employeeRole   EmployeeRole @relation(fields: [employeeRoleId], references: [id])
+
+  invitedById String
+  invitedBy   User    @relation("InvitationsSent", fields: [invitedById], references: [id])
+  user        User?   @relation(fields: [userId], references: [id])
+  userId      String?
+
+  employeeId Int?
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+
+  @@unique([organizationId, email], name: "org_email_unique")
+  @@index([employeeRoleId])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+  CANCELLED
 }
 
 model Customer {
@@ -224,8 +272,8 @@ model StoreSettings {
   organizationName String? @db.VarChar(100)
   storeDescription String? @db.Text
 
-  deliveryFee       Decimal  @db.Decimal(10, 2)
-  freeDeliveryFrom Decimal? @db.Decimal(10, 2)
+  deliveryFee        Decimal  @db.Decimal(10, 2)
+  freeDeliveryFrom   Decimal? @db.Decimal(10, 2)
   minimumOrderAmount Decimal? @db.Decimal(10, 2)
 
   storeOpen   Boolean @default(true)
@@ -233,16 +281,16 @@ model StoreSettings {
   closingTime String? @db.VarChar(10)
 
   whatsappPhone String? @db.VarChar(30)
-  storeEmail   String? @db.VarChar(255)
-  instagramUrl String? @db.VarChar(255)
+  storeEmail    String? @db.VarChar(255)
+  instagramUrl  String? @db.VarChar(255)
 
   // Ubicación
-  city    String? @db.VarChar(100)
+  city     String? @db.VarChar(100)
   province String? @db.VarChar(100)
-  address String? @db.VarChar(255)
+  address  String? @db.VarChar(255)
 
-  allowGuestCheckout Boolean @default(true)
-  enableCoupons      Boolean @default(true)
+  allowGuestCheckout    Boolean @default(true)
+  enableCoupons         Boolean @default(true)
   maxDiscountPercentage Int?
 
   announcementBar String? @db.Text
@@ -286,6 +334,7 @@ model EmployeeRole {
   name           String
   organization   Organization @relation(fields: [organizationId], references: [id])
   employees      Employee[]
+  invitations    Invitation[]
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -295,17 +344,20 @@ model Employee {
   id             Int           @id @default(autoincrement())
   organizationId String
   name           String
-  roleId         String?
-  role           EmployeeRole? @relation(fields: [roleId], references: [id])
+  employeeRoleId String?
+  employeeRole   EmployeeRole? @relation(fields: [employeeRoleId], references: [id])
   phone          String?
   baseSalary     Decimal?      @db.Decimal(10, 2)
   active         Boolean       @default(true)
   createdAt      DateTime      @default(now())
   organization   Organization  @relation(fields: [organizationId], references: [id])
   expenses       Expense[]
+  userId         String?       @unique
+  user           User?         @relation(fields: [userId], references: [id])
+  invitations    Invitation[]
 
   @@index([organizationId])
-  @@index([roleId])
+  @@index([employeeRoleId])
 }
 
 model Supplier {

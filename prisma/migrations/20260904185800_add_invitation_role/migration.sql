@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Invitation` ADD COLUMN `role` ENUM('OWNER', 'ADMIN', 'STAFF') NOT NULL DEFAULT 'STAFF';

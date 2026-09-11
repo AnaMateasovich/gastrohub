@@ -5,7 +5,7 @@ import {
   Orders_status,
   PlanTier,
 } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -112,6 +112,36 @@ async function main() {
     },
   });
 
+  // Segundo OWNER de la org A: a diferencia de ownerA (dueño fundador,
+  // creado por registerOrganization sin Employee asociado), este usuario
+  // representa a alguien invitado con rol OWNER a través del flujo de
+  // empleados (inviteEmployeeAccess) — por eso sí tiene un Employee
+  // vinculado más abajo, igual que un ADMIN o STAFF invitado.
+  const owner2A = await prisma.user.upsert({
+    where: { email: "owner2@sabores.com" },
+    update: {},
+    create: {
+      email: "owner2@sabores.com",
+      name: "Segunda Dueña Sabores",
+      password,
+    },
+  });
+
+  await prisma.membership.upsert({
+    where: {
+      userId_organizationId: {
+        userId: owner2A.id,
+        organizationId: orgA.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: owner2A.id,
+      organizationId: orgA.id,
+      role: Role.OWNER,
+    },
+  });
+
   // ───────────────────────────────────────────────
   // STORE SETTINGS ORG A
   // ───────────────────────────────────────────────
@@ -139,8 +169,7 @@ async function main() {
 
       whatsappPhone: "3464555111",
       storeEmail: "hola@sabores.com",
-      instagramUrl:
-        "https://instagram.com/saboresnaturales.casilda",
+      instagramUrl: "https://instagram.com/saboresnaturales.casilda",
 
       city: "Casilda",
       province: "Santa Fe",
@@ -150,8 +179,7 @@ async function main() {
       enableCoupons: true,
       maxDiscountPercentage: 30,
 
-      announcementBar:
-        "🚚 Envío gratis en compras superiores a $20.000.",
+      announcementBar: "🚚 Envío gratis en compras superiores a $20.000.",
 
       maintenanceMode: false,
 
@@ -169,8 +197,15 @@ async function main() {
   // INGREDIENTE
   // ───────────────────────────────────────────────
 
-  const harina = await prisma.ingredient.create({
-    data: {
+  const harina = await prisma.ingredient.upsert({
+    where: {
+      organizationId_name: {
+        organizationId: orgA.id,
+        name: "Harina 000",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgA.id,
       name: "Harina 000",
       unit: "kg",
@@ -183,8 +218,15 @@ async function main() {
   // RECETA
   // ───────────────────────────────────────────────
 
-  const recetaMedialunas = await prisma.recipe.create({
-    data: {
+  const recetaMedialunas = await prisma.recipe.upsert({
+    where: {
+      organizationId_name: {
+        organizationId: orgA.id,
+        name: "Medialunas x12",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgA.id,
       name: "Medialunas x12",
       yield: new Prisma.Decimal(12),
@@ -207,8 +249,15 @@ async function main() {
   // ───────────────────────────────────────────────
 
   const productos = await Promise.all([
-    prisma.product.create({
-      data: {
+    prisma.product.upsert({
+      where: {
+        organizationId_slug: {
+          organizationId: orgA.id,
+          slug: "medialunas-manteca",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Medialunas de manteca",
         slug: "medialunas-manteca",
@@ -220,8 +269,15 @@ async function main() {
       },
     }),
 
-    prisma.product.create({
-      data: {
+    prisma.product.upsert({
+      where: {
+        organizationId_slug: {
+          organizationId: orgA.id,
+          slug: "pan-de-campo",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Pan de campo",
         slug: "pan-de-campo",
@@ -232,8 +288,15 @@ async function main() {
       },
     }),
 
-    prisma.product.create({
-      data: {
+    prisma.product.upsert({
+      where: {
+        organizationId_slug: {
+          organizationId: orgA.id,
+          slug: "torta-chocolate",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Torta de chocolate",
         slug: "torta-chocolate",
@@ -250,8 +313,15 @@ async function main() {
   // ───────────────────────────────────────────────
 
   const clientesA = await Promise.all([
-    prisma.customer.create({
-      data: {
+    prisma.customer.upsert({
+      where: {
+        organizationId_email: {
+          organizationId: orgA.id,
+          email: "lucia@test.com",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Lucía",
         lastname: "Gómez",
@@ -260,8 +330,15 @@ async function main() {
       },
     }),
 
-    prisma.customer.create({
-      data: {
+    prisma.customer.upsert({
+      where: {
+        organizationId_email: {
+          organizationId: orgA.id,
+          email: "martin@test.com",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Martín",
         lastname: "Pereyra",
@@ -286,24 +363,22 @@ async function main() {
 
   for (const [i, status] of estados.entries()) {
     const cliente = clientesA[i % clientesA.length];
+    const isPickup = i % 2 === 0;
 
     await prisma.order.create({
       data: {
         organizationId: orgA.id,
         customerId: cliente.id,
-
         customerName: cliente.name ?? "Cliente",
         customerLastname: cliente.lastname ?? "Test",
-
         phone: cliente.phone ?? "3464000000",
         email: cliente.email,
         address: "Calle Falsa 123",
-
         status,
 
         subtotal: new Prisma.Decimal(3500),
-        total: new Prisma.Decimal(4500),
-        deliveryFee: new Prisma.Decimal(1000),
+        total: new Prisma.Decimal(isPickup ? 3500 : 4500),
+        deliveryFee: new Prisma.Decimal(isPickup ? 0 : 1000),
 
         orderItems: {
           create: [
@@ -428,8 +503,7 @@ async function main() {
 
       whatsappPhone: "3464333333",
       storeEmail: "contacto@otrapasteleria.com",
-      instagramUrl:
-        "https://instagram.com/otrapasteleria",
+      instagramUrl: "https://instagram.com/otrapasteleria",
 
       city: "Casilda",
       province: "Santa Fe",
@@ -439,8 +513,7 @@ async function main() {
       enableCoupons: true,
       maxDiscountPercentage: 20,
 
-      announcementBar:
-        "🍰 Tortas y pastelería artesanal hechas en el día.",
+      announcementBar: "🍰 Tortas y pastelería artesanal hechas en el día.",
 
       maintenanceMode: false,
 
@@ -458,8 +531,15 @@ async function main() {
   // PRODUCTO ORG B
   // ───────────────────────────────────────────────
 
-  const productoB = await prisma.product.create({
-    data: {
+  const productoB = await prisma.product.upsert({
+    where: {
+      organizationId_slug: {
+        organizationId: orgB.id,
+        slug: "alfajores-maicena",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgB.id,
       name: "Alfajores de maicena",
       slug: "alfajores-maicena",
@@ -474,8 +554,15 @@ async function main() {
   // CLIENTE ORG B
   // ───────────────────────────────────────────────
 
-  const clienteB = await prisma.customer.create({
-    data: {
+  const clienteB = await prisma.customer.upsert({
+    where: {
+      organizationId_email: {
+        organizationId: orgB.id,
+        email: "sofia@test.com",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgB.id,
       name: "Sofía",
       lastname: "Ruiz",
@@ -522,23 +609,43 @@ async function main() {
   // ROLES DE EMPLEADOS
   // ───────────────────────────────────────────────
 
-  const roleCocinero = await prisma.employeeRole.create({
-    data: {
+  const roleCocinero = await prisma.employeeRole.upsert({
+    where: {
+      organizationId_name: {
+        organizationId: orgA.id,
+        name: "Cocinero",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgA.id,
       name: "Cocinero",
     },
   });
 
-  const roleAdministrativa =
-    await prisma.employeeRole.create({
-      data: {
+  const roleAdministrativa = await prisma.employeeRole.upsert({
+    where: {
+      organizationId_name: {
         organizationId: orgA.id,
         name: "Administrativa",
       },
-    });
+    },
+    update: {},
+    create: {
+      organizationId: orgA.id,
+      name: "Administrativa",
+    },
+  });
 
-  const roleDelivery = await prisma.employeeRole.create({
-    data: {
+  const roleDelivery = await prisma.employeeRole.upsert({
+    where: {
+      organizationId_name: {
+        organizationId: orgA.id,
+        name: "Delivery",
+      },
+    },
+    update: {},
+    create: {
       organizationId: orgA.id,
       name: "Delivery",
     },
@@ -553,7 +660,7 @@ async function main() {
       data: {
         organizationId: orgA.id,
         name: "Carlos Fernández",
-        roleId: roleCocinero.id,
+        employeeRoleId: roleCocinero.id,
         phone: "3464555555",
         baseSalary: new Prisma.Decimal(650000),
         active: true,
@@ -564,7 +671,7 @@ async function main() {
       data: {
         organizationId: orgA.id,
         name: "María López",
-        roleId: roleAdministrativa.id,
+        employeeRoleId: roleAdministrativa.id,
         phone: "3464666666",
         baseSalary: new Prisma.Decimal(550000),
         active: true,
@@ -575,7 +682,7 @@ async function main() {
       data: {
         organizationId: orgA.id,
         name: "Pedro Gómez",
-        roleId: roleDelivery.id,
+        employeeRoleId: roleDelivery.id,
         phone: "3464777777",
         baseSalary: new Prisma.Decimal(450000),
         active: true,
@@ -584,12 +691,69 @@ async function main() {
   ]);
 
   // ───────────────────────────────────────────────
+  // EMPLEADOS CON ACCESO AL PANEL (ADMIN / STAFF / segundo OWNER)
+  // Reflejan el flujo real de invitación (acceptInvitation.ts): todo
+  // usuario invitado -sin importar su Role de acceso- queda ligado a un
+  // Employee vía userId. Solo el owner fundador (ownerA) queda afuera,
+  // porque a él lo crea registerOrganization, no una invitación.
+  // ───────────────────────────────────────────────
+
+  await prisma.employee.upsert({
+    where: { userId: adminA.id },
+    update: {},
+    create: {
+      organizationId: orgA.id,
+      name: adminA.name,
+      employeeRoleId: roleAdministrativa.id,
+      phone: "3464222222",
+      baseSalary: new Prisma.Decimal(600000),
+      active: true,
+      userId: adminA.id,
+    },
+  });
+
+  await prisma.employee.upsert({
+    where: { userId: staffA.id },
+    update: {},
+    create: {
+      organizationId: orgA.id,
+      name: staffA.name,
+      employeeRoleId: roleDelivery.id,
+      phone: "3464333333",
+      baseSalary: new Prisma.Decimal(480000),
+      active: true,
+      userId: staffA.id,
+    },
+  });
+
+  await prisma.employee.upsert({
+    where: { userId: owner2A.id },
+    update: {},
+    create: {
+      organizationId: orgA.id,
+      name: owner2A.name,
+      employeeRoleId: roleAdministrativa.id,
+      phone: "3464444444",
+      baseSalary: new Prisma.Decimal(700000),
+      active: true,
+      userId: owner2A.id,
+    },
+  });
+
+  // ───────────────────────────────────────────────
   // PROVEEDORES
   // ───────────────────────────────────────────────
 
   const proveedoresA = await Promise.all([
-    prisma.supplier.create({
-      data: {
+    prisma.supplier.upsert({
+      where: {
+        organizationId_name: {
+          organizationId: orgA.id,
+          name: "Distribuidora La Harina",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Distribuidora La Harina",
         contactName: "Jorge Martínez",
@@ -599,8 +763,15 @@ async function main() {
       },
     }),
 
-    prisma.supplier.create({
-      data: {
+    prisma.supplier.upsert({
+      where: {
+        organizationId_name: {
+          organizationId: orgA.id,
+          name: "Envases del Centro",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Envases del Centro",
         contactName: "Laura Sánchez",
@@ -610,8 +781,15 @@ async function main() {
       },
     }),
 
-    prisma.supplier.create({
-      data: {
+    prisma.supplier.upsert({
+      where: {
+        organizationId_name: {
+          organizationId: orgA.id,
+          name: "Lácteos Casilda",
+        },
+      },
+      update: {},
+      create: {
         organizationId: orgA.id,
         name: "Lácteos Casilda",
         contactName: "Roberto Díaz",
@@ -634,8 +812,7 @@ async function main() {
       date: new Date("2026-08-05"),
       category: "Insumos",
       paymentMethod: "TRANSFER",
-      description:
-        "Compra de harina 0000 y harina integral",
+      description: "Compra de harina 0000 y harina integral",
       supplierId: proveedoresA[0].id,
       isRecurring: false,
     },
@@ -681,8 +858,7 @@ async function main() {
       date: new Date("2026-08-01"),
       category: "Sueldo",
       paymentMethod: "TRANSFER",
-      description:
-        "Sueldo mensual - Carlos Fernández",
+      description: "Sueldo mensual - Carlos Fernández",
       isRecurring: true,
       employeeId: empleadosA[0].id,
     },
@@ -696,8 +872,7 @@ async function main() {
       date: new Date("2026-08-01"),
       category: "Sueldo",
       paymentMethod: "TRANSFER",
-      description:
-        "Sueldo mensual - María López",
+      description: "Sueldo mensual - María López",
       isRecurring: true,
       employeeId: empleadosA[1].id,
     },
@@ -756,29 +931,21 @@ async function main() {
 
   console.log("✅ Seed completada\n");
 
-  console.log(
-    "── Credenciales de test (password para todos: 123456) ──"
-  );
+  console.log("── Credenciales de test (password para todos: 123456) ──");
+
+  console.log(`Org A "sabores" → OWNER: owner@sabores.com`);
+
+  console.log(`Org A "sabores" → ADMIN: admin@sabores.com`);
+
+  console.log(`Org A "sabores" → STAFF: staff@sabores.com`);
 
   console.log(
-    `Org A "sabores" → OWNER: owner@sabores.com`
+    `Org A "sabores" → OWNER (segundo, invitado, con Employee): owner2@sabores.com`,
   );
 
-  console.log(
-    `Org A "sabores" → ADMIN: admin@sabores.com`
-  );
+  console.log(`Org B "otra-pasteleria" → OWNER: owner@otrapasteleria.com`);
 
-  console.log(
-    `Org A "sabores" → STAFF: staff@sabores.com`
-  );
-
-  console.log(
-    `Org B "otra-pasteleria" → OWNER: owner@otrapasteleria.com`
-  );
-
-  console.log(
-    `\nOrg IDs → A: ${orgA.id} | B: ${orgB.id}`
-  );
+  console.log(`\nOrg IDs → A: ${orgA.id} | B: ${orgB.id}`);
 }
 
 main()
